@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from threading import Lock
 from typing import Any
 
-from deerflow_extension_api import (
+from SynapseAI_extension_api import (
     AgentBuildContext,
     AgentScope,
     ExtensionData,

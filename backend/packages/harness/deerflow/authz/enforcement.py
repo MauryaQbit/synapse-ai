@@ -7,7 +7,7 @@ from collections.abc import Sequence
 
 from langchain_core.tools import BaseTool
 
-from deerflow.authz.provider import AuthorizationProvider, Principal
+from SynapseAI.authz.provider import AuthorizationProvider, Principal
 
 logger = logging.getLogger(__name__)
 

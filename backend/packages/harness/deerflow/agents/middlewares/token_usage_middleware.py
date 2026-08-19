@@ -12,7 +12,7 @@ from langchain.agents.middleware.todo import Todo
 from langchain_core.messages import AIMessage, ToolMessage
 from langgraph.runtime import Runtime
 
-from deerflow.subagents.status_contract import SUBAGENT_TOKEN_USAGE_KEY, normalize_token_usage
+from SynapseAI.subagents.status_contract import SUBAGENT_TOKEN_USAGE_KEY, normalize_token_usage
 
 logger = logging.getLogger(__name__)
 

@@ -12,7 +12,7 @@ from typing import Any, TypedDict
 import yaml
 from langchain_core.messages import AIMessage, AnyMessage, ToolMessage
 
-from deerflow.agents.thread_state import _SKILL_DESCRIPTION_MAX_CHARS, SkillEntry
+from SynapseAI.agents.thread_state import _SKILL_DESCRIPTION_MAX_CHARS, SkillEntry
 
 _SKILL_FILE_NAME = "SKILL.md"
 _FRONT_MATTER_RE = re.compile(r"^---\s*\n(.*?)\n---\s*\n", re.DOTALL)

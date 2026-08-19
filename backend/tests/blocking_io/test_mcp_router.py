@@ -37,7 +37,7 @@ async def test_update_mcp_configuration_does_not_block_event_loop(tmp_path: Path
     config_path = tmp_path / "extensions_config.json"
     # resolve_config_path() requires the env-pointed file to exist; seed a minimal one.
     await asyncio.to_thread(config_path.write_text, '{"mcpServers": {}, "skills": {}}', encoding="utf-8")
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_path))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(config_path))
 
     async def _noop_admin(_request, **_kwargs) -> None:
         return None
@@ -65,7 +65,7 @@ async def test_update_mcp_server_state_does_not_block_event_loop(tmp_path: Path,
         '{"mcpServers":{"remote":{"enabled":false,"transport":"http","url":"https://example.test/mcp"}},"skills":{}}',
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_path))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(config_path))
 
     async def _noop_admin(_request, **_kwargs) -> None:
         return None
@@ -104,7 +104,7 @@ async def test_concurrent_mcp_put_and_patch_updates_are_serialized(tmp_path: Pat
         '{"mcpServers":{"s":{"enabled":true,"type":"http","url":"https://example.test/mcp"}},"skills":{}}',
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_path))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(config_path))
 
     async def _noop_admin(_request, **_kwargs) -> None:
         return None

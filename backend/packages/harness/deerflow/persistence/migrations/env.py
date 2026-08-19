@@ -1,6 +1,6 @@
-"""Alembic environment for DeerFlow application tables.
+"""Alembic environment for SynapseAI application tables.
 
-ONLY manages DeerFlow's tables (runs, threads_meta, feedback, users,
+ONLY manages SynapseAI's tables (runs, threads_meta, feedback, users,
 run_events, channel_connections, channel_credentials, channel_oauth_states,
 channel_conversations).
 
@@ -21,8 +21,8 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
 
-from deerflow.persistence.base import Base
-from deerflow.persistence.migrations._env_filters import (
+from SynapseAI.persistence.base import Base
+from SynapseAI.persistence.migrations._env_filters import (
     LANGGRAPH_OWNED_TABLES,
     include_object,
 )
@@ -33,12 +33,12 @@ __all__ = ["LANGGRAPH_OWNED_TABLES", "include_object"]
 
 # Import all models so metadata is populated.
 try:
-    import deerflow.persistence.models as models  # register ORM models with Base.metadata
+    import SynapseAI.persistence.models as models  # register ORM models with Base.metadata
 
     _ = models
 except ImportError:
     # Models not available — migration will work with existing metadata only.
-    logging.getLogger(__name__).warning("Could not import deerflow.persistence.models; Alembic may not detect all tables")
+    logging.getLogger(__name__).warning("Could not import SynapseAI.persistence.models; Alembic may not detect all tables")
 
 config = context.config
 if config.config_file_name is not None:
@@ -80,14 +80,14 @@ async def run_migrations_online() -> None:
     # migration's DDL would land in the default (``public``) schema while the
     # ORM tables land in the custom schema. ``init_engine`` has already created
     # the schema (``CREATE SCHEMA IF NOT EXISTS``) before bootstrap runs.
-    pg_schema = config.get_main_option("deerflow_pg_schema")
+    pg_schema = config.get_main_option("SynapseAI_pg_schema")
     connect_args: dict = {}
     # Accept both the canonical ``postgresql`` scheme and libpq's ``postgres``
     # short scheme (with or without a SQLAlchemy ``+driver`` suffix) so a
     # ``postgres://`` DSN still gets its search_path pinned instead of silently
     # writing ``alembic_version`` + migration DDL to the default schema.
     if pg_schema and url and url.split("+", 1)[0].split(":", 1)[0] in {"postgresql", "postgres"}:
-        from deerflow.persistence.postgres_schema import build_asyncpg_connect_args
+        from SynapseAI.persistence.postgres_schema import build_asyncpg_connect_args
 
         connect_args = build_asyncpg_connect_args(pg_schema)
 
@@ -97,7 +97,7 @@ async def run_migrations_online() -> None:
     # opens needs a wide ``busy_timeout`` so that when another process holds
     # the file write lock (e.g. mid-bootstrap), our writes wait instead of
     # raising ``database is locked``. The production engine in
-    # ``deerflow.persistence.engine`` sets this on its own connections, but
+    # ``SynapseAI.persistence.engine`` sets this on its own connections, but
     # alembic spawns its OWN engine here -- those connections wouldn't inherit
     # anything unless we wire the same hook on this one.
     if connectable.url.drivername.startswith("sqlite"):

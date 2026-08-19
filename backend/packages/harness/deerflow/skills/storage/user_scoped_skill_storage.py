@@ -38,11 +38,11 @@ import tempfile
 from collections.abc import Iterable
 from pathlib import Path
 
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.skills.permissions import make_skill_written_path_sandbox_readable
-from deerflow.skills.storage.local_skill_storage import LocalSkillStorage
-from deerflow.skills.storage.skill_storage import SKILL_MD_FILE
-from deerflow.skills.types import SkillCategory
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.skills.permissions import make_skill_written_path_sandbox_readable
+from SynapseAI.skills.storage.local_skill_storage import LocalSkillStorage
+from SynapseAI.skills.storage.skill_storage import SKILL_MD_FILE
+from SynapseAI.skills.types import SkillCategory
 
 logger = logging.getLogger(__name__)
 
@@ -78,7 +78,7 @@ class UserScopedSkillStorage(LocalSkillStorage):
     ) -> None:
         super().__init__(host_path=host_path, container_path=container_path, app_config=app_config)
 
-        from deerflow.config.paths import _validate_user_id, get_paths
+        from SynapseAI.config.paths import _validate_user_id, get_paths
 
         self._user_id = _validate_user_id(user_id)
         paths = get_paths()
@@ -210,7 +210,7 @@ class UserScopedSkillStorage(LocalSkillStorage):
         # extensions_config (handled by ``super().load_skills`` above). Re-read
         # from disk here too so another worker's update cannot be masked by
         # this process's singleton cache while rebuilding a user projection.
-        from deerflow.config.extensions_config import ExtensionsConfig
+        from SynapseAI.config.extensions_config import ExtensionsConfig
 
         extensions_config = ExtensionsConfig.from_file()
         skills = [
@@ -323,7 +323,7 @@ class UserScopedSkillStorage(LocalSkillStorage):
     # ------------------------------------------------------------------
 
     async def ainstall_skill_from_archive(self, archive_path: str | Path) -> dict:
-        from deerflow.skills.installer import _scan_skill_archive_contents_or_raise
+        from SynapseAI.skills.installer import _scan_skill_archive_contents_or_raise
 
         logger.info("Installing skill from %s for user %s", archive_path, self._user_id)
         path = Path(archive_path)

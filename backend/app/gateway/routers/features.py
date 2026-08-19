@@ -11,7 +11,7 @@ from pydantic import BaseModel, Field
 
 from app.gateway.browser_capability import browser_capability
 from app.gateway.deps import get_config
-from deerflow.config.app_config import AppConfig
+from SynapseAI.config.app_config import AppConfig
 
 router = APIRouter(prefix="/api", tags=["features"])
 

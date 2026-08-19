@@ -1,4 +1,4 @@
-"""baseline -- chain root for DeerFlow application schema.
+"""baseline -- chain root for SynapseAI application schema.
 
 Revision ID: 0001_baseline
 Revises:
@@ -8,8 +8,8 @@ Role of this revision
 =====================
 
 This revision encodes the schema that ``Base.metadata.create_all`` produces for
-every DeerFlow-owned table at the point alembic was wired in. Under the hybrid
-bootstrap strategy (``deerflow.persistence.bootstrap.bootstrap_schema``), the
+every SynapseAI-owned table at the point alembic was wired in. Under the hybrid
+bootstrap strategy (``SynapseAI.persistence.bootstrap.bootstrap_schema``), the
 ``upgrade()`` here is **almost never executed**:
 
 - Fresh DB     -> ``create_all`` + ``alembic stamp head`` (no upgrade run).

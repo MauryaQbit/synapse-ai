@@ -11,8 +11,8 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
-from deerflow.config.tool_search_config import clamp_auto_promote_top_k
-from deerflow.utils.messages import get_original_user_content_text, is_real_user_message
+from SynapseAI.config.tool_search_config import clamp_auto_promote_top_k
+from SynapseAI.utils.messages import get_original_user_content_text, is_real_user_message
 
 logger = logging.getLogger(__name__)
 
@@ -129,7 +129,7 @@ class McpRoutingMiddleware(AgentMiddleware[AgentState]):
 
 def assert_mcp_routing_before_deferred_filter(middlewares: Sequence[AgentMiddleware]) -> None:
     """Fail fast if auto-promote would run after deferred schema filtering."""
-    from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+    from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
 
     routing_idx = next((idx for idx, middleware in enumerate(middlewares) if isinstance(middleware, McpRoutingMiddleware)), None)
     filter_idx = next((idx for idx, middleware in enumerate(middlewares) if isinstance(middleware, DeferredToolFilterMiddleware)), None)

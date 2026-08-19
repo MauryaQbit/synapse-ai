@@ -1,14 +1,14 @@
-"""``BoxliteBox`` — DeerFlow :class:`Sandbox` backed by a BoxLite micro-VM.
+"""``BoxliteBox`` — SynapseAI :class:`Sandbox` backed by a BoxLite micro-VM.
 
-DeerFlow's ``Sandbox`` contract is synchronous; BoxLite's SDK is async-native and
+SynapseAI's ``Sandbox`` contract is synchronous; BoxLite's SDK is async-native and
 its box handles are event-loop-affine. The provider (:mod:`.provider`) owns one
 private asyncio loop on a daemon thread and injects a ``run`` callable that
 marshals each coroutine onto it via ``run_coroutine_threadsafe`` — so every op
 runs on the loop the box was started on, and stays safe no matter which
-``asyncio.to_thread`` worker DeerFlow invokes us from.
+``asyncio.to_thread`` worker SynapseAI invokes us from.
 
 Every operation is a shell command run inside the box (``cat`` / ``find`` /
-``grep`` / chunked ``base64``), parsed with the shared ``deerflow.sandbox.search``
+``grep`` / chunked ``base64``), parsed with the shared ``SynapseAI.sandbox.search``
 helpers — the same exec-driven approach as ``community/e2b_sandbox``. Commands
 use only busybox-portable flags so any OCI image works.
 """
@@ -24,9 +24,9 @@ import shlex
 import threading
 from typing import TYPE_CHECKING, TypeVar
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.sandbox.sandbox import Sandbox, _validate_extra_env
-from deerflow.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.sandbox.sandbox import Sandbox, _validate_extra_env
+from SynapseAI.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -48,7 +48,7 @@ class BoxliteBox(Sandbox):
     """Adapter that delegates to a running BoxLite ``SimpleBox``.
 
     Args:
-        id: DeerFlow-side sandbox id (the BoxLite box id).
+        id: SynapseAI-side sandbox id (the BoxLite box id).
         box: A started async ``SimpleBox``. The provider owns its lifecycle; this
             adapter stops it on :meth:`close`.
         run: Runs a coroutine on the provider's private loop, returning its result
@@ -161,7 +161,7 @@ class BoxliteBox(Sandbox):
 
     def _resolve_path(self, path: str) -> str:
         # The provider materialises the /mnt/user-data prefix on the box rootfs,
-        # so DeerFlow's virtual paths are used as-is; we only reject traversal.
+        # so SynapseAI's virtual paths are used as-is; we only reject traversal.
         return self._guard_traversal(path)
 
     # ── command execution ───────────────────────────────────────────────
@@ -174,7 +174,7 @@ class BoxliteBox(Sandbox):
     ) -> str:
         """Run ``command`` through a shell in the box and return its output.
 
-        DeerFlow passes a bash command *string*; BoxLite's ``exec`` takes argv, so
+        SynapseAI passes a bash command *string*; BoxLite's ``exec`` takes argv, so
         it runs through ``sh -lc``. Per-call ``env`` is layered over the static
         config environment and scoped to this command only.
 

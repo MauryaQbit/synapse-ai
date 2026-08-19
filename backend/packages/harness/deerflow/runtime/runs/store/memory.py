@@ -8,7 +8,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 from typing import Any
 
-from deerflow.runtime.runs.store.base import LeaseRenewal, RunStore, StatusFinalization
+from SynapseAI.runtime.runs.store.base import LeaseRenewal, RunStore, StatusFinalization
 
 
 class MemoryRunStore(RunStore):
@@ -327,7 +327,7 @@ class MemoryRunStore(RunStore):
         error: str,
         stop_reason: str | None = None,
     ) -> bool:
-        from deerflow.utils.time import is_lease_expired
+        from SynapseAI.utils.time import is_lease_expired
 
         run = self._runs.get(run_id)
         if run is None:
@@ -403,7 +403,7 @@ class MemoryRunStore(RunStore):
         created_at: str | None = None,
         grace_seconds: int = 10,
     ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-        from deerflow.runtime.runs.manager import ConflictError
+        from SynapseAI.runtime.runs.manager import ConflictError
 
         now = datetime.now(UTC).isoformat()
         cutoff = datetime.now(UTC) - timedelta(seconds=grace_seconds)

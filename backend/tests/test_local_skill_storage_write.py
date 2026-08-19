@@ -8,9 +8,9 @@ from unittest.mock import patch
 
 import pytest
 
-from deerflow.config.paths import Paths
-from deerflow.skills.storage import get_or_new_skill_storage, reset_skill_storage
-from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+from SynapseAI.config.paths import Paths
+from SynapseAI.skills.storage import get_or_new_skill_storage, reset_skill_storage
+from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
 
 
 @pytest.fixture(autouse=True)
@@ -28,8 +28,8 @@ def storage(tmp_path):
 @pytest.fixture()
 def user_storage(tmp_path):
     """UserScopedSkillStorage for user 'test-user'."""
-    with patch("deerflow.config.paths.get_paths", return_value=Paths(base_dir=tmp_path)):
-        with patch("deerflow.config.paths._paths", None):
+    with patch("SynapseAI.config.paths.get_paths", return_value=Paths(base_dir=tmp_path)):
+        with patch("SynapseAI.config.paths._paths", None):
             s = UserScopedSkillStorage("test-user", host_path=str(tmp_path))
     return s
 

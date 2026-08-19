@@ -11,15 +11,15 @@ import anyio
 import pytest
 from fastapi import FastAPI
 
-import deerflow.runtime as runtime_module
+import SynapseAI.runtime as runtime_module
 from app.gateway import deps as gateway_deps
-from deerflow.config.run_ownership_config import RunOwnershipConfig
-from deerflow.persistence import engine as engine_module
-from deerflow.persistence import thread_meta as thread_meta_module
-from deerflow.runtime import END_SENTINEL, MemoryStreamBridge, RunManager
-from deerflow.runtime.checkpointer import async_provider as checkpointer_module
-from deerflow.runtime.events import store as event_store_module
-from deerflow.runtime.runs.store.memory import MemoryRunStore
+from SynapseAI.config.run_ownership_config import RunOwnershipConfig
+from SynapseAI.persistence import engine as engine_module
+from SynapseAI.persistence import thread_meta as thread_meta_module
+from SynapseAI.runtime import END_SENTINEL, MemoryStreamBridge, RunManager
+from SynapseAI.runtime.checkpointer import async_provider as checkpointer_module
+from SynapseAI.runtime.events import store as event_store_module
+from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
 
 @asynccontextmanager

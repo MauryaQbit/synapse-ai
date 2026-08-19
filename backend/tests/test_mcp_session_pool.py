@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deerflow.mcp.session_pool import MCPSessionPool, get_session_pool, reset_session_pool
+from SynapseAI.mcp.session_pool import MCPSessionPool, get_session_pool, reset_session_pool
 
 
 @pytest.fixture(autouse=True)
@@ -261,7 +261,7 @@ async def test_session_pool_tool_wrapping():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -301,8 +301,8 @@ async def test_session_pool_tool_pins_cwd_and_temp_env(tmp_path):
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -328,7 +328,7 @@ async def test_session_pool_tool_pins_cwd_and_temp_env(tmp_path):
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths),
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths),
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm) as create_session,
     ):
         wrapped = _make_session_pool_tool(original_tool, "playwright", connection)
@@ -353,8 +353,8 @@ async def test_session_pool_tool_does_not_override_explicit_tmpdir(tmp_path):
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -380,7 +380,7 @@ async def test_session_pool_tool_does_not_override_explicit_tmpdir(tmp_path):
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths),
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths),
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm) as create_session,
     ):
         wrapped = _make_session_pool_tool(original_tool, "playwright", connection)
@@ -398,8 +398,8 @@ async def test_session_pool_tool_does_not_override_explicit_cwd(tmp_path):
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _MCP_TMP_SUBDIR, _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -426,7 +426,7 @@ async def test_session_pool_tool_does_not_override_explicit_cwd(tmp_path):
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths),
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths),
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm) as create_session,
     ):
         wrapped = _make_session_pool_tool(original_tool, "playwright", connection)
@@ -446,8 +446,8 @@ async def test_session_pool_tool_skips_fs_work_for_non_stdio_transport(tmp_path)
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -473,7 +473,7 @@ async def test_session_pool_tool_skips_fs_work_for_non_stdio_transport(tmp_path)
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths) as get_paths,
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths) as get_paths,
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm) as create_session,
     ):
         wrapped = _make_session_pool_tool(original_tool, "srv", connection)
@@ -494,8 +494,8 @@ async def test_session_pool_tool_skips_after_walk_when_no_text_content(tmp_path)
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -526,9 +526,9 @@ async def test_session_pool_tool_skips_after_walk_when_no_text_content(tmp_path)
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths),
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths),
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm),
-        patch("deerflow.mcp.tools._changed_workspace_files") as changed_files,
+        patch("SynapseAI.mcp.tools._changed_workspace_files") as changed_files,
     ):
         wrapped = _make_session_pool_tool(original_tool, "playwright", connection)
         await wrapped.coroutine(runtime=mock_runtime, url="https://example.com")
@@ -542,8 +542,8 @@ async def test_session_pool_tool_runs_after_walk_when_text_content_present(tmp_p
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.paths import Paths
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -572,9 +572,9 @@ async def test_session_pool_tool_runs_after_walk_when_text_content_present(tmp_p
     mock_runtime.config = {}
 
     with (
-        patch("deerflow.mcp.tools.get_paths", return_value=paths),
+        patch("SynapseAI.mcp.tools.get_paths", return_value=paths),
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm),
-        patch("deerflow.mcp.tools._changed_workspace_files", return_value=[]) as changed_files,
+        patch("SynapseAI.mcp.tools._changed_workspace_files", return_value=[]) as changed_files,
     ):
         wrapped = _make_session_pool_tool(original_tool, "playwright", connection)
         await wrapped.coroutine(runtime=mock_runtime, url="https://example.com")
@@ -591,7 +591,7 @@ async def test_session_pool_tool_forwards_interceptor_headers():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -631,7 +631,7 @@ async def test_session_pool_interceptor_reads_request_scoped_secret():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -686,7 +686,7 @@ async def test_session_pool_tool_no_headers_omits_meta():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -726,7 +726,7 @@ async def test_session_pool_tool_ignores_unsupported_header_type(caplog):
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -771,7 +771,7 @@ async def test_session_pool_tool_extracts_thread_id():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -812,7 +812,7 @@ async def test_session_pool_tool_default_scope():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -847,7 +847,7 @@ async def test_session_pool_tool_get_config_fallback():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
+    from SynapseAI.mcp.tools import _make_session_pool_tool
 
     class Args(BaseModel):
         x: int = Field(..., description="x")
@@ -870,7 +870,7 @@ async def test_session_pool_tool_get_config_fallback():
 
     with (
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm),
-        patch("deerflow.mcp.tools.get_config", return_value=fake_config),
+        patch("SynapseAI.mcp.tools.get_config", return_value=fake_config),
     ):
         wrapped = _make_session_pool_tool(original_tool, "server", {"transport": "stdio", "command": "x", "args": []})
 
@@ -886,8 +886,8 @@ def test_session_pool_tool_sync_wrapper_path_is_safe():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import _make_session_pool_tool
-    from deerflow.tools.sync import make_sync_tool_wrapper
+    from SynapseAI.mcp.tools import _make_session_pool_tool
+    from SynapseAI.tools.sync import make_sync_tool_wrapper
 
     class Args(BaseModel):
         url: str = Field(..., description="url")
@@ -931,7 +931,7 @@ async def test_http_transport_tools_not_pooled():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import get_mcp_tools
+    from SynapseAI.mcp.tools import get_mcp_tools
 
     class Args(BaseModel):
         query: str = Field(..., description="query")
@@ -970,10 +970,10 @@ async def test_http_transport_tools_not_pooled():
     }
 
     with (
-        patch("deerflow.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
-        patch("deerflow.mcp.tools.build_servers_config", return_value=servers_config),
-        patch("deerflow.mcp.tools.get_initial_oauth_headers", return_value={}),
-        patch("deerflow.mcp.tools.build_oauth_tool_interceptor", return_value=None),
+        patch("SynapseAI.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
+        patch("SynapseAI.mcp.tools.build_servers_config", return_value=servers_config),
+        patch("SynapseAI.mcp.tools.get_initial_oauth_headers", return_value={}),
+        patch("SynapseAI.mcp.tools.build_oauth_tool_interceptor", return_value=None),
         patch("langchain_mcp_adapters.client.MultiServerMCPClient") as MockClient,
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm),
     ):
@@ -1011,8 +1011,8 @@ async def test_non_stdio_tool_call_timeout_warns_that_it_is_ignored(caplog):
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.extensions_config import McpServerConfig
-    from deerflow.mcp.tools import get_mcp_tools
+    from SynapseAI.config.extensions_config import McpServerConfig
+    from SynapseAI.mcp.tools import get_mcp_tools
 
     class Args(BaseModel):
         query: str = Field(..., description="query")
@@ -1040,12 +1040,12 @@ async def test_non_stdio_tool_call_timeout_warns_that_it_is_ignored(caplog):
     }
 
     with (
-        patch("deerflow.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
-        patch("deerflow.mcp.tools.build_servers_config", return_value=servers_config),
-        patch("deerflow.mcp.tools.get_initial_oauth_headers", return_value={}),
-        patch("deerflow.mcp.tools.build_oauth_tool_interceptor", return_value=None),
+        patch("SynapseAI.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
+        patch("SynapseAI.mcp.tools.build_servers_config", return_value=servers_config),
+        patch("SynapseAI.mcp.tools.get_initial_oauth_headers", return_value={}),
+        patch("SynapseAI.mcp.tools.build_oauth_tool_interceptor", return_value=None),
         patch("langchain_mcp_adapters.client.MultiServerMCPClient") as MockClient,
-        caplog.at_level(logging.WARNING, logger="deerflow.mcp.tools"),
+        caplog.at_level(logging.WARNING, logger="SynapseAI.mcp.tools"),
     ):
         mock_client_instance = MockClient.return_value
         mock_client_instance.get_tools = AsyncMock(return_value=[http_tool])
@@ -1073,8 +1073,8 @@ async def test_stdio_tool_call_timeout_does_not_raise_typeerror():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.config.extensions_config import McpServerConfig
-    from deerflow.mcp.tools import get_mcp_tools
+    from SynapseAI.config.extensions_config import McpServerConfig
+    from SynapseAI.mcp.tools import get_mcp_tools
 
     class Args(BaseModel):
         query: str = Field(..., description="query")
@@ -1112,10 +1112,10 @@ async def test_stdio_tool_call_timeout_does_not_raise_typeerror():
     }
 
     with (
-        patch("deerflow.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
-        patch("deerflow.mcp.tools.build_servers_config", return_value=servers_config),
-        patch("deerflow.mcp.tools.get_initial_oauth_headers", return_value={}),
-        patch("deerflow.mcp.tools.build_oauth_tool_interceptor", return_value=None),
+        patch("SynapseAI.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
+        patch("SynapseAI.mcp.tools.build_servers_config", return_value=servers_config),
+        patch("SynapseAI.mcp.tools.get_initial_oauth_headers", return_value={}),
+        patch("SynapseAI.mcp.tools.build_oauth_tool_interceptor", return_value=None),
         patch("langchain_mcp_adapters.client.MultiServerMCPClient") as MockClient,
         patch("langchain_mcp_adapters.sessions.create_session", return_value=mock_cm),
     ):
@@ -1685,8 +1685,8 @@ def test_reset_mcp_tools_cache_from_running_loop_is_bounded():
     so neither side could make progress. This test drives the exact scenario
     on a daemon thread and asserts the call returns within a bounded time.
     """
-    from deerflow.mcp.cache import reset_mcp_tools_cache
-    from deerflow.mcp.session_pool import get_session_pool
+    from SynapseAI.mcp.cache import reset_mcp_tools_cache
+    from SynapseAI.mcp.session_pool import get_session_pool
 
     conn = {"transport": "stdio", "command": "x", "args": []}
     cm = _CloseTrackingCm()
@@ -1733,7 +1733,7 @@ async def test_mcp_tools_routed_to_source_server_with_prefix_overlap():
     from langchain_core.tools import StructuredTool
     from pydantic import BaseModel, Field
 
-    from deerflow.mcp.tools import get_mcp_tools
+    from SynapseAI.mcp.tools import get_mcp_tools
 
     class Args(BaseModel):
         query: str = Field(..., description="query")
@@ -1777,12 +1777,12 @@ async def test_mcp_tools_routed_to_source_server_with_prefix_overlap():
         raise AssertionError(f"unexpected server_name: {server_name}")
 
     with (
-        patch("deerflow.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
-        patch("deerflow.mcp.tools.build_servers_config", return_value=servers_config),
-        patch("deerflow.mcp.tools.get_initial_oauth_headers", return_value={}),
-        patch("deerflow.mcp.tools.build_oauth_tool_interceptor", return_value=None),
+        patch("SynapseAI.mcp.tools.ExtensionsConfig.from_file", return_value=extensions_config),
+        patch("SynapseAI.mcp.tools.build_servers_config", return_value=servers_config),
+        patch("SynapseAI.mcp.tools.get_initial_oauth_headers", return_value={}),
+        patch("SynapseAI.mcp.tools.build_oauth_tool_interceptor", return_value=None),
         patch("langchain_mcp_adapters.client.MultiServerMCPClient") as MockClient,
-        patch("deerflow.mcp.tools._make_session_pool_tool", side_effect=fake_wrap),
+        patch("SynapseAI.mcp.tools._make_session_pool_tool", side_effect=fake_wrap),
     ):
         MockClient.return_value.get_tools = AsyncMock(side_effect=get_tools_for_server)
         await get_mcp_tools()

@@ -34,7 +34,7 @@ def test_subagent_package_public_executor_exports_are_lazy_importable() -> None:
         [
             sys.executable,
             "-c",
-            "from deerflow.subagents import SubagentExecutor, SubagentResult; print(SubagentExecutor.__name__, SubagentResult.__name__)",
+            "from SynapseAI.subagents import SubagentExecutor, SubagentResult; print(SubagentExecutor.__name__, SubagentResult.__name__)",
         ],
         capture_output=True,
         text=True,

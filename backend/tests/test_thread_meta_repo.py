@@ -5,12 +5,12 @@ import logging
 
 import pytest
 
-from deerflow.persistence.thread_meta import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaRepository
+from SynapseAI.persistence.thread_meta import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaRepository
 
 
 @pytest.fixture
 async def repo(tmp_path):
-    from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+    from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
     url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
     await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -298,7 +298,7 @@ class TestThreadMetaRepository:
         await repo.create("t1", metadata={"env": "prod"})
         await repo.create("t2", metadata={"env": "staging"})
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.persistence.thread_meta.sql"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.persistence.thread_meta.sql"):
             with pytest.raises(InvalidMetadataFilterError, match="rejected") as exc_info:
                 await repo.search(metadata={"bad;key": "x"})
         assert any("bad;key" in r.message for r in caplog.records)
@@ -311,7 +311,7 @@ class TestThreadMetaRepository:
         await repo.create("t1", metadata={"env": "prod"})
         await repo.create("t2", metadata={"env": "staging"})
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.persistence.thread_meta.sql"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.persistence.thread_meta.sql"):
             results = await repo.search(metadata={"env": "prod", "bad;key": "x"})
         ids = {r["thread_id"] for r in results}
         assert ids == {"t1"}
@@ -346,7 +346,7 @@ class TestThreadMetaRepository:
         await repo.create("t1", metadata={"env": "prod"})
         await repo.create("t2", metadata={"env": "staging"})
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.persistence.thread_meta.sql"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.persistence.thread_meta.sql"):
             with pytest.raises(InvalidMetadataFilterError, match="rejected"):
                 await repo.search(metadata={1: "x"})
         assert any("1" in r.message for r in caplog.records)
@@ -357,7 +357,7 @@ class TestThreadMetaRepository:
         await repo.create("t1", metadata={"env": "prod"})
         await repo.create("t2", metadata={"env": "staging"})
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.persistence.thread_meta.sql"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.persistence.thread_meta.sql"):
             with pytest.raises(InvalidMetadataFilterError, match="rejected"):
                 await repo.search(metadata={"env": ["prod", "staging"]})
 
@@ -367,7 +367,7 @@ class TestThreadMetaRepository:
         await repo.create("t1", metadata={"env": "prod"})
         await repo.create("t2", metadata={"env": "staging"})
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.persistence.thread_meta.sql"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.persistence.thread_meta.sql"):
             with pytest.raises(InvalidMetadataFilterError, match="rejected"):
                 await repo.search(metadata={"a.b": "anything"})
         assert any("a.b" in r.message for r in caplog.records)
@@ -447,7 +447,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy import Column, MetaData, String, Table, create_engine
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -488,7 +488,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy.dialects import postgresql
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -529,7 +529,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy import Column, MetaData, String, Table
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -547,7 +547,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy import Column, MetaData, String, Table
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -561,7 +561,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy.dialects import mysql
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -574,7 +574,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy import Column, MetaData, String, Table
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))
@@ -594,7 +594,7 @@ class TestJsonMatchCompilation:
         from sqlalchemy.dialects import postgresql
         from sqlalchemy.types import JSON
 
-        from deerflow.persistence.json_compat import json_match
+        from SynapseAI.persistence.json_compat import json_match
 
         metadata = MetaData()
         t = Table("t", metadata, Column("data", JSON), Column("id", String))

@@ -39,13 +39,13 @@ from app.gateway.routers import (
     uploads,
 )
 from app.gateway.trace_middleware import TraceMiddleware, resolve_trace_enabled
-from deerflow.config import app_config as deerflow_app_config
-from deerflow.logging_config import DEFAULT_LOG_DATE_FORMAT, DEFAULT_LOG_FORMAT, configure_logging
-from deerflow.tracing.monocle import setup_monocle_tracing_if_enabled
-from deerflow.uploads.manager import cleanup_stale_upload_staging_files
+from SynapseAI.config import app_config as SynapseAI_app_config
+from SynapseAI.logging_config import DEFAULT_LOG_DATE_FORMAT, DEFAULT_LOG_FORMAT, configure_logging
+from SynapseAI.tracing.monocle import setup_monocle_tracing_if_enabled
+from SynapseAI.uploads.manager import cleanup_stale_upload_staging_files
 
-AppConfig = deerflow_app_config.AppConfig
-get_app_config = deerflow_app_config.get_app_config
+AppConfig = SynapseAI_app_config.AppConfig
+get_app_config = SynapseAI_app_config.get_app_config
 
 # Default logging; lifespan overrides from config.yaml log_level.
 logging.basicConfig(
@@ -71,7 +71,7 @@ async def _ensure_admin_user(app: FastAPI) -> None:
 
     After admin creation, migrate orphan threads from the LangGraph
     store (metadata.user_id unset) to the admin account. This is the
-    "no-auth → with-auth" upgrade path: users who ran DeerFlow without
+    "no-auth → with-auth" upgrade path: users who ran SynapseAI without
     authentication have existing LangGraph thread data that needs an
     owner assigned.
         First boot (no admin exists):
@@ -90,8 +90,8 @@ async def _ensure_admin_user(app: FastAPI) -> None:
     from sqlalchemy import select
 
     from app.gateway.deps import get_local_provider
-    from deerflow.persistence.engine import get_session_factory
-    from deerflow.persistence.user.model import UserRow
+    from SynapseAI.persistence.engine import get_session_factory
+    from SynapseAI.persistence.user.model import UserRow
 
     try:
         provider = get_local_provider()
@@ -211,7 +211,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     config = get_gateway_config()
     logger.info(f"Starting API Gateway on {config.host}:{config.port}")
 
-    from deerflow.skills.projection import ensure_public_skill_projection
+    from SynapseAI.skills.projection import ensure_public_skill_projection
 
     public_projection_ready = await asyncio.to_thread(ensure_public_skill_projection, app_config=startup_config)
     if public_projection_ready:
@@ -219,7 +219,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
     # Agent observability (Monocle). Off by default; enabled with
     # MONOCLE_TRACING. Initialized here at startup — not at import time — so a
-    # plain `import deerflow.agents` never installs a process-global tracer.
+    # plain `import SynapseAI.agents` never installs a process-global tracer.
     # Unlike LangSmith/Langfuse, whose validation failures abort the agent run,
     # a bad Monocle config only logs: the Gateway keeps serving without tracing.
     try:
@@ -232,7 +232,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # the requested scope when the full warm-up has not completed yet.
     retrieval_warm_task: asyncio.Task[None] | None = None
     try:
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         if startup_config.memory.enabled:
             manager = await asyncio.to_thread(get_memory_manager)
@@ -257,7 +257,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     # the base default -- log "skipping" instead of the misleading "warmed
     # successfully" so the log reflects what actually happened.
     try:
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         manager = await asyncio.to_thread(get_memory_manager)
         warmed = await asyncio.wait_for(
@@ -333,15 +333,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             logger.exception("Failed to initialize scheduled task service")
 
         from app.mcp_tasks import McpTaskService
-        from deerflow.config.extensions_config import ExtensionsConfig
-        from deerflow.config.mcp_tasks_config import McpTasksConfig
-        from deerflow.mcp.task_tool_caller import McpTaskToolCaller
-        from deerflow.mcp.tasks import (
+        from SynapseAI.config.extensions_config import ExtensionsConfig
+        from SynapseAI.config.mcp_tasks_config import McpTasksConfig
+        from SynapseAI.mcp.task_tool_caller import McpTaskToolCaller
+        from SynapseAI.mcp.tasks import (
             ORDINARY_MCP_TASK_DRIVER,
             McpTaskDriverRegistry,
             OrdinaryMcpTaskDriver,
         )
-        from deerflow.mcp.tasks.runtime import (
+        from SynapseAI.mcp.tasks.runtime import (
             configured_task_toolset_count,
             set_mcp_task_config_snapshot,
             set_mcp_task_submitter,
@@ -418,15 +418,15 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             except Exception:
                 logger.exception("Failed to stop MCP task service")
             finally:
-                from deerflow.mcp.tasks.runtime import set_mcp_task_submitter
+                from SynapseAI.mcp.tasks.runtime import set_mcp_task_submitter
 
                 set_mcp_task_submitter(None)
-        from deerflow.mcp.tasks.runtime import set_mcp_task_config_snapshot
+        from SynapseAI.mcp.tasks.runtime import set_mcp_task_config_snapshot
 
         set_mcp_task_config_snapshot(None)
 
         try:
-            from deerflow.community.browser_automation import get_browser_session_manager
+            from SynapseAI.community.browser_automation import get_browser_session_manager
 
             closed = await asyncio.wait_for(
                 get_browser_session_manager().close_all_sessions(),
@@ -484,7 +484,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
             # system-model callbacks. Stop accepting those callbacks before
             # flushing, while keeping the registered loop alive for awaited
             # task hooks until langgraph_runtime drains runs and subagents.
-            from deerflow.extensions.notify import suspend_extension_system_observations
+            from SynapseAI.extensions.notify import suspend_extension_system_observations
 
             suspend_extension_system_observations()
         except Exception:
@@ -493,7 +493,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
         try:
             app_cfg = get_app_config()
             if app_cfg.memory.enabled:
-                from deerflow.agents.memory import get_memory_manager
+                from SynapseAI.agents.memory import get_memory_manager
 
                 manager = await asyncio.to_thread(get_memory_manager)
                 flush_timeout = app_cfg.memory.shutdown_flush_timeout_seconds
@@ -530,11 +530,11 @@ def create_app() -> FastAPI:
     openapi_url = "/openapi.json" if config.enable_docs else None
 
     app = FastAPI(
-        title="DeerFlow API Gateway",
+        title="SynapseAI API Gateway",
         description="""
-## DeerFlow API Gateway
+## SynapseAI API Gateway
 
-API Gateway for DeerFlow - A LangGraph-based AI agent backend with sandbox execution capabilities.
+API Gateway for SynapseAI - A LangGraph-based AI agent backend with sandbox execution capabilities.
 
 ### Features
 
@@ -582,7 +582,7 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
             },
             {
                 "name": "threads",
-                "description": "Manage DeerFlow thread-local filesystem data",
+                "description": "Manage SynapseAI thread-local filesystem data",
             },
             {
                 "name": "agents",
@@ -650,7 +650,7 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
     # Python extensions load once while the Gateway app is constructed. Agent
     # middleware builders consume the same immutable set through the process
     # singleton; app.state exposes it to the Gateway runtime.
-    from deerflow.extensions import (
+    from SynapseAI.extensions import (
         EMPTY_EXTENSIONS,
         ExtensionLoadError,
         initialize_runtime_diagnostics,
@@ -764,7 +764,7 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
     # registers the GitHub channel's ChannelRunPolicy as an import side-effect.
     #
     # Fail-closed: only mount the route when a webhook secret is configured
-    # (or when the explicit DEER_FLOW_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS=1
+    # (or when the explicit SYNAPSE_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS=1
     # dev opt-in is set). A misconfigured deployment without a secret cannot
     # serve forged deliveries because the URL responds 404 — there is no
     # handler to reach.
@@ -772,7 +772,7 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
         app.include_router(github_webhooks.router)
         logger.info("GitHub webhooks route mounted at /api/webhooks/github")
     else:
-        logger.warning("GitHub webhooks route NOT mounted: GITHUB_WEBHOOK_SECRET unset and DEER_FLOW_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS not set. /api/webhooks/github will respond 404. Configure either env var to enable the route.")
+        logger.warning("GitHub webhooks route NOT mounted: GITHUB_WEBHOOK_SECRET unset and SYNAPSE_ALLOW_UNVERIFIED_GITHUB_WEBHOOKS not set. /api/webhooks/github will respond 404. Configure either env var to enable the route.")
 
     @app.get("/health", tags=["health"])
     async def health_check() -> dict[str, str]:
@@ -781,13 +781,13 @@ This gateway provides runtime endpoints for agent runs plus custom endpoints for
         Returns:
             Service health status information.
         """
-        return {"status": "healthy", "service": "deer-flow-gateway"}
+        return {"status": "healthy", "service": "synapse-ai-gateway"}
 
     # Extension routes are deliberately last: FastAPI/Starlette dispatches in
     # registration order, so every host route (including conditional routes
     # and /health) keeps precedence. Definite shadows are rejected with an
     # attributed diagnostic while unrelated extension routers still mount.
-    from deerflow.extensions.gateway import include_contributed_routers
+    from SynapseAI.extensions.gateway import include_contributed_routers
 
     record_runtime_diagnostics(include_contributed_routers(app, loaded_extensions))
 

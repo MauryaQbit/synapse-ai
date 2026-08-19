@@ -29,21 +29,21 @@ except ImportError:  # pragma: no cover - Windows fallback
     fcntl = None  # type: ignore[assignment]
     import msvcrt
 
-from deerflow.community.warm_pool_lifecycle import (
+from SynapseAI.community.warm_pool_lifecycle import (
     DEFAULT_IDLE_TIMEOUT,
     DEFAULT_REPLICAS,
     WarmPoolLifecycleMixin,
 )
-from deerflow.community.warm_pool_lifecycle import (
+from SynapseAI.community.warm_pool_lifecycle import (
     IDLE_CHECK_INTERVAL as _SHARED_IDLE_CHECK_INTERVAL,
 )
-from deerflow.config import get_app_config
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths, join_host_path
-from deerflow.integrations.lark_cli import INTEGRATION_ID as LARK_CLI_INTEGRATION_ID
-from deerflow.integrations.lark_cli import LARK_CLI_SANDBOX_CONFIG_DIR, LARK_CLI_SANDBOX_DATA_DIR, LARK_CLI_SANDBOX_LOCKS_DIR, LARK_CLI_SANDBOX_RUNTIME_DIR, ensure_lark_cli_credential_tree, lark_skills_installed
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from SynapseAI.config import get_app_config
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX, get_paths, join_host_path
+from SynapseAI.integrations.lark_cli import INTEGRATION_ID as LARK_CLI_INTEGRATION_ID
+from SynapseAI.integrations.lark_cli import LARK_CLI_SANDBOX_CONFIG_DIR, LARK_CLI_SANDBOX_DATA_DIR, LARK_CLI_SANDBOX_LOCKS_DIR, LARK_CLI_SANDBOX_RUNTIME_DIR, ensure_lark_cli_credential_tree, lark_skills_installed
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider
 
 from .aio_sandbox import AioSandbox
 from .backend import SandboxBackend, wait_for_sandbox_ready, wait_for_sandbox_ready_async
@@ -65,7 +65,7 @@ logger = logging.getLogger(__name__)
 # Default configuration
 DEFAULT_IMAGE = "enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest"
 DEFAULT_PORT = 8080
-DEFAULT_CONTAINER_PREFIX = "deer-flow-sandbox"
+DEFAULT_CONTAINER_PREFIX = "synapse-ai-sandbox"
 IDLE_CHECK_INTERVAL = _SHARED_IDLE_CHECK_INTERVAL
 THREAD_LOCK_EXECUTOR_WORKERS = min(32, (os.cpu_count() or 1) + 4)
 _THREAD_LOCK_EXECUTOR = ThreadPoolExecutor(max_workers=THREAD_LOCK_EXECUTOR_WORKERS, thread_name_prefix="sandbox-lock-wait")
@@ -160,10 +160,10 @@ class AioSandboxProvider(WarmPoolLifecycleMixin[SandboxInfo], SandboxProvider):
         - Remote/K8s mode (connect to pre-existing sandbox URL)
 
     Configuration options in config.yaml under sandbox:
-        use: deerflow.community.aio_sandbox:AioSandboxProvider
+        use: SynapseAI.community.aio_sandbox:AioSandboxProvider
         image: <container image>
         port: 8080                      # Base port for local containers
-        container_prefix: deer-flow-sandbox
+        container_prefix: synapse-ai-sandbox
         idle_timeout: 600               # Idle timeout in seconds (0 to disable)
         replicas: 3                     # Max concurrent sandbox containers (LRU eviction when exceeded)
         thread_data_mounts: null        # null = backend auto-detection
@@ -867,7 +867,7 @@ class AioSandboxProvider(WarmPoolLifecycleMixin[SandboxInfo], SandboxProvider):
         that ``Skill.get_container_path()`` category-aware paths resolve
         correctly inside the sandbox.
 
-        Mount sources use ``DEER_FLOW_HOST_BASE_DIR`` when running inside
+        Mount sources use ``SYNAPSE_HOST_BASE_DIR`` when running inside
         Docker (DooD) so the host Docker daemon can resolve the projection
         paths.
         """
@@ -929,8 +929,8 @@ class AioSandboxProvider(WarmPoolLifecycleMixin[SandboxInfo], SandboxProvider):
         within ``_get_skills_mounts``'s own guarded block — swallowing here
         keeps both call sites safe without duplicating the guard.
         """
-        from deerflow.skills.projection import ensure_skill_projections
-        from deerflow.skills.storage import get_or_new_user_skill_storage
+        from SynapseAI.skills.projection import ensure_skill_projections
+        from SynapseAI.skills.storage import get_or_new_user_skill_storage
 
         try:
             storage = get_or_new_user_skill_storage(user_id, app_config=get_app_config())
@@ -997,7 +997,7 @@ class AioSandboxProvider(WarmPoolLifecycleMixin[SandboxInfo], SandboxProvider):
         try:
             if not AioSandboxProvider._lark_integration_active(user_id):
                 return False
-            from deerflow.integrations.lark_cli import sandbox_lark_broker_active
+            from SynapseAI.integrations.lark_cli import sandbox_lark_broker_active
 
             return sandbox_lark_broker_active()
         except Exception as e:  # pragma: no cover - defensive

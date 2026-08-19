@@ -1,7 +1,7 @@
 """SQL-backed agent store (synchronous).
 
 Serves the ``agent_storage.backend: db`` path. It is intentionally synchronous
-and uses its own small engine (see :mod:`deerflow.persistence.agents.base` for
+and uses its own small engine (see :mod:`SynapseAI.persistence.agents.base` for
 why the store is sync). The engine points at the same database the async
 persistence layer manages — the ``agents`` table is created by that layer's
 Alembic bootstrap (migration ``0006``); this store only reads and writes rows.
@@ -25,16 +25,16 @@ from sqlalchemy import Engine, create_engine, delete, event, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, sessionmaker
 
-from deerflow.config.agents_config import AgentConfig
-from deerflow.config.paths import get_paths
-from deerflow.persistence.agents.base import (
+from SynapseAI.config.agents_config import AgentConfig
+from SynapseAI.config.paths import get_paths
+from SynapseAI.persistence.agents.base import (
     AgentDeleteOutcome,
     AgentExistsError,
     AgentStore,
     parse_agent_config,
 )
-from deerflow.persistence.agents.model import AgentRow
-from deerflow.runtime.user_context import get_effective_user_id
+from SynapseAI.persistence.agents.model import AgentRow
+from SynapseAI.runtime.user_context import get_effective_user_id
 
 logger = logging.getLogger(__name__)
 

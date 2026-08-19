@@ -1,4 +1,4 @@
-"""Summarization middleware extensions for DeerFlow."""
+"""Summarization middleware extensions for SynapseAI."""
 
 from __future__ import annotations
 
@@ -15,9 +15,9 @@ from langgraph.constants import TAG_NOSTREAM
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.dynamic_context_middleware import is_dynamic_context_reminder
-from deerflow.config.app_config import get_app_config
-from deerflow.models import create_chat_model
+from SynapseAI.agents.middlewares.dynamic_context_middleware import is_dynamic_context_reminder
+from SynapseAI.config.app_config import get_app_config
+from SynapseAI.models import create_chat_model
 
 logger = logging.getLogger(__name__)
 _SUMMARY_TRIGGER_MESSAGE_NAME = "summary"
@@ -94,7 +94,7 @@ def _resolve_agent_name(runtime: Runtime) -> str | None:
     return agent_name
 
 
-class DeerFlowSummarizationMiddleware(SummarizationMiddleware):
+class SynapseAISummarizationMiddleware(SummarizationMiddleware):
     """Summarization middleware with pre-compression hook dispatch."""
 
     def __init__(
@@ -141,7 +141,7 @@ class DeerFlowSummarizationMiddleware(SummarizationMiddleware):
         else:
             self._anchor_model_name = anchor_model_name
         if extensions is None:
-            from deerflow.extensions import get_agent_build_extensions
+            from SynapseAI.extensions import get_agent_build_extensions
 
             extensions = get_agent_build_extensions()
         self._extensions = extensions
@@ -342,9 +342,9 @@ class DeerFlowSummarizationMiddleware(SummarizationMiddleware):
             if extensions is None:
                 response = await model.ainvoke(prompt, config=invoke_config)
             else:
-                from deerflow_extension_api import SystemOperationKind
+                from SynapseAI_extension_api import SystemOperationKind
 
-                from deerflow.extensions.notify import observe_system_model_call
+                from SynapseAI.extensions.notify import observe_system_model_call
 
                 response = await observe_system_model_call(
                     extensions,
@@ -580,7 +580,7 @@ class DeerFlowSummarizationMiddleware(SummarizationMiddleware):
         if prepared is None:
             return None
         messages_to_summarize, preserved_messages, previous_summary, total_tokens = prepared
-        from deerflow_extension_api import task_store_from_runtime
+        from SynapseAI_extension_api import task_store_from_runtime
 
         summary = await self._asummarize_with(
             messages_to_summarize,
@@ -735,7 +735,7 @@ def create_summarization_middleware(
     skip_memory_flush: bool = False,
     run_model_name: str | None = None,
     extensions=None,
-) -> DeerFlowSummarizationMiddleware | None:
+) -> SynapseAISummarizationMiddleware | None:
     """Create the configured summarization middleware.
 
     Both the lead-agent automatic path and the manual context-compaction path
@@ -799,11 +799,11 @@ def create_summarization_middleware(
 
     hooks: list[BeforeSummarizationHook] = []
     if resolved_app_config.memory.enabled and not skip_memory_flush:
-        from deerflow.agents.memory.summarization_hook import memory_flush_hook
+        from SynapseAI.agents.memory.summarization_hook import memory_flush_hook
 
         hooks.append(memory_flush_hook)
 
-    return DeerFlowSummarizationMiddleware(
+    return SynapseAISummarizationMiddleware(
         **kwargs,
         before_summarization=hooks,
         app_config=resolved_app_config,

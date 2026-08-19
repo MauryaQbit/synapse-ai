@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections import OrderedDict
 from typing import Any
 
-from deerflow.runtime.checkpoint_cache.base import CheckpointCacheStats, thread_key_stem
+from SynapseAI.runtime.checkpoint_cache.base import CheckpointCacheStats, thread_key_stem
 
 
 def _copy_entry(entry: dict[str, Any]) -> dict[str, Any]:

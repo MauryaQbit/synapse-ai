@@ -1,4 +1,4 @@
-"""Unit tests for ``deerflow.trace_context`` validation helpers.
+"""Unit tests for ``SynapseAI.trace_context`` validation helpers.
 
 The middleware-level end-to-end coverage lives in ``test_trace_middleware.py``;
 this file pins the character-set invariants of ``normalize_trace_id`` directly
@@ -9,14 +9,14 @@ from __future__ import annotations
 
 import pytest
 
-from deerflow.trace_context import (
+from SynapseAI.trace_context import (
     _MAX_TRACE_ID_LENGTH,
     is_trace_id_from_request_header,
     mark_trace_id_from_request_header,
     normalize_trace_id,
     request_trace_context,
     reset_trace_id_from_request_header,
-    resolve_deerflow_trace_id,
+    resolve_SynapseAI_trace_id,
 )
 
 
@@ -94,7 +94,7 @@ class TestNormalizeTraceIdRejectsUnsafeInput:
         assert normalize_trace_id("trace-\ud83d") is None
 
 
-class TestResolveDeerflowTraceId:
+class TestResolveSynapseAITraceId:
     def test_header_marker_defaults_false_and_resets(self) -> None:
         assert is_trace_id_from_request_header() is False
         token = mark_trace_id_from_request_header(from_header=True)
@@ -106,16 +106,16 @@ class TestResolveDeerflowTraceId:
 
     def test_metadata_wins_without_inbound_header(self) -> None:
         with request_trace_context("ambient-trace"):
-            assert resolve_deerflow_trace_id("metadata-trace") == "metadata-trace"
+            assert resolve_SynapseAI_trace_id("metadata-trace") == "metadata-trace"
 
     def test_inbound_header_overrides_metadata(self) -> None:
         with request_trace_context("header-trace"):
             token = mark_trace_id_from_request_header(from_header=True)
             try:
-                assert resolve_deerflow_trace_id("metadata-trace") == "header-trace"
+                assert resolve_SynapseAI_trace_id("metadata-trace") == "header-trace"
             finally:
                 reset_trace_id_from_request_header(token)
 
     def test_falls_back_to_ambient_context(self) -> None:
         with request_trace_context("ambient-only"):
-            assert resolve_deerflow_trace_id(None) == "ambient-only"
+            assert resolve_SynapseAI_trace_id(None) == "ambient-only"

@@ -2,8 +2,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from deerflow.mcp.tasks import TaskReference, TaskStatus, TaskSubmitRequest
-from deerflow.mcp.tasks.ordinary import McpTaskProtocolError, OrdinaryMcpTaskDriver
+from SynapseAI.mcp.tasks import TaskReference, TaskStatus, TaskSubmitRequest
+from SynapseAI.mcp.tasks.ordinary import McpTaskProtocolError, OrdinaryMcpTaskDriver
 
 
 class FakeCaller:

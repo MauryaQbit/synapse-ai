@@ -8,9 +8,9 @@ execution boundary. A plugin marked `required: true` fails Gateway construction 
 cannot load; optional plugins fail open with attributed diagnostics.
 
 Packaged extensions use one PEP 621 entry point in the
-`deerflow.extensions` group, for example
-`example = "deerflow_extension_example:install"`. The operator CLI is dispatched from
-the existing `deerflow` console script to `extensions/cli.py` and exposes only these
+`SynapseAI.extensions` group, for example
+`example = "SynapseAI_extension_example:install"`. The operator CLI is dispatched from
+the existing `SynapseAI` console script to `extensions/cli.py` and exposes only these
 surfaces: `install SOURCE [--yes]`, `list`, `enable NAME`, `disable NAME`, and
 `remove NAME`. `NAME` resolves against the entry-point name, distribution name, or
 `module:install` value. The root `make extension-*` targets are convenience wrappers;
@@ -54,7 +54,7 @@ depends on; index, proxy, cache, and credential-provider settings remain availab
 The `--no-workspace` boundary requires uv 0.8.0 or newer. The stock Docker paths pin uv
 0.11.1, and the manager fails before mutation when the host uv is older.
 All install/remove/enable/disable mutations for a checkout hold the cross-process
-`.deer-flow/extension-manager.lock`; remove deactivates config before changing the package
+`.synapse-ai/extension-manager.lock`; remove deactivates config before changing the package
 declaration, and rollback preserves a concurrent external config edit instead of replacing
 it. The MVP has no in-place upgrade: operators retain private config, remove the old
 package, install the new source pin, and restore that config.
@@ -135,7 +135,7 @@ trigger project validation before the operator can list, disable, or remove it, 
 fresh checkout can still install the non-extension environment from the existing lock. After CLI
 entry, the manager owns the controlled locked sync.
 
-The public package is `packages/extension-api/` and must never import `deerflow` or carry
+The public package is `packages/extension-api/` and must never import `SynapseAI` or carry
 framework dependencies. Extensions declare any FastAPI, LangChain, or LangGraph imports
 themselves. Its registry contract exposes five contribution kinds: middleware
 contributors, task-lifecycle contributors, system-model-call observers, Gateway-lifetime
@@ -176,7 +176,7 @@ snapshot on runtime context under the host-internal `EXTENSION_SNAPSHOT_CONTEXT_
 `task_tool` reads it back through `resolve_run_extensions()` (type-checked — runtime
 context is caller-mergeable), and `SubagentExecutor` binds it at construction. That key is
 written after the caller merge and popped when the run has none, so a caller-supplied value
-is never authoritative. Absent the key — embedded `DeerFlowClient`, standalone LangGraph
+is never authoritative. Absent the key — embedded `SynapseAIClient`, standalone LangGraph
 Server — the executor keeps its `get_loaded_extensions()` fallback.
 
 The lead worker awaits `on_task_start` after the run has started and awaits `on_task_stop`
@@ -195,7 +195,7 @@ skip its successors, and must not reach the worker's deferred-interrupt path, wh
 end an otherwise successful run as cancelled. `KeyboardInterrupt` / `SystemExit` still
 propagate.
 
-System-model-call observers cover DeerFlow-owned model invocations that do not pass
+System-model-call observers cover SynapseAI-owned model invocations that do not pass
 through middleware model-call wrappers: goal evaluation, memory extraction, title
 generation, and summarization. They receive a request/result snapshot, duration, and the
 active task store when one exists; detached system work receives an isolated store. All
@@ -259,7 +259,7 @@ to keep extension-api dependency-free.
 The memory kind reaches those observers through a different shape, and the difference is
 deliberate rather than an oversight to be "aligned" away. DeerMem must stay vendorable and
 cannot import the extension API, so it reports through the `MemoryCallbacks.on_memory_llm_result`
-host hook, which the DeerFlow-side callbacks translate into an observation and submit
+host hook, which the SynapseAI-side callbacks translate into an observation and submit
 without awaiting. It also guards its provider call with `BaseException` rather than
 `Exception`, which is safe precisely because that whole path runs on a worker thread — the
 debounce timer, or the executor `update_memory` offloads to — where cancelling the awaiting

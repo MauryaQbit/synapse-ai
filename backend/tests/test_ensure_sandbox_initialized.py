@@ -6,10 +6,10 @@ import pytest
 from langchain.tools import ToolRuntime
 from langgraph.types import Overwrite
 
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider, reset_sandbox_provider, set_sandbox_provider
-from deerflow.sandbox.search import GrepMatch
-from deerflow.sandbox.tools import ensure_sandbox_initialized, ensure_sandbox_initialized_async
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider, reset_sandbox_provider, set_sandbox_provider
+from SynapseAI.sandbox.search import GrepMatch
+from SynapseAI.sandbox.tools import ensure_sandbox_initialized, ensure_sandbox_initialized_async
 
 
 class _StubSandbox(Sandbox):

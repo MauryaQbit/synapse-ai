@@ -10,10 +10,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from deerflow_extension_api.state import ExtensionData
+from SynapseAI_extension_api.state import ExtensionData
 
 #: Host-owned key. Extensions must not write to the runtime context directly.
-EXTENSION_TASK_STORE_KEY = "__deerflow_extension_task_store"
+EXTENSION_TASK_STORE_KEY = "__SynapseAI_extension_task_store"
 
 
 def task_store_from_runtime(runtime: object) -> ExtensionData | None:

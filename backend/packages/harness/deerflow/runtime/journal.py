@@ -29,8 +29,8 @@ from langchain_core.callbacks import BaseCallbackHandler
 from langchain_core.messages import AIMessage, AnyMessage, BaseMessage, HumanMessage, ToolMessage, messages_from_dict
 from langgraph.types import Command
 
-from deerflow.agents.human_input import read_human_input_response
-from deerflow.runtime.events.catalog import (
+from SynapseAI.agents.human_input import read_human_input_response
+from SynapseAI.runtime.events.catalog import (
     LLM_AI_RESPONSE_EVENT,
     LLM_ERROR_EVENT,
     LLM_HUMAN_INPUT_EVENT,
@@ -41,10 +41,10 @@ from deerflow.runtime.events.catalog import (
     RUN_ERROR_EVENT,
     RUN_START_EVENT,
 )
-from deerflow.utils.messages import message_to_text, restore_original_human_message
+from SynapseAI.utils.messages import message_to_text, restore_original_human_message
 
 if TYPE_CHECKING:
-    from deerflow.runtime.events.store.base import RunEventStore
+    from SynapseAI.runtime.events.store.base import RunEventStore
 
 logger = logging.getLogger(__name__)
 
@@ -212,7 +212,7 @@ class RunJournal(BaseCallbackHandler):
     # handler owns loop-local tasks and a store/pool created for the parent run,
     # so the isolated-loop context copier must not inherit it. LangGraph's own
     # stream callbacks remain inheritable and keep child token frames flowing.
-    deerflow_loop_bound = True
+    SynapseAI_loop_bound = True
 
     # Every callback only updates in-memory run state or schedules async IO.
     # Keeping callbacks on the run's event-loop thread serializes mutations
@@ -445,7 +445,7 @@ class RunJournal(BaseCallbackHandler):
             usage = getattr(message, "usage_metadata", None)
             usage_dict = dict(usage) if usage else {}
             additional_kwargs = getattr(message, "additional_kwargs", None) or {}
-            if isinstance(additional_kwargs, dict) and additional_kwargs.get("deerflow_error_fallback"):
+            if isinstance(additional_kwargs, dict) and additional_kwargs.get("SynapseAI_error_fallback"):
                 self._had_llm_error_fallback = True
                 detail = additional_kwargs.get("error_detail")
                 reason = additional_kwargs.get("error_reason")

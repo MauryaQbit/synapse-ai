@@ -1,5 +1,5 @@
-const REMEMBER_LOGIN_KEY = "deerflow.auth.remember_login";
-const REMEMBERED_EMAIL_KEY = "deerflow.auth.remembered_email";
+const REMEMBER_LOGIN_KEY = "SynapseAI.auth.remember_login";
+const REMEMBERED_EMAIL_KEY = "SynapseAI.auth.remembered_email";
 
 export interface RememberLoginPreference {
   email: string;

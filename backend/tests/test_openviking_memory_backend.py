@@ -16,13 +16,13 @@ import pytest
 from langchain_core.documents import Document
 from langchain_core.messages import AIMessage, HumanMessage
 
-from deerflow.agents.memory.backends.openviking.config import OpenVikingConfig
-from deerflow.agents.memory.backends.openviking.openviking_manager import (
+from SynapseAI.agents.memory.backends.openviking.config import OpenVikingConfig
+from SynapseAI.agents.memory.backends.openviking.openviking_manager import (
     OpenVikingMemoryManager,
     _canonical_peer_id,
     _session_id,
 )
-from deerflow.agents.memory.manager import (
+from SynapseAI.agents.memory.manager import (
     MemoryManagerError,
     _scan_backends,
     reset_memory_manager,
@@ -170,7 +170,7 @@ def _use_actor_peer(peer_id: str | None):
 
 @pytest.fixture
 def official_integration(monkeypatch: pytest.MonkeyPatch) -> None:
-    import deerflow.agents.memory.backends.openviking.openviking_manager as module
+    import SynapseAI.agents.memory.backends.openviking.openviking_manager as module
 
     monkeypatch.setattr(
         module,
@@ -242,7 +242,7 @@ def test_backend_is_discovered_by_registered_name() -> None:
 
 
 def test_official_loader_uses_standalone_package() -> None:
-    from deerflow.agents.memory.backends.openviking.openviking_manager import (
+    from SynapseAI.agents.memory.backends.openviking.openviking_manager import (
         _load_official_integration,
     )
 
@@ -329,7 +329,7 @@ def test_context_without_thread_uses_existing_find_path(
     ]
 
 
-def test_manager_refuses_to_share_single_user_key_across_deerflow_users(
+def test_manager_refuses_to_share_single_user_key_across_SynapseAI_users(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
     official_integration: None,
@@ -602,18 +602,18 @@ def test_corrupt_cursor_fails_closed_instead_of_replaying_history(
 
 
 def test_peer_mapping_is_stable_and_namespaces_are_disjoint() -> None:
-    assert _canonical_peer_id(None, "deerflow") == "deerflow"
-    assert _canonical_peer_id("Research", "deerflow") == "research"
-    assert _canonical_peer_id("deerflow", "deerflow").startswith("df-agent-")
-    assert _canonical_peer_id("-research", "deerflow").startswith("df-agent-")
-    assert _canonical_peer_id("df-agent-custom", "deerflow").startswith("df-agent-")
+    assert _canonical_peer_id(None, "SynapseAI") == "SynapseAI"
+    assert _canonical_peer_id("Research", "SynapseAI") == "research"
+    assert _canonical_peer_id("SynapseAI", "SynapseAI").startswith("df-agent-")
+    assert _canonical_peer_id("-research", "SynapseAI").startswith("df-agent-")
+    assert _canonical_peer_id("df-agent-custom", "SynapseAI").startswith("df-agent-")
     assert (
         len(
             {
-                _canonical_peer_id(None, "deerflow"),
-                _canonical_peer_id("deerflow", "deerflow"),
-                _canonical_peer_id("-research", "deerflow"),
-                _canonical_peer_id("df-agent-custom", "deerflow"),
+                _canonical_peer_id(None, "SynapseAI"),
+                _canonical_peer_id("SynapseAI", "SynapseAI"),
+                _canonical_peer_id("-research", "SynapseAI"),
+                _canonical_peer_id("df-agent-custom", "SynapseAI"),
             }
         )
         == 4

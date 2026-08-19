@@ -17,11 +17,11 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain.agents.middleware.types import ModelRequest, ModelResponse
 from langchain_core.messages import AIMessage, HumanMessage
 
-from deerflow.runtime.events.catalog import (
+from SynapseAI.runtime.events.catalog import (
     MIDDLEWARE_SKILL_ACTIVATION_TAG,
     MIDDLEWARE_SKILL_SECRETS_TAG,
 )
-from deerflow.runtime.secret_context import (
+from SynapseAI.runtime.secret_context import (
     _SECRETS_BINDING_AUDIT_KEY,
     _SLASH_SKILL_ACTIVATION_RUN_KEY,
     ACTIVE_SECRETS_CONTEXT_KEY,
@@ -29,14 +29,14 @@ from deerflow.runtime.secret_context import (
     read_slash_skill_source_path,
     write_slash_skill_source_path,
 )
-from deerflow.skills.slash import parse_slash_skill_reference, resolve_slash_skill
-from deerflow.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
-from deerflow.skills.storage.skill_storage import SkillStorage
-from deerflow.skills.types import SKILL_MD_FILE, SecretRequirement, Skill, SkillCategory
-from deerflow.utils.messages import get_original_user_content_text, is_real_user_message
+from SynapseAI.skills.slash import parse_slash_skill_reference, resolve_slash_skill
+from SynapseAI.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
+from SynapseAI.skills.storage.skill_storage import SkillStorage
+from SynapseAI.skills.types import SKILL_MD_FILE, SecretRequirement, Skill, SkillCategory
+from SynapseAI.utils.messages import get_original_user_content_text, is_real_user_message
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
+    from SynapseAI.config.app_config import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -481,7 +481,7 @@ Follow this skill before choosing a general workflow. Load supporting resources 
         binding, or ``None``.
 
         Match strictly by normalized container file path — never by name. A
-        by-name fallback would be a confused deputy: DeerFlow lets a custom skill
+        by-name fallback would be a confused deputy: SynapseAI lets a custom skill
         shadow a same-named public/legacy one (load_skills de-dupes by name,
         custom wins), so a reference to public/foo could bind the custom foo's
         secrets. A path that does not resolve simply binds nothing (the safe

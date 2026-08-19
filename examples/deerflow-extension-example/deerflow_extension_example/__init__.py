@@ -1,13 +1,13 @@
-"""A compact, standalone DeerFlow extension exercising every contribution kind."""
+"""A compact, standalone SynapseAI extension exercising every contribution kind."""
 
 from __future__ import annotations
 
 from collections.abc import Mapping
 from typing import Any
 
-from deerflow_extension_api import ExtensionInstall, ExtensionRegistry, extension
+from SynapseAI_extension_api import ExtensionInstall, ExtensionRegistry, extension
 
-from deerflow_extension_example.plugin import (
+from SynapseAI_extension_example.plugin import (
     ExampleMiddlewareContributor,
     ExampleService,
     ExampleSystemObserver,

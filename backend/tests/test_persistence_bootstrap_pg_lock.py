@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import pytest
 
-from deerflow.persistence import bootstrap as bootstrap_mod
+from SynapseAI.persistence import bootstrap as bootstrap_mod
 
 
 class _FakeAsyncConn:

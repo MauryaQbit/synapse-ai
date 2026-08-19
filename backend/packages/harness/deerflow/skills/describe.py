@@ -22,9 +22,9 @@ from langgraph.types import Command
 if TYPE_CHECKING:
     from langchain.tools import BaseTool
 
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.skills.catalog import SkillCatalog
-from deerflow.skills.types import SkillCategory
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.skills.catalog import SkillCatalog
+from SynapseAI.skills.types import SkillCategory
 
 logger = logging.getLogger(__name__)
 

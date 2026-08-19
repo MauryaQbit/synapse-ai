@@ -41,8 +41,8 @@ from langchain.agents.middleware.types import ModelCallResult, ModelRequest, Mod
 from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares._bounded_dict import BoundedDict
-from deerflow.config.token_budget_config import TokenBudgetConfig
+from SynapseAI.agents.middlewares._bounded_dict import BoundedDict
+from SynapseAI.config.token_budget_config import TokenBudgetConfig
 
 logger = logging.getLogger(__name__)
 

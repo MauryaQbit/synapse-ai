@@ -1,4 +1,4 @@
-"""Declarative feature flags and middleware positioning for create_deerflow_agent.
+"""Declarative feature flags and middleware positioning for create_SynapseAI_agent.
 
 Pure data classes and decorators — no I/O, no side effects.
 """
@@ -11,12 +11,12 @@ from typing import TYPE_CHECKING, Literal
 from langchain.agents.middleware import AgentMiddleware
 
 if TYPE_CHECKING:
-    from deerflow.config.memory_config import MemoryConfig
+    from SynapseAI.config.memory_config import MemoryConfig
 
 
 @dataclass
 class RuntimeFeatures:
-    """Declarative feature flags for ``create_deerflow_agent``.
+    """Declarative feature flags for ``create_SynapseAI_agent``.
 
     Most features accept:
     - ``True``: use the built-in default middleware
@@ -29,7 +29,7 @@ class RuntimeFeatures:
 
     sandbox: bool | AgentMiddleware = True
     memory: bool | AgentMiddleware = False
-    # Explicit memory config for direct create_deerflow_agent(features=...) callers.
+    # Explicit memory config for direct create_SynapseAI_agent(features=...) callers.
     # The lead-agent AppConfig path passes resolved_app_config.memory directly.
     memory_config: MemoryConfig | None = None
     summarization: Literal[False] | AgentMiddleware = False

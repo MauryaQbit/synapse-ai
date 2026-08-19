@@ -5,7 +5,7 @@ Implementations:
 - MemoryThreadMetaStore: wraps LangGraph BaseStore (memory mode)
 
 All mutating and querying methods accept a ``user_id`` parameter with
-three-state semantics (see :mod:`deerflow.runtime.user_context`):
+three-state semantics (see :mod:`SynapseAI.runtime.user_context`):
 
 - ``AUTO`` (default): resolve from the request-scoped contextvar.
 - Explicit ``str``: use the provided value verbatim.
@@ -17,12 +17,12 @@ from __future__ import annotations
 import abc
 from typing import Any
 
-from deerflow.runtime.user_context import AUTO, _AutoSentinel
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel
 
 # Cross-component metadata key. Keep in sync with
 # ``frontend/src/core/threads/utils.ts`` and
 # ``frontend/tests/e2e/utils/mock-api.ts``.
-THREAD_PINNED_METADATA_KEY = "deerflow_pinned"
+THREAD_PINNED_METADATA_KEY = "SynapseAI_pinned"
 
 
 class InvalidMetadataFilterError(ValueError):
@@ -59,7 +59,7 @@ class ThreadMetaStore(abc.ABC):
         """Search threads.
 
         Results are ordered with pinned threads first
-        (``metadata.deerflow_pinned is True``), then by ``updated_at`` and
+        (``metadata.SynapseAI_pinned is True``), then by ``updated_at`` and
         ``thread_id`` descending within each group.
         """
         pass

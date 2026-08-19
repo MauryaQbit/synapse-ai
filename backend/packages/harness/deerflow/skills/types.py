@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from pathlib import Path
 
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
 
 SKILL_MD_FILE = "SKILL.md"
 

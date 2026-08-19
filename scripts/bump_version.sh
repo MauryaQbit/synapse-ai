@@ -7,7 +7,7 @@
 # Updates:
 #   backend/pyproject.toml              (version = "...")
 #   frontend/package.json               ("version": "...")
-#   deploy/helm/deer-flow/Chart.yaml    (version: + appVersion:)
+#   deploy/helm/synapse-ai/Chart.yaml    (version: + appVersion:)
 #
 # This does NOT edit CHANGELOG.md or create/push a git tag — keep those manual.
 # After running, commit and tag v<version> to trigger the release workflows
@@ -30,7 +30,7 @@ fi
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PYPROJECT="$ROOT/backend/pyproject.toml"
 PACKAGE="$ROOT/frontend/package.json"
-CHART="$ROOT/deploy/helm/deer-flow/Chart.yaml"
+CHART="$ROOT/deploy/helm/synapse-ai/Chart.yaml"
 
 for f in "$PYPROJECT" "$PACKAGE" "$CHART"; do
   if [ ! -f "$f" ]; then
@@ -68,7 +68,7 @@ if new == src:
 with open(package, "w") as f:
     f.write(new)
 
-# deploy/helm/deer-flow/Chart.yaml — version: X.Y.Z and appVersion: "X.Y.Z"
+# deploy/helm/synapse-ai/Chart.yaml — version: X.Y.Z and appVersion: "X.Y.Z"
 with open(chart) as f:
     src = f.read()
 new = re.sub(r'(?m)^version:\s*\S+', f'version: {version}', src, count=1)
@@ -82,7 +82,7 @@ PY
 echo "Bumped version to $VERSION in:"
 echo "  backend/pyproject.toml"
 echo "  frontend/package.json"
-echo "  deploy/helm/deer-flow/Chart.yaml (version + appVersion)"
+echo "  deploy/helm/synapse-ai/Chart.yaml (version + appVersion)"
 echo
 
 if ! bash "$ROOT/scripts/verify_versions.sh" "$VERSION"; then

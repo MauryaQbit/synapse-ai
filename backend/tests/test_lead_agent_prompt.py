@@ -6,10 +6,10 @@ from typing import cast
 import anyio
 import pytest
 
-from deerflow.agents.lead_agent import prompt as prompt_module
-from deerflow.config.app_config import AppConfig
-from deerflow.config.subagents_config import CustomSubagentConfig, SubagentsAppConfig
-from deerflow.skills.types import Skill, SkillCategory
+from SynapseAI.agents.lead_agent import prompt as prompt_module
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.subagents_config import CustomSubagentConfig, SubagentsAppConfig
+from SynapseAI.skills.types import Skill, SkillCategory
 
 
 def _set_skills_cache_state(*, skills=None, active=False, version=0):
@@ -38,7 +38,7 @@ def test_build_self_update_section_present_for_custom_agent():
 
 def test_build_custom_mounts_section_returns_empty_when_no_mounts(monkeypatch):
     config = SimpleNamespace(sandbox=SimpleNamespace(mounts=[]))
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
 
     assert prompt_module._build_custom_mounts_section() == ""
 
@@ -49,7 +49,7 @@ def test_build_custom_mounts_section_lists_configured_mounts(monkeypatch):
         SimpleNamespace(container_path="/mnt/reference", read_only=True),
     ]
     config = SimpleNamespace(sandbox=SimpleNamespace(mounts=mounts))
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
 
     section = prompt_module._build_custom_mounts_section()
 
@@ -67,7 +67,7 @@ def test_build_custom_mounts_section_uses_explicit_app_config_without_global_rea
     def fail_get_app_config():
         raise AssertionError("ambient get_app_config() must not be used when app_config is explicit")
 
-    monkeypatch.setattr("deerflow.config.get_app_config", fail_get_app_config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", fail_get_app_config)
 
     section = prompt_module._build_custom_mounts_section(app_config=config)
 
@@ -79,9 +79,9 @@ def test_apply_prompt_template_includes_custom_mounts(monkeypatch):
     mounts = [SimpleNamespace(container_path="/home/user/shared", read_only=False)]
     config = SimpleNamespace(
         sandbox=SimpleNamespace(mounts=mounts),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
     monkeypatch.setattr(prompt_module, "_get_enabled_skills", lambda: [])
     monkeypatch.setattr(prompt_module, "get_deferred_tools_prompt_section", lambda **kwargs: "")
     monkeypatch.setattr(prompt_module, "_build_acp_section", lambda **kwargs: "")
@@ -90,9 +90,9 @@ def test_apply_prompt_template_includes_custom_mounts(monkeypatch):
 def test_apply_prompt_template_includes_relative_path_guidance(monkeypatch):
     config = SimpleNamespace(
         sandbox=SimpleNamespace(mounts=[]),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
     monkeypatch.setattr(prompt_module, "_get_enabled_skills", lambda: [])
     monkeypatch.setattr(prompt_module, "get_deferred_tools_prompt_section", lambda **kwargs: "")
     monkeypatch.setattr(prompt_module, "_build_acp_section", lambda **kwargs: "")
@@ -108,7 +108,7 @@ def test_apply_prompt_template_includes_relative_path_guidance(monkeypatch):
 def test_apply_prompt_template_includes_memory_tool_guidance_only_in_tool_mode(monkeypatch):
     tool_config = SimpleNamespace(
         sandbox=SimpleNamespace(mounts=[]),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=True, mode="tool", injection_enabled=False),
@@ -143,7 +143,7 @@ def test_apply_prompt_template_threads_explicit_app_config_without_global_config
     mounts = [SimpleNamespace(container_path="/home/user/shared", read_only=False)]
     explicit_config = SimpleNamespace(
         sandbox=SimpleNamespace(mounts=mounts),
-        skills=SimpleNamespace(container_path="/mnt/explicit-skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/explicit-skills")),
+        skills=SimpleNamespace(container_path="/mnt/explicit-skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/explicit-skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=False, injection_enabled=True, max_injection_tokens=2000),
@@ -156,8 +156,8 @@ def test_apply_prompt_template_threads_explicit_app_config_without_global_config
     def fail_get_memory_config():
         raise AssertionError("ambient get_memory_config() must not be used when app_config is explicit")
 
-    monkeypatch.setattr("deerflow.config.get_app_config", fail_get_app_config)
-    monkeypatch.setattr("deerflow.config.memory_config.get_memory_config", fail_get_memory_config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", fail_get_app_config)
+    monkeypatch.setattr("SynapseAI.config.memory_config.get_memory_config", fail_get_memory_config)
     monkeypatch.setattr(prompt_module, "get_or_new_skill_storage", lambda app_config=None: SimpleNamespace(load_skills=lambda enabled_only=True: []))
     monkeypatch.setattr(prompt_module, "get_or_new_user_skill_storage", lambda user_id, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []))
     monkeypatch.setattr(prompt_module, "get_agent_soul", lambda agent_name=None, **kwargs: "")
@@ -171,7 +171,7 @@ def test_apply_prompt_template_threads_explicit_app_config_without_global_config
 def test_apply_prompt_template_threads_explicit_app_config_to_subagents_without_global_config(monkeypatch):
     explicit_config = SimpleNamespace(
         sandbox=SimpleNamespace(
-            use="deerflow.sandbox.local:LocalSandboxProvider",
+            use="SynapseAI.sandbox.local:LocalSandboxProvider",
             allow_host_bash=False,
             mounts=[],
         ),
@@ -183,7 +183,7 @@ def test_apply_prompt_template_threads_explicit_app_config_to_subagents_without_
                 )
             }
         ),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=False, injection_enabled=True, max_injection_tokens=2000),
@@ -196,8 +196,8 @@ def test_apply_prompt_template_threads_explicit_app_config_to_subagents_without_
     def fail_get_subagents_app_config():
         raise AssertionError("ambient get_subagents_app_config() must not be used when app_config is explicit")
 
-    monkeypatch.setattr("deerflow.config.get_app_config", fail_get_app_config)
-    monkeypatch.setattr("deerflow.config.subagents_config.get_subagents_app_config", fail_get_subagents_app_config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", fail_get_app_config)
+    monkeypatch.setattr("SynapseAI.config.subagents_config.get_subagents_app_config", fail_get_subagents_app_config)
     monkeypatch.setattr(prompt_module, "get_or_new_skill_storage", lambda app_config=None: SimpleNamespace(load_skills=lambda enabled_only=True: []))
     monkeypatch.setattr(prompt_module, "get_agent_soul", lambda agent_name=None, **kwargs: "")
 
@@ -210,12 +210,12 @@ def test_apply_prompt_template_threads_explicit_app_config_to_subagents_without_
 def test_apply_prompt_template_includes_subagent_total_limit(monkeypatch):
     explicit_config = SimpleNamespace(
         sandbox=SimpleNamespace(
-            use="deerflow.sandbox.local:LocalSandboxProvider",
+            use="SynapseAI.sandbox.local:LocalSandboxProvider",
             allow_host_bash=False,
             mounts=[],
         ),
         subagents=SubagentsAppConfig(),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=False, injection_enabled=True, max_injection_tokens=2000),
@@ -243,12 +243,12 @@ def test_apply_prompt_template_includes_subagent_total_limit(monkeypatch):
 def test_apply_prompt_template_clamps_subagent_limits_to_enforced_bounds(monkeypatch):
     explicit_config = SimpleNamespace(
         sandbox=SimpleNamespace(
-            use="deerflow.sandbox.local:LocalSandboxProvider",
+            use="SynapseAI.sandbox.local:LocalSandboxProvider",
             allow_host_bash=False,
             mounts=[],
         ),
         subagents=SubagentsAppConfig(),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=False, injection_enabled=True, max_injection_tokens=2000),
@@ -278,16 +278,16 @@ def test_apply_prompt_template_single_subagent_limit_matches_middleware(monkeypa
     HARD LIMITS value equals the middleware-enforced max_concurrent, so the two
     paths cannot drift apart on the newly-allowed value.
     """
-    from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
+    from SynapseAI.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 
     explicit_config = SimpleNamespace(
         sandbox=SimpleNamespace(
-            use="deerflow.sandbox.local:LocalSandboxProvider",
+            use="SynapseAI.sandbox.local:LocalSandboxProvider",
             allow_host_bash=False,
             mounts=[],
         ),
         subagents=SubagentsAppConfig(),
-        skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+        skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
         skill_evolution=SimpleNamespace(enabled=False),
         tool_search=SimpleNamespace(enabled=False),
         memory=SimpleNamespace(enabled=False, injection_enabled=True, max_injection_tokens=2000),
@@ -322,7 +322,7 @@ def test_build_acp_section_uses_explicit_app_config_without_global_config(monkey
     def fail_get_acp_agents():
         raise AssertionError("ambient get_acp_agents() must not be used when app_config is explicit")
 
-    monkeypatch.setattr("deerflow.config.acp_config.get_acp_agents", fail_get_acp_agents)
+    monkeypatch.setattr("SynapseAI.config.acp_config.get_acp_agents", fail_get_acp_agents)
 
     section = prompt_module._build_acp_section(app_config=explicit_config)
 
@@ -345,9 +345,9 @@ def test_get_memory_context_uses_explicit_app_config_without_global_config(monke
         return "remember this"
 
     manager = SimpleNamespace(get_context=fake_get_context)
-    monkeypatch.setattr("deerflow.config.memory_config.get_memory_config", fail_get_memory_config)
-    monkeypatch.setattr("deerflow.runtime.user_context.resolve_runtime_user_id", lambda runtime: "user-1")
-    monkeypatch.setattr("deerflow.agents.memory.get_memory_manager", lambda: manager)
+    monkeypatch.setattr("SynapseAI.config.memory_config.get_memory_config", fail_get_memory_config)
+    monkeypatch.setattr("SynapseAI.runtime.user_context.resolve_runtime_user_id", lambda runtime: "user-1")
+    monkeypatch.setattr("SynapseAI.agents.memory.get_memory_manager", lambda: manager)
 
     context = prompt_module._get_memory_context("agent-a", app_config=explicit_config)
 
@@ -360,7 +360,7 @@ def test_get_memory_context_uses_explicit_app_config_without_global_config(monke
 
 
 def test_get_memory_context_propagates_fail_closed_manager_error(monkeypatch):
-    from deerflow.agents.memory import MemoryManagerError
+    from SynapseAI.agents.memory import MemoryManagerError
 
     explicit_config = SimpleNamespace(
         memory=SimpleNamespace(
@@ -370,22 +370,22 @@ def test_get_memory_context_propagates_fail_closed_manager_error(monkeypatch):
         ),
     )
     manager = SimpleNamespace(get_context=lambda *args, **kwargs: (_ for _ in ()).throw(MemoryManagerError("down")))
-    monkeypatch.setattr("deerflow.agents.memory.get_memory_manager", lambda: manager)
-    monkeypatch.setattr("deerflow.runtime.user_context.get_effective_user_id", lambda: "user-1")
+    monkeypatch.setattr("SynapseAI.agents.memory.get_memory_manager", lambda: manager)
+    monkeypatch.setattr("SynapseAI.runtime.user_context.get_effective_user_id", lambda: "user-1")
 
     with pytest.raises(MemoryManagerError, match="down"):
         prompt_module._get_memory_context("agent-a", app_config=explicit_config)
 
 
 def test_get_memory_context_swallows_manager_error_without_fail_closed(monkeypatch):
-    from deerflow.agents.memory import MemoryManagerError
+    from SynapseAI.agents.memory import MemoryManagerError
 
     explicit_config = SimpleNamespace(
         memory=SimpleNamespace(enabled=True, injection_enabled=True, backend_config={}),
     )
     manager = SimpleNamespace(get_context=lambda *args, **kwargs: (_ for _ in ()).throw(MemoryManagerError("down")))
-    monkeypatch.setattr("deerflow.agents.memory.get_memory_manager", lambda: manager)
-    monkeypatch.setattr("deerflow.runtime.user_context.get_effective_user_id", lambda: "user-1")
+    monkeypatch.setattr("SynapseAI.agents.memory.get_memory_manager", lambda: manager)
+    monkeypatch.setattr("SynapseAI.runtime.user_context.get_effective_user_id", lambda: "user-1")
 
     assert prompt_module._get_memory_context("agent-a", app_config=explicit_config) == ""
 
@@ -404,9 +404,9 @@ def test_get_memory_context_prefers_explicit_user_id(monkeypatch):
         captured["user_id"] = user_id
         return "remember this"
 
-    monkeypatch.setattr("deerflow.runtime.user_context.resolve_runtime_user_id", fail_resolve_runtime_user_id)
+    monkeypatch.setattr("SynapseAI.runtime.user_context.resolve_runtime_user_id", fail_resolve_runtime_user_id)
     monkeypatch.setattr(
-        "deerflow.agents.memory.get_memory_manager",
+        "SynapseAI.agents.memory.get_memory_manager",
         lambda: SimpleNamespace(get_context=fake_get_context),
     )
 
@@ -472,7 +472,7 @@ def test_explicit_config_enabled_skills_are_cached_by_config_identity(monkeypatc
         cast(
             object,
             SimpleNamespace(
-                skills=SimpleNamespace(container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
+                skills=SimpleNamespace(container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage", get_skills_path=lambda: Path("/tmp/skills")),
                 skill_evolution=SimpleNamespace(enabled=False),
             ),
         ),
@@ -638,7 +638,7 @@ def test_apply_prompt_template_legacy_path_does_not_mention_describe_skill(monke
     """When skill_names is None (legacy path), critical_reminders must not
     reference describe_skill (the tool is not registered in legacy mode)."""
     config = _make_minimal_app_config()
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
     monkeypatch.setattr(prompt_module, "get_or_new_skill_storage", lambda app_config=None: SimpleNamespace(load_skills=lambda enabled_only=True: []))
     monkeypatch.setattr(prompt_module, "get_agent_soul", lambda agent_name=None, **kwargs: "")
 
@@ -654,7 +654,7 @@ def test_apply_prompt_template_deferred_path_mentions_describe_skill(monkeypatch
     """When skill_names is provided (deferred path), critical_reminders must
     reference describe_skill so the LLM knows how to discover skills."""
     config = _make_minimal_app_config()
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
     monkeypatch.setattr(prompt_module, "get_or_new_skill_storage", lambda app_config=None: SimpleNamespace(load_skills=lambda enabled_only=True: []))
     monkeypatch.setattr(prompt_module, "get_agent_soul", lambda agent_name=None, **kwargs: "")
 

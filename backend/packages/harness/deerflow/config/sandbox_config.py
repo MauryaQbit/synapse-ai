@@ -24,7 +24,7 @@ class SandboxOwnershipConfig(BaseModel):
     )
     redis_url: str | None = Field(
         default=None,
-        description="Redis URL for the redis ownership type. If omitted, DEER_FLOW_SANDBOX_OWNERSHIP_REDIS_URL, DEER_FLOW_STREAM_BRIDGE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used.",
+        description="Redis URL for the redis ownership type. If omitted, SYNAPSE_SANDBOX_OWNERSHIP_REDIS_URL, SYNAPSE_STREAM_BRIDGE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used.",
     )
     renewal_interval_seconds: float = Field(
         default=30.0,
@@ -40,7 +40,7 @@ class SandboxOwnershipConfig(BaseModel):
         description="Lease TTL as a multiple of renewal_interval_seconds. At least 2, so a single missed renewal (slow host, brief Redis blip) cannot expire a live owner's lease. Default 4 tolerates three consecutive misses.",
     )
     key_prefix: str = Field(
-        default="deerflow:sandbox:owner",
+        default="SynapseAI:sandbox:owner",
         description="Redis key prefix for ownership leases. Only applies to the redis ownership type.",
     )
 
@@ -55,7 +55,7 @@ class VolumeMountConfig(BaseModel):
             "``LocalSandboxProvider`` checks this path from the gateway process — in "
             "``make dev`` that is the host machine, but in Docker deployments "
             "(``make up`` / docker-compose) it is the path *inside* the "
-            "``deer-flow-gateway`` container, so the host directory must also be "
+            "``synapse-ai-gateway`` container, so the host directory must also be "
             "bind-mounted into the gateway service for the mount to take effect. "
             "``AioSandboxProvider`` (DooD) passes this value straight to ``docker -v`` "
             "for the sandbox container, where it is resolved by the host Docker daemon "
@@ -87,7 +87,7 @@ class SandboxConfig(BaseModel):
 
     AioSandboxProvider specific options:
         port: Base port for sandbox containers (default: 8080)
-        container_prefix: Prefix for container names (default: deer-flow-sandbox)
+        container_prefix: Prefix for container names (default: synapse-ai-sandbox)
         mounts: List of volume mounts to share directories with the container
         thread_data_mounts: Override whether thread data is already visible to
             the sandbox through shared mounts. Omit to auto-detect from the backend.
@@ -99,7 +99,7 @@ class SandboxConfig(BaseModel):
 
     use: str = Field(
         ...,
-        description="Class path of the sandbox provider (e.g. deerflow.sandbox.local:LocalSandboxProvider)",
+        description="Class path of the sandbox provider (e.g. SynapseAI.sandbox.local:LocalSandboxProvider)",
     )
     allow_host_bash: bool = Field(
         default=False,

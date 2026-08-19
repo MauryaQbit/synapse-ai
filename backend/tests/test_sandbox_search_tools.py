@@ -2,11 +2,11 @@ import json
 from types import SimpleNamespace
 from unittest.mock import patch
 
-from deerflow.community.aio_sandbox.aio_sandbox import AioSandbox
-from deerflow.config.paths import Paths
-from deerflow.sandbox.local.local_sandbox import LocalSandbox, PathMapping
-from deerflow.sandbox.search import GrepMatch, find_glob_matches, find_grep_matches
-from deerflow.sandbox.tools import glob_tool, grep_tool, ls_tool
+from SynapseAI.community.aio_sandbox.aio_sandbox import AioSandbox
+from SynapseAI.config.paths import Paths
+from SynapseAI.sandbox.local.local_sandbox import LocalSandbox, PathMapping
+from SynapseAI.sandbox.search import GrepMatch, find_glob_matches, find_grep_matches
+from SynapseAI.sandbox.tools import glob_tool, grep_tool, ls_tool
 
 
 def _make_runtime(tmp_path):
@@ -38,7 +38,7 @@ def test_glob_tool_returns_virtual_paths_and_ignores_common_dirs(tmp_path, monke
     (workspace / "node_modules").mkdir()
     (workspace / "node_modules" / "skip.py").write_text("ignored\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = glob_tool.func(
         runtime=runtime,
@@ -65,7 +65,7 @@ def test_glob_tool_supports_skills_virtual_paths(tmp_path, monkeypatch) -> None:
             PathMapping(container_path="/mnt/skills", local_path=str(skills_dir), read_only=True),
         ],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
 
     result = glob_tool.func(
         runtime=runtime,
@@ -85,7 +85,7 @@ def test_grep_tool_filters_by_glob_and_skips_binary_files(tmp_path, monkeypatch)
     (workspace / "notes.txt").write_text("TODO in txt should be filtered\n", encoding="utf-8")
     (workspace / "image.bin").write_bytes(b"\0binary TODO")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = grep_tool.func(
         runtime=runtime,
@@ -107,7 +107,7 @@ def test_grep_tool_accepts_single_file_path(tmp_path, monkeypatch) -> None:
     report = uploads / "report.md"
     report.write_text("Revenue grew 20%\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = grep_tool.func(
         runtime=runtime,
@@ -126,9 +126,9 @@ def test_grep_tool_truncates_results(tmp_path, monkeypatch) -> None:
     workspace = tmp_path / "workspace"
     (workspace / "main.py").write_text("TODO one\nTODO two\nTODO three\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
     # Prevent config.yaml tool config from overriding the caller-supplied max_results=2.
-    monkeypatch.setattr("deerflow.sandbox.tools.get_app_config", lambda: SimpleNamespace(get_tool_config=lambda name: None))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.get_app_config", lambda: SimpleNamespace(get_tool_config=lambda name: None))
 
     result = grep_tool.func(
         runtime=runtime,
@@ -153,7 +153,7 @@ def test_glob_tool_include_dirs_filters_nested_ignored_paths(tmp_path, monkeypat
     (workspace / "node_modules").mkdir()
     (workspace / "node_modules" / "lib").mkdir()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = glob_tool.func(
         runtime=runtime,
@@ -172,7 +172,7 @@ def test_grep_tool_literal_mode(tmp_path, monkeypatch) -> None:
     workspace = tmp_path / "workspace"
     (workspace / "file.py").write_text("price = (a+b)\nresult = a+b\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     # literal=True should treat (a+b) as a plain string, not a regex group
     result = grep_tool.func(
@@ -192,7 +192,7 @@ def test_grep_tool_case_sensitive(tmp_path, monkeypatch) -> None:
     workspace = tmp_path / "workspace"
     (workspace / "file.py").write_text("TODO: fix\ntodo: also fix\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = grep_tool.func(
         runtime=runtime,
@@ -209,7 +209,7 @@ def test_grep_tool_case_sensitive(tmp_path, monkeypatch) -> None:
 def test_grep_tool_invalid_regex_returns_error(tmp_path, monkeypatch) -> None:
     runtime = _make_runtime(tmp_path)
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = grep_tool.func(
         runtime=runtime,
@@ -222,7 +222,7 @@ def test_grep_tool_invalid_regex_returns_error(tmp_path, monkeypatch) -> None:
 
 
 def test_aio_sandbox_glob_include_dirs_filters_nested_ignored(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -248,7 +248,7 @@ def test_aio_sandbox_glob_include_dirs_filters_nested_ignored(monkeypatch) -> No
 
 
 def test_aio_sandbox_grep_invalid_regex_raises() -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
 
     import re
@@ -261,7 +261,7 @@ def test_aio_sandbox_grep_invalid_regex_raises() -> None:
 
 
 def test_aio_sandbox_glob_parses_json(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -276,7 +276,7 @@ def test_aio_sandbox_glob_parses_json(monkeypatch) -> None:
 
 
 def test_aio_sandbox_grep_parses_json(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -302,7 +302,7 @@ def test_aio_sandbox_grep_parses_json(monkeypatch) -> None:
 
 
 def test_aio_sandbox_grep_accepts_single_file_path(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -373,9 +373,9 @@ def test_glob_tool_honors_smaller_requested_max_results(tmp_path, monkeypatch) -
     (workspace / "b.py").write_text("print('b')\n", encoding="utf-8")
     (workspace / "c.py").write_text("print('c')\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
     monkeypatch.setattr(
-        "deerflow.sandbox.tools.get_app_config",
+        "SynapseAI.sandbox.tools.get_app_config",
         lambda: SimpleNamespace(get_tool_config=lambda name: SimpleNamespace(model_extra={"max_results": 50})),
     )
 
@@ -392,7 +392,7 @@ def test_glob_tool_honors_smaller_requested_max_results(tmp_path, monkeypatch) -
 
 
 def test_aio_sandbox_glob_include_dirs_enforces_root_boundary(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -414,7 +414,7 @@ def test_aio_sandbox_glob_include_dirs_enforces_root_boundary(monkeypatch) -> No
 
 
 def test_aio_sandbox_grep_drops_matches_outside_requested_root(monkeypatch) -> None:
-    with patch("deerflow.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
+    with patch("SynapseAI.community.aio_sandbox.aio_sandbox.AioSandboxClient"):
         sandbox = AioSandbox(id="test-sandbox", base_url="http://localhost:8080")
     monkeypatch.setattr(
         sandbox._client.file,
@@ -456,7 +456,7 @@ def test_ls_tool_masks_user_data_host_paths(tmp_path, monkeypatch) -> None:
     (workspace / "report.txt").write_text("hello\n", encoding="utf-8")
     (workspace / "subdir").mkdir()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = ls_tool.func(
         runtime=runtime,
@@ -484,7 +484,7 @@ def test_ls_tool_masks_skills_host_paths(tmp_path, monkeypatch) -> None:
             PathMapping(container_path="/mnt/skills", local_path=str(skills_dir), read_only=True),
         ],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
 
     result = ls_tool.func(
         runtime=runtime,
@@ -503,7 +503,7 @@ def test_ls_tool_returns_empty_for_empty_directory(tmp_path, monkeypatch) -> Non
     """ls_tool should return '(empty)' for an empty directory."""
     runtime = _make_runtime(tmp_path)
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = ls_tool.func(
         runtime=runtime,
@@ -525,12 +525,12 @@ def test_ls_tool_skills_path_uses_sandbox_mapping_user_id_not_contextvar(tmp_pat
     making /mnt/skills/custom appear empty. The fix delegates resolution to the
     sandbox's PathMapping which always uses the acquire-time user_id.
     """
-    from deerflow.runtime.user_context import reset_current_user, set_current_user
+    from SynapseAI.runtime.user_context import reset_current_user, set_current_user
 
     # Create two user-specific custom skill directories:
     # - user-abc: has a skill "my-skill"
     # - default: empty (the fallback when contextvar is unset)
-    base_dir = tmp_path / ".deer-flow"
+    base_dir = tmp_path / ".synapse-ai"
     user_abc_custom = base_dir / "users" / "user-abc" / "skills" / "custom"
     user_abc_custom.mkdir(parents=True)
     (user_abc_custom / "my-skill").mkdir()
@@ -547,7 +547,7 @@ def test_ls_tool_skills_path_uses_sandbox_mapping_user_id_not_contextvar(tmp_pat
             PathMapping(container_path="/mnt/skills/custom", local_path=str(user_abc_custom), read_only=True),
         ],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
 
     # Listing a category root descends into the skills below it, so the
     # disabled-skill gate now resolves each one's enabled state. That lookup
@@ -559,7 +559,7 @@ def test_ls_tool_skills_path_uses_sandbox_mapping_user_id_not_contextvar(tmp_pat
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         ),
         skill_evolution=SimpleNamespace(enabled=False),
     )
@@ -569,8 +569,8 @@ def test_ls_tool_skills_path_uses_sandbox_mapping_user_id_not_contextvar(tmp_pat
     # After the fix, the sandbox PathMapping resolves to user-abc_custom (has my-skill)
     token = set_current_user(SimpleNamespace(id="default"))  # contextvar says "default"
     try:
-        with patch("deerflow.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
-            with patch("deerflow.config.get_app_config", return_value=app_config):
+        with patch("SynapseAI.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
+            with patch("SynapseAI.config.get_app_config", return_value=app_config):
                 result = ls_tool.func(
                     runtime=_make_runtime(tmp_path),
                     description="list custom skills",
@@ -591,7 +591,7 @@ def test_ls_tool_filters_upload_staging_files(tmp_path, monkeypatch) -> None:
     (uploads / ".upload-active.part").write_text("partial\n", encoding="utf-8")
     (uploads / ".upload-note.txt").write_text("intentional\n", encoding="utf-8")
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: LocalSandbox(id="local"))
 
     result = ls_tool.func(
         runtime=runtime,
@@ -620,13 +620,13 @@ def _make_skills_sandbox(tmp_path, monkeypatch, *, disabled: str):
         json.dumps({"mcpServers": {}, "skills": {disabled: {"enabled": False}, "open-skill": {"enabled": True}}}),
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(ext))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(ext))
 
     sandbox = LocalSandbox(
         id="local",
         path_mappings=[PathMapping(container_path="/mnt/skills", local_path=str(skills_dir), read_only=True)],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
     return sandbox
 
 
@@ -740,7 +740,7 @@ def test_extract_skill_name_treats_category_dir_with_trailing_slash_as_root() ->
     """LocalSandbox.list_dir appends "/" to directories, so the gate sees
     "/mnt/skills/public/" — which must resolve to None (category root), not "".
     """
-    from deerflow.sandbox.tools import _extract_skill_name_from_skills_path as extract
+    from SynapseAI.sandbox.tools import _extract_skill_name_from_skills_path as extract
 
     # Changed direction: trailing-slash category roots used to yield "".
     assert extract("/mnt/skills/public/") is None
@@ -763,9 +763,9 @@ def _make_custom_skills_sandbox(tmp_path, monkeypatch, *, user_id: str, disabled
     ``extensions_config.json`` — so the public fixture above does not exercise
     this branch of ``_is_disabled_skill_path``.
     """
-    from deerflow.skills.storage import reset_skill_storage
+    from SynapseAI.skills.storage import reset_skill_storage
 
-    base_dir = tmp_path / ".deer-flow"
+    base_dir = tmp_path / ".synapse-ai"
     user_skills = base_dir / "users" / user_id / "skills"
     user_custom = user_skills / "custom"
     for name, body in [(disabled, "SECRET_PROCEDURE = step-1-step-2\n"), ("open-custom", "PUBLIC_PROCEDURE = hello\n")]:
@@ -784,7 +784,7 @@ def _make_custom_skills_sandbox(tmp_path, monkeypatch, *, user_id: str, disabled
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         ),
         skill_evolution=SimpleNamespace(enabled=False),
     )
@@ -793,25 +793,25 @@ def _make_custom_skills_sandbox(tmp_path, monkeypatch, *, user_id: str, disabled
         id=f"local:{user_id}:thread-1",
         path_mappings=[PathMapping(container_path="/mnt/skills/custom", local_path=str(user_custom), read_only=True)],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
     # The storage cache is keyed by user id, not by base_dir: a cached instance
     # from another test would read the wrong _skill_states.json.
     reset_skill_storage()
-    monkeypatch.setattr("deerflow.sandbox.tools.resolve_runtime_user_id", lambda runtime: user_id)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.resolve_runtime_user_id", lambda runtime: user_id)
     return base_dir, app_config
 
 
 def test_grep_tool_does_not_surface_disabled_custom_skill(tmp_path, monkeypatch) -> None:
     """CUSTOM skills resolve enabled state through the per-user _skill_states.json,
     not extensions_config.json — the store the public-skill tests never touch."""
-    from deerflow.skills.storage import reset_skill_storage
+    from SynapseAI.skills.storage import reset_skill_storage
 
     runtime = _make_runtime(tmp_path)
     base_dir, app_config = _make_custom_skills_sandbox(tmp_path, monkeypatch, user_id="user-abc", disabled="secret-custom")
 
     try:
-        with patch("deerflow.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
-            with patch("deerflow.config.get_app_config", return_value=app_config):
+        with patch("SynapseAI.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
+            with patch("SynapseAI.config.get_app_config", return_value=app_config):
                 result = grep_tool.func(
                     runtime=runtime,
                     description="search custom skills",
@@ -829,14 +829,14 @@ def test_grep_tool_does_not_surface_disabled_custom_skill(tmp_path, monkeypatch)
 
 def test_ls_tool_does_not_surface_disabled_custom_skill(tmp_path, monkeypatch) -> None:
     """Same per-user store, via the descending ls listing."""
-    from deerflow.skills.storage import reset_skill_storage
+    from SynapseAI.skills.storage import reset_skill_storage
 
     runtime = _make_runtime(tmp_path)
     base_dir, app_config = _make_custom_skills_sandbox(tmp_path, monkeypatch, user_id="user-abc", disabled="secret-custom")
 
     try:
-        with patch("deerflow.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
-            with patch("deerflow.config.get_app_config", return_value=app_config):
+        with patch("SynapseAI.config.paths.get_paths", return_value=Paths(base_dir=base_dir)):
+            with patch("SynapseAI.config.get_app_config", return_value=app_config):
                 result = ls_tool.func(
                     runtime=runtime,
                     description="list custom skills",

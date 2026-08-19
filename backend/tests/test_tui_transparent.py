@@ -2,9 +2,9 @@
 
 import pytest
 
-from deerflow.tui.app import DeerFlowTUI, SelectScreen
-from deerflow.tui.cli import LaunchPlan
-from deerflow.tui.theme import THEME
+from SynapseAI.tui.app import SynapseAITUI, SelectScreen
+from SynapseAI.tui.cli import LaunchPlan
+from SynapseAI.tui.theme import THEME
 
 
 class _FakeClient:
@@ -24,7 +24,7 @@ class _FakeSession:
 
 @pytest.mark.asyncio
 async def test_transparent_tui_uses_terminal_default_for_background_surfaces():
-    app = DeerFlowTUI(_FakeSession(), LaunchPlan(mode="tui", transparent=True))
+    app = SynapseAITUI(_FakeSession(), LaunchPlan(mode="tui", transparent=True))
     async with app.run_test() as pilot:
         await pilot.pause()
 
@@ -42,7 +42,7 @@ async def test_transparent_tui_uses_terminal_default_for_background_surfaces():
 
 @pytest.mark.asyncio
 async def test_default_tui_keeps_solid_theme_backgrounds():
-    app = DeerFlowTUI(_FakeSession(), LaunchPlan(mode="tui"))
+    app = SynapseAITUI(_FakeSession(), LaunchPlan(mode="tui"))
     async with app.run_test() as pilot:
         await pilot.pause()
         assert app.screen.styles.background.hex.lower() == THEME.bg

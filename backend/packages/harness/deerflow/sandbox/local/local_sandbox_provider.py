@@ -3,9 +3,9 @@ import threading
 from collections import OrderedDict
 from pathlib import Path
 
-from deerflow.sandbox.local.local_sandbox import LocalSandbox, PathMapping
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from SynapseAI.sandbox.local.local_sandbox import LocalSandbox, PathMapping
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider
 
 logger = logging.getLogger(__name__)
 
@@ -97,7 +97,7 @@ class LocalSandboxProvider(SandboxProvider):
 
         # Map skills: split mount for public + legacy + custom
         try:
-            from deerflow.config import get_app_config
+            from SynapseAI.config import get_app_config
 
             config = get_app_config()
             container_path = config.skills.container_path
@@ -174,7 +174,7 @@ class LocalSandboxProvider(SandboxProvider):
                     # ``host_path`` is resolved against the filesystem of the
                     # process running this provider — for ``make dev`` that is
                     # the host machine, but for ``make up`` it is the
-                    # ``deer-flow-gateway`` container, so any host path that
+                    # ``synapse-ai-gateway`` container, so any host path that
                     # isn't bind-mounted into the gateway image will be missing
                     # here. Skipping silently makes this a high-cost-to-debug
                     # silent failure (sandbox skill / tool reads an empty dir
@@ -208,7 +208,7 @@ class LocalSandboxProvider(SandboxProvider):
 
     @staticmethod
     def _effective_acquire_user_id(user_id: str | None) -> str:
-        from deerflow.runtime.user_context import get_effective_user_id
+        from SynapseAI.runtime.user_context import get_effective_user_id
 
         return user_id or get_effective_user_id()
 
@@ -226,9 +226,9 @@ class LocalSandboxProvider(SandboxProvider):
         skill mounts for this acquire; the projection self-heals on a later
         acquire once the underlying condition clears.
         """
-        from deerflow.config import get_app_config
-        from deerflow.skills.projection import ensure_skill_projections
-        from deerflow.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
+        from SynapseAI.config import get_app_config
+        from SynapseAI.skills.projection import ensure_skill_projections
+        from SynapseAI.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
 
         try:
             config = get_app_config()
@@ -246,7 +246,7 @@ class LocalSandboxProvider(SandboxProvider):
         if projection is None:
             return
         try:
-            from deerflow.config import get_app_config
+            from SynapseAI.config import get_app_config
 
             container_path = get_app_config().skills.container_path.rstrip("/")
             public_container_path = f"{container_path}/public"
@@ -286,8 +286,8 @@ class LocalSandboxProvider(SandboxProvider):
         mounted per-user (read-only) because agent writes custom skills via
         ``skill_manage_tool`` on the host filesystem, not inside the sandbox.
         """
-        from deerflow.config import get_app_config
-        from deerflow.config.paths import get_paths
+        from SynapseAI.config import get_app_config
+        from SynapseAI.config.paths import get_paths
 
         paths = get_paths()
         effective_user_id = LocalSandboxProvider._effective_acquire_user_id(user_id)

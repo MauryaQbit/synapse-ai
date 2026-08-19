@@ -18,10 +18,10 @@ import asyncio
 import logging
 from pathlib import Path
 
-from deerflow.config.app_config import get_app_config
+from SynapseAI.config.app_config import get_app_config
 
 # Backward-compat re-exports — outline extraction moved to file_outline.py.
-from deerflow.utils.file_outline import (  # noqa: F401
+from SynapseAI.utils.file_outline import (  # noqa: F401
     MAX_OUTLINE_ENTRIES,
     extract_outline,
 )

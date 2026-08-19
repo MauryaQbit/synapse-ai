@@ -6,8 +6,8 @@ import asyncio
 
 import pytest
 
-from deerflow.authz.provider import AuthzRequest, Principal
-from deerflow.authz.rbac import RbacAuthorizationProvider
+from SynapseAI.authz.provider import AuthzRequest, Principal
+from SynapseAI.authz.rbac import RbacAuthorizationProvider
 
 # --- Helpers ---
 
@@ -411,6 +411,6 @@ class TestConfigImmutability:
 
 class TestProtocolConformance:
     def test_rbac_is_authorization_provider(self):
-        from deerflow.authz.provider import AuthorizationProvider
+        from SynapseAI.authz.provider import AuthorizationProvider
 
         assert isinstance(RbacAuthorizationProvider(roles={}), AuthorizationProvider)

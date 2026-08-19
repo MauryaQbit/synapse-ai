@@ -9,7 +9,7 @@ from pathlib import Path
 
 import yaml
 
-from deerflow.config.app_config import AppConfig
+from SynapseAI.config.app_config import AppConfig
 
 
 def _make_config_files(tmpdir: Path, user_config: dict, example_config: dict) -> Path:
@@ -19,7 +19,7 @@ def _make_config_files(tmpdir: Path, user_config: dict, example_config: dict) ->
 
     # Minimal valid config needs sandbox
     defaults = {
-        "sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"},
+        "sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"},
     }
     for cfg in (user_config, example_config):
         for k, v in defaults.items():
@@ -41,9 +41,9 @@ def test_missing_version_treated_as_zero(caplog):
             user_config={},  # no config_version
             example_config={"config_version": 1},
         )
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version(
-                {"sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"}},
+                {"sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"}},
                 config_path,
             )
         assert "outdated" in caplog.text
@@ -59,7 +59,7 @@ def test_matching_version_no_warning(caplog):
             user_config={"config_version": 1},
             example_config={"config_version": 1},
         )
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version(
                 {"config_version": 1},
                 config_path,
@@ -75,7 +75,7 @@ def test_outdated_version_emits_warning(caplog):
             user_config={"config_version": 1},
             example_config={"config_version": 2},
         )
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version(
                 {"config_version": 1},
                 config_path,
@@ -93,7 +93,7 @@ def test_no_example_file_no_warning(caplog):
             yaml.dump({"sandbox": {"use": "test"}}, f)
         # No config.example.yaml created
 
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version({}, config_path)
         assert "outdated" not in caplog.text
 
@@ -118,7 +118,7 @@ def test_newer_user_version_no_warning(caplog):
             user_config={"config_version": 3},
             example_config={"config_version": 2},
         )
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version(
                 {"config_version": 3},
                 config_path,
@@ -146,17 +146,17 @@ def test_version_26_config_upgrades_to_checkpoint_channel_mode(tmp_path, caplog)
     (tmp_path / "config.example.yaml").write_text(example_src.read_text(encoding="utf-8"), encoding="utf-8")
     user_config = {
         "config_version": 26,
-        "sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"},
+        "sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"},
         "database": {"backend": "sqlite", "sqlite_dir": "custom-data"},
     }
     config_path.write_text(yaml.dump(user_config), encoding="utf-8")
 
-    with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+    with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
         AppConfig._check_config_version(dict(user_config), config_path)
     assert "outdated" in caplog.text
     assert "(version 26)" in caplog.text
 
-    env = {**os.environ, "DEER_FLOW_CONFIG_PATH": str(config_path)}
+    env = {**os.environ, "SYNAPSE_CONFIG_PATH": str(config_path)}
     result = subprocess.run(
         ["bash", str(repo_root / "scripts" / "config-upgrade.sh")],
         env=env,
@@ -208,7 +208,7 @@ def test_version_26_config_reported_outdated_against_example(caplog):
             user_config={"config_version": 26},
             example_config=example,
         )
-        with caplog.at_level(logging.WARNING, logger="deerflow.config.app_config"):
+        with caplog.at_level(logging.WARNING, logger="SynapseAI.config.app_config"):
             AppConfig._check_config_version({"config_version": 26}, config_path)
         assert "outdated" in caplog.text
         assert "version 26" in caplog.text

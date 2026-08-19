@@ -70,8 +70,8 @@ stop:
 
 clean:
 	@echo "Cleaning temporary files..."
-	@rm -rf .deer-flow
-	@rm -rf backend/.deer-flow
+	@rm -rf .synapse-ai
+	@rm -rf backend/.synapse-ai
 	@rm -rf frontend/.next
 	@echo "✓ Cleaned"
 

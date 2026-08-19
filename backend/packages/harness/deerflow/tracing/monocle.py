@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 
-from deerflow.config import (
+from SynapseAI.config import (
     get_enabled_tracing_providers,
     get_tracing_config,
     is_monocle_tracing_enabled,
@@ -59,10 +59,10 @@ def setup_monocle_tracing_if_enabled() -> bool:
     try:
         from monocle_apptrace import setup_monocle_telemetry
     except ImportError as exc:
-        raise RuntimeError("MONOCLE_TRACING is enabled but monocle_apptrace is not installed. Install the 'monocle' extra: `uv sync --extra monocle` in backend/, or `pip install 'deerflow-harness[monocle]'`.") from exc
+        raise RuntimeError("MONOCLE_TRACING is enabled but monocle_apptrace is not installed. Install the 'monocle' extra: `uv sync --extra monocle` in backend/, or `pip install 'SynapseAI-harness[monocle]'`.") from exc
 
     # monocle_exporters_list takes the comma-separated string as-is (monocle_apptrace's API).
-    setup_monocle_telemetry(workflow_name="deer-flow", monocle_exporters_list=exporters)
+    setup_monocle_telemetry(workflow_name="synapse-ai", monocle_exporters_list=exporters)
     global _setup_completed
     _setup_completed = True
     logger.info("Monocle telemetry enabled (exporters=%s)", exporters)

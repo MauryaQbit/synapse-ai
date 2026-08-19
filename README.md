@@ -20,9 +20,9 @@ SynapseAI is an open-source AI agent orchestration platform designed for **simpl
 - 📄 Execute code in sandboxed environments
 - 🎯 Track and manage complex multi-step goals
 
-### Key Improvements Over DeerFlow
+### Key Improvements Over SynapseAI
 
-| Feature | DeerFlow | SynapseAI |
+| Feature | SynapseAI | SynapseAI |
 |---------|----------|-----------|
 | Configuration | 46 config modules, 1100+ line YAML | Single `config.yaml`, ~200 lines |
 | Middleware | 42 middleware components | 15 essential middlewares |
@@ -218,7 +218,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Attribution
 
-This project is a derivative work based on [DeerFlow](https://github.com/bytedance/deer-flow) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
+This project is a derivative work based on [SynapseAI](https://github.com/bytedance/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
 
 ---
 

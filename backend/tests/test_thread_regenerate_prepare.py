@@ -11,8 +11,8 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, Tool
 from langgraph.checkpoint.base import empty_checkpoint, uuid6
 from langgraph.checkpoint.memory import InMemorySaver
 
-from deerflow.runtime import RunStatus
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from SynapseAI.runtime import RunStatus
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
 
 def _checkpoint(
@@ -575,7 +575,7 @@ def test_prepare_regenerate_payload_does_not_mutate_legacy_single_checkpoint_bra
         legacy_metadata.update(
             {
                 "source": "branch",
-                "deerflow_branch": True,
+                "SynapseAI_branch": True,
                 "branch_parent_thread_id": source_thread_id,
                 "branch_parent_checkpoint_id": source_head_config["configurable"]["checkpoint_id"],
                 "branch_parent_message_id": "ai-1",
@@ -620,7 +620,7 @@ def test_prepare_regenerate_payload_rejects_legacy_branch_when_source_checkpoint
             step=1,
             metadata={
                 "source": "branch",
-                "deerflow_branch": True,
+                "SynapseAI_branch": True,
                 "branch_parent_thread_id": "deleted-source",
                 "branch_parent_checkpoint_id": "missing-checkpoint",
                 "branch_parent_message_id": "ai-1",
@@ -1378,7 +1378,7 @@ def test_prepare_regenerate_payload_uses_server_stamped_human_run_id_without_par
         "ckpt-ai",
         [human, ai],
         metadata={
-            "deerflow_branch": True,
+            "SynapseAI_branch": True,
             "branch_parent_thread_id": "parent-thread",
             "branch_parent_checkpoint_id": "parent-checkpoint",
         },

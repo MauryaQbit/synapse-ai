@@ -11,12 +11,12 @@ from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.runtime import Runtime
 from langgraph.types import Command, Overwrite
 
-from deerflow.agents.thread_state import ThreadState
-from deerflow.sandbox.middleware import SandboxMiddleware, SandboxMiddlewareState
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider, reset_sandbox_provider, set_sandbox_provider
-from deerflow.sandbox.search import GrepMatch
-from deerflow.sandbox.tools import ls_tool
+from SynapseAI.agents.thread_state import ThreadState
+from SynapseAI.sandbox.middleware import SandboxMiddleware, SandboxMiddlewareState
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider, reset_sandbox_provider, set_sandbox_provider
+from SynapseAI.sandbox.search import GrepMatch
+from SynapseAI.sandbox.tools import ls_tool
 
 
 class _SyncProvider(SandboxProvider):

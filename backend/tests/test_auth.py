@@ -287,7 +287,7 @@ def _make_internal_owner_check_app():
     from fastapi import Request
     from langgraph.store.memory import InMemoryStore
 
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
 
     app = FastAPI()
     thread_store = MemoryThreadMetaStore(InMemoryStore())
@@ -376,7 +376,7 @@ def test_sqlite_round_trip_new_fields():
     """needs_setup and token_version survive create → read round-trip.
 
     Uses the shared persistence engine (same one threads_meta, runs,
-    run_events, and feedback use). The old separate .deer-flow/users.db
+    run_events, and feedback use). The old separate .synapse-ai/users.db
     file is gone.
     """
     import asyncio
@@ -385,7 +385,7 @@ def test_sqlite_round_trip_new_fields():
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import (
+        from SynapseAI.persistence.engine import (
             close_engine,
             get_session_factory,
             init_engine,
@@ -441,12 +441,12 @@ def test_update_user_raises_when_row_concurrently_deleted(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import (
+        from SynapseAI.persistence.engine import (
             close_engine,
             get_session_factory,
             init_engine,
         )
-        from deerflow.persistence.user.model import UserRow
+        from SynapseAI.persistence.user.model import UserRow
 
         with tempfile.TemporaryDirectory() as d:
             url = f"sqlite+aiosqlite:///{d}/scratch.db"
@@ -496,7 +496,7 @@ def test_email_lookup_is_case_insensitive(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -523,7 +523,7 @@ def test_create_user_rejects_email_differing_only_in_case(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -547,8 +547,8 @@ def test_create_user_rejects_legacy_mixed_case_email(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
-        from deerflow.persistence.user.model import UserRow
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.user.model import UserRow
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -584,7 +584,7 @@ def test_update_user_normalizes_email(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -610,7 +610,7 @@ def test_distinct_emails_remain_distinct(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -645,8 +645,8 @@ def test_legacy_mixed_case_duplicate_rows_resolve_without_error(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
-        from deerflow.persistence.user.model import UserRow
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.user.model import UserRow
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -692,8 +692,8 @@ def test_update_user_on_legacy_mixed_case_row_does_not_collide(tmp_path):
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
 
     async def _run() -> None:
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
-        from deerflow.persistence.user.model import UserRow
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.user.model import UserRow
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -760,13 +760,13 @@ def test_oidc_login_blocked_by_existing_local_account_across_case(tmp_path):
     from app.gateway.auth.local_provider import LocalAuthProvider
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
     from app.gateway.auth.user_provisioning import get_or_provision_oidc_user
-    from deerflow.config.auth_config import OIDCProviderConfig
+    from SynapseAI.config.auth_config import OIDCProviderConfig
 
     async def _run() -> None:
         from fastapi import HTTPException
 
         from app.gateway.auth.oidc import OIDCIdentity
-        from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
+        from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path}/scratch.db"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -774,7 +774,7 @@ def test_oidc_login_blocked_by_existing_local_account_across_case(tmp_path):
             provider = LocalAuthProvider(SQLiteUserRepository(get_session_factory()))
             await provider.create_user(email="Victim@x.com", password="pw-abc-123!", system_role="user")
 
-            cfg = OIDCProviderConfig(display_name="Test SSO", issuer="https://issuer.example.com", client_id="deer-flow", auto_create_users=True)
+            cfg = OIDCProviderConfig(display_name="Test SSO", issuer="https://issuer.example.com", client_id="synapse-ai", auto_create_users=True)
             identity = OIDCIdentity(provider="keycloak", subject="sub-1", email="Victim@x.com", email_verified=True, name="Victim", claims={})
 
             with pytest.raises(HTTPException) as exc_info:

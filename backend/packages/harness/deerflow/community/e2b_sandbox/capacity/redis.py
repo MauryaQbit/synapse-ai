@@ -5,8 +5,8 @@ from __future__ import annotations
 import enum
 import logging
 
-from deerflow.community.aio_sandbox.ownership.factory import resolve_ownership_redis_url
-from deerflow.config.sandbox_config import SandboxOwnershipConfig
+from SynapseAI.community.aio_sandbox.ownership.factory import resolve_ownership_redis_url
+from SynapseAI.config.sandbox_config import SandboxOwnershipConfig
 
 logger = logging.getLogger(__name__)
 
@@ -183,7 +183,7 @@ class RedisE2BCapacityStore:
         *,
         redis_url: str,
         hard_limit: int,
-        key_prefix: str = "deerflow:sandbox:owner",
+        key_prefix: str = "SynapseAI:sandbox:owner",
     ) -> None:
         if hard_limit < 1:
             raise ValueError("hard_limit must be at least 1")

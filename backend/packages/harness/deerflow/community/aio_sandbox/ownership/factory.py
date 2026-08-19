@@ -13,15 +13,15 @@ import os
 import socket
 import uuid
 
-from deerflow.config.sandbox_config import SandboxOwnershipConfig
-from deerflow.config.stream_bridge_config import StreamBridgeConfig
+from SynapseAI.config.sandbox_config import SandboxOwnershipConfig
+from SynapseAI.config.stream_bridge_config import StreamBridgeConfig
 
 from .base import SandboxOwnershipStore
 
 logger = logging.getLogger(__name__)
 
-_ENV_OWNERSHIP_REDIS_URL = "DEER_FLOW_SANDBOX_OWNERSHIP_REDIS_URL"
-_ENV_STREAM_BRIDGE_REDIS_URL = "DEER_FLOW_STREAM_BRIDGE_REDIS_URL"
+_ENV_OWNERSHIP_REDIS_URL = "SYNAPSE_SANDBOX_OWNERSHIP_REDIS_URL"
+_ENV_STREAM_BRIDGE_REDIS_URL = "SYNAPSE_STREAM_BRIDGE_REDIS_URL"
 
 
 def generate_owner_id() -> str:

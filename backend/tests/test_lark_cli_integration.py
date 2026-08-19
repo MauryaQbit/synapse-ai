@@ -25,13 +25,13 @@ from fastapi.testclient import TestClient
 from app.gateway.auth.models import User
 from app.gateway.deps import get_config
 from app.gateway.routers import integrations as integrations_router
-from deerflow.config import paths as paths_module
-from deerflow.config.paths import Paths
-from deerflow.integrations import lark_cli
-from deerflow.sandbox.tools import _lark_cli_env_from_runtime
-from deerflow.skills.storage import reset_skill_storage
-from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
-from deerflow.skills.types import SkillCategory
+from SynapseAI.config import paths as paths_module
+from SynapseAI.config.paths import Paths
+from SynapseAI.integrations import lark_cli
+from SynapseAI.sandbox.tools import _lark_cli_env_from_runtime
+from SynapseAI.skills.storage import reset_skill_storage
+from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+from SynapseAI.skills.types import SkillCategory
 
 
 def _skill_content(name: str) -> str:
@@ -70,7 +70,7 @@ def _config(skills_root: Path):
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         )
     )
 
@@ -327,7 +327,7 @@ def test_aio_install_provisions_matching_linux_sandbox_runtime(monkeypatch, tmp_
     (skills_root / "public").mkdir(parents=True)
     (skills_root / "custom").mkdir()
     config = _config(skills_root)
-    config.sandbox = SimpleNamespace(use="deerflow.community.aio_sandbox:AioSandboxProvider")
+    config.sandbox = SimpleNamespace(use="SynapseAI.community.aio_sandbox:AioSandboxProvider")
     archive = _make_lark_cli_source_zip(tmp_path)
     provisioned_versions: list[str] = []
 
@@ -354,7 +354,7 @@ def test_remote_provisioner_install_skips_gateway_sandbox_runtime(monkeypatch, t
     (skills_root / "custom").mkdir()
     config = _config(skills_root)
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     archive = _make_lark_cli_source_zip(tmp_path)
@@ -379,7 +379,7 @@ def test_remote_provisioner_install_skips_gateway_sandbox_runtime(monkeypatch, t
 
 def test_status_runtime_mode_none_for_non_aio(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
-    config.sandbox = SimpleNamespace(use="deerflow.sandbox.local:LocalSandboxProvider")
+    config.sandbox = SimpleNamespace(use="SynapseAI.sandbox.local:LocalSandboxProvider")
     mode, ready, detail = lark_cli._resolve_sandbox_runtime_readiness(config, probe=True)
     assert mode == "none"
     assert ready is False
@@ -389,7 +389,7 @@ def test_status_runtime_mode_none_for_non_aio(monkeypatch, tmp_path) -> None:
 def test_status_runtime_mode_gateway_download_ready(monkeypatch, tmp_path) -> None:
     _patch_paths(monkeypatch, tmp_path / "home")
     config = _config(tmp_path / "skills")
-    config.sandbox = SimpleNamespace(use="deerflow.community.aio_sandbox:AioSandboxProvider")
+    config.sandbox = SimpleNamespace(use="SynapseAI.community.aio_sandbox:AioSandboxProvider")
 
     # Stage a valid runtime dir so validation passes.
     runtime = lark_cli.lark_cli_managed_sandbox_dir()
@@ -411,7 +411,7 @@ def test_status_runtime_mode_gateway_download_ready(monkeypatch, tmp_path) -> No
 def test_status_runtime_mode_gateway_download_not_ready(monkeypatch, tmp_path) -> None:
     _patch_paths(monkeypatch, tmp_path / "home")
     config = _config(tmp_path / "skills")
-    config.sandbox = SimpleNamespace(use="deerflow.community.aio_sandbox:AioSandboxProvider")
+    config.sandbox = SimpleNamespace(use="SynapseAI.community.aio_sandbox:AioSandboxProvider")
     mode, ready, detail = lark_cli._resolve_sandbox_runtime_readiness(config, probe=True)
     assert mode == "gateway-download"
     assert ready is False
@@ -421,7 +421,7 @@ def test_status_runtime_mode_gateway_download_not_ready(monkeypatch, tmp_path) -
 def test_status_runtime_mode_init_container_ready(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     monkeypatch.setattr(lark_cli, "_probe_provisioner_capabilities", lambda _config: {"lark_cli_init_image": True, "lark_cli_broker_image": False})
@@ -434,7 +434,7 @@ def test_status_runtime_mode_init_container_ready(monkeypatch, tmp_path) -> None
 def test_status_runtime_mode_broker_supersedes_init_container(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     # Broker (Pattern B) wins even when the init image is also configured.
@@ -448,7 +448,7 @@ def test_status_runtime_mode_broker_supersedes_init_container(monkeypatch, tmp_p
 def test_status_runtime_mode_init_container_not_configured(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     monkeypatch.setattr(lark_cli, "_probe_provisioner_capabilities", lambda _config: {"lark_cli_init_image": False, "lark_cli_broker_image": False})
@@ -461,7 +461,7 @@ def test_status_runtime_mode_init_container_not_configured(monkeypatch, tmp_path
 def test_status_runtime_mode_init_container_unreachable(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     monkeypatch.setattr(lark_cli, "_probe_provisioner_capabilities", lambda _config: None)
@@ -474,7 +474,7 @@ def test_status_runtime_mode_init_container_unreachable(monkeypatch, tmp_path) -
 def test_status_runtime_probe_skipped_when_not_requested(monkeypatch, tmp_path) -> None:
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
 
@@ -500,7 +500,7 @@ def test_sandbox_lark_broker_active_uses_tight_hot_path_timeout(monkeypatch, tmp
     _reset_broker_mode_cache()
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     seen: dict[str, float] = {}
@@ -522,7 +522,7 @@ def test_sandbox_lark_broker_active_caches_negative_result(monkeypatch, tmp_path
     _reset_broker_mode_cache()
     config = _config(tmp_path / "skills")
     config.sandbox = SimpleNamespace(
-        use="deerflow.community.aio_sandbox:AioSandboxProvider",
+        use="SynapseAI.community.aio_sandbox:AioSandboxProvider",
         provisioner_url="http://provisioner:8002",
     )
     calls = {"n": 0}
@@ -545,7 +545,7 @@ def test_sandbox_lark_broker_active_false_without_remote_provisioner(monkeypatch
     """Local AIO (no provisioner URL) never probes and is never broker mode."""
     _reset_broker_mode_cache()
     config = _config(tmp_path / "skills")
-    config.sandbox = SimpleNamespace(use="deerflow.community.aio_sandbox:AioSandboxProvider")
+    config.sandbox = SimpleNamespace(use="SynapseAI.community.aio_sandbox:AioSandboxProvider")
 
     def _fail(_config, *, timeout):  # pragma: no cover - must not be called
         raise AssertionError("no provisioner should be probed without a provisioner_url")
@@ -860,7 +860,7 @@ def test_resolve_lark_cli_path_prefers_managed_gateway_cli(monkeypatch, tmp_path
     assert lark_cli._resolve_lark_cli_path() == str(managed_bin)
 
 
-def test_install_managed_gateway_lark_cli_uses_deerflow_prefix(monkeypatch, tmp_path):
+def test_install_managed_gateway_lark_cli_uses_SynapseAI_prefix(monkeypatch, tmp_path):
     _patch_paths(monkeypatch, tmp_path / "home")
     captured: dict[str, object] = {}
 
@@ -1655,7 +1655,7 @@ def _status_with_host_paths() -> lark_cli.LarkIntegrationStatus:
         skills_installed=27,
         installed_skills=("lark-doc",),
         enabled_skills=("lark-doc",),
-        install_path="/home/deer-flow/.deer-flow/integrations/skills/lark-cli",
+        install_path="/home/synapse-ai/.synapse-ai/integrations/skills/lark-cli",
         cli=lark_cli.LarkCliProbe(available=True, path="/usr/bin/lark-cli", version="1.0.65"),
         auth=lark_cli.LarkAuthProbe(status="authenticated", user="alice"),
     )
@@ -1684,7 +1684,7 @@ def test_lark_status_exposes_host_paths_for_admin(monkeypatch, tmp_path):
     with TestClient(app) as client:
         body = client.get("/api/integrations/lark/status").json()
 
-    assert body["install_path"] == "/home/deer-flow/.deer-flow/integrations/skills/lark-cli"
+    assert body["install_path"] == "/home/synapse-ai/.synapse-ai/integrations/skills/lark-cli"
     assert body["cli"]["path"] == "/usr/bin/lark-cli"
 
 

@@ -8,9 +8,9 @@ from langchain_core.messages import HumanMessage
 from langgraph.config import get_config
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import ThreadDataState
-from deerflow.config.paths import Paths, get_paths
-from deerflow.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.agents.thread_state import ThreadDataState
+from SynapseAI.config.paths import Paths, get_paths
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
 
 logger = logging.getLogger(__name__)
 

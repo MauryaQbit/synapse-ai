@@ -10,7 +10,7 @@ from fastapi import APIRouter, HTTPException, Request, status
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.gateway.deps import require_admin_user
-from deerflow.config.extensions_config import (
+from SynapseAI.config.extensions_config import (
     ExtensionsConfig,
     McpRoutingConfig,
     McpTaskToolsetConfig,
@@ -21,8 +21,8 @@ from deerflow.config.extensions_config import (
     normalize_mcp_transport_alias,
     reload_extensions_config,
 )
-from deerflow.constants import DEFAULT_MCP_SESSION_INIT_TIMEOUT
-from deerflow.mcp.cache import reset_mcp_tools_cache
+from SynapseAI.constants import DEFAULT_MCP_SESSION_INIT_TIMEOUT
+from SynapseAI.mcp.cache import reset_mcp_tools_cache
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["mcp"])
@@ -30,7 +30,7 @@ router = APIRouter(prefix="/api", tags=["mcp"])
 _ADMIN_REQUIRED_DETAIL = "Admin privileges required to manage MCP configuration."
 
 
-_MCP_STDIO_COMMAND_ALLOWLIST_ENV = "DEER_FLOW_MCP_STDIO_COMMAND_ALLOWLIST"
+_MCP_STDIO_COMMAND_ALLOWLIST_ENV = "SYNAPSE_MCP_STDIO_COMMAND_ALLOWLIST"
 _DEFAULT_MCP_STDIO_COMMAND_ALLOWLIST = frozenset({"npx", "uvx"})
 _SHELL_METACHARS = frozenset(";|&`$<>\n\r")
 

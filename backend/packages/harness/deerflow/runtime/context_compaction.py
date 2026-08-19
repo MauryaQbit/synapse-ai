@@ -9,9 +9,9 @@ from types import SimpleNamespace
 
 from langgraph.types import Overwrite
 
-from deerflow.agents.middlewares.summarization_middleware import DeerFlowSummarizationMiddleware, SummaryGenerationError, create_summarization_middleware
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.runtime.checkpoint_state import CheckpointStateAccessor
+from SynapseAI.agents.middlewares.summarization_middleware import SynapseAISummarizationMiddleware, SummaryGenerationError, create_summarization_middleware
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.runtime.checkpoint_state import CheckpointStateAccessor
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ def _create_compaction_middleware(
     app_config: AppConfig,
     keep: tuple[str, int | float] | None,
     run_model_name: str | None = None,
-) -> DeerFlowSummarizationMiddleware:
+) -> SynapseAISummarizationMiddleware:
     middleware = create_summarization_middleware(app_config=app_config, keep=keep, run_model_name=run_model_name)
     if middleware is None:
         raise ContextCompactionDisabled("Context compaction is disabled.")
@@ -59,7 +59,7 @@ def _safe_load_agent_config(agent_name: str, user_id: str | None):
     does not flag the filesystem read and the broad ``except`` here cannot mask a
     ``BlockingError`` raised on the loop.
     """
-    from deerflow.config.agents_config import load_agent_config
+    from SynapseAI.config.agents_config import load_agent_config
 
     try:
         return load_agent_config(agent_name, user_id=user_id)

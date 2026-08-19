@@ -1,7 +1,7 @@
 from langchain.tools import tool
 
-from deerflow.config import get_app_config
-from deerflow.utils.readability import ReadabilityExtractor
+from SynapseAI.config import get_app_config
+from SynapseAI.utils.readability import ReadabilityExtractor
 
 from .infoquest_client import InfoQuestClient
 

@@ -15,19 +15,19 @@ from langchain_core.messages import (
 from langgraph.channels import DeltaChannel
 from langgraph.graph.message import REMOVE_ALL_MESSAGES
 
-import deerflow.checkpoint_patches as _checkpoint_patches  # noqa: F401 - import-time saver fixes
-from deerflow.agents.goal_state import GoalState
-from deerflow.config.database_config import DEFAULT_CHECKPOINT_SNAPSHOT_FREQUENCY, CheckpointChannelMode
-from deerflow.subagents.status_contract import SUBAGENT_STATUS_VALUES
+import SynapseAI.checkpoint_patches as _checkpoint_patches  # noqa: F401 - import-time saver fixes
+from SynapseAI.agents.goal_state import GoalState
+from SynapseAI.config.database_config import DEFAULT_CHECKPOINT_SNAPSHOT_FREQUENCY, CheckpointChannelMode
+from SynapseAI.subagents.status_contract import SUBAGENT_STATUS_VALUES
 
 
 def _resolve_snapshot_frequency(snapshot_frequency: int | None) -> int:
     """Resolve the effective cadence: explicit value, else process-frozen,
-    else default. Imported lazily — ``deerflow.runtime.__init__`` reaches this
+    else default. Imported lazily — ``SynapseAI.runtime.__init__`` reaches this
     module via ``checkpoint_state``, so a top-level import would cycle."""
     if snapshot_frequency is not None:
         return snapshot_frequency
-    from deerflow.runtime.checkpoint_mode import resolve_checkpoint_snapshot_frequency
+    from SynapseAI.runtime.checkpoint_mode import resolve_checkpoint_snapshot_frequency
 
     return resolve_checkpoint_snapshot_frequency()
 

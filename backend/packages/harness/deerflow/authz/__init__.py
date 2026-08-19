@@ -1,12 +1,12 @@
 """Pluggable fine-grained authorization (resource-level RBAC and beyond)."""
 
-from deerflow.authz.adapter import GuardrailAuthorizationAdapter
-from deerflow.authz.enforcement import filter_tools_by_authorization
-from deerflow.authz.principal import build_principal_from_context, normalize_authz_attributes
-from deerflow.authz.provider import AuthorizationProvider, AuthzDecision, AuthzReason, AuthzRequest, Principal
-from deerflow.authz.rbac import RbacAuthorizationProvider
-from deerflow.authz.runtime import resolve_authorization_provider
-from deerflow.authz.tool_filter import apply_tool_authorization
+from SynapseAI.authz.adapter import GuardrailAuthorizationAdapter
+from SynapseAI.authz.enforcement import filter_tools_by_authorization
+from SynapseAI.authz.principal import build_principal_from_context, normalize_authz_attributes
+from SynapseAI.authz.provider import AuthorizationProvider, AuthzDecision, AuthzReason, AuthzRequest, Principal
+from SynapseAI.authz.rbac import RbacAuthorizationProvider
+from SynapseAI.authz.runtime import resolve_authorization_provider
+from SynapseAI.authz.tool_filter import apply_tool_authorization
 
 __all__ = [
     "AuthzDecision",

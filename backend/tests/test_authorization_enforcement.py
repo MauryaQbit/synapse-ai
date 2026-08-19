@@ -9,23 +9,23 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from langchain_core.tools import StructuredTool
 
-from deerflow.agents.lead_agent import agent as lead_agent_module
-from deerflow.agents.middlewares.tool_error_handling_middleware import (
+from SynapseAI.agents.lead_agent import agent as lead_agent_module
+from SynapseAI.agents.middlewares.tool_error_handling_middleware import (
     build_lead_runtime_middlewares,
     build_subagent_runtime_middlewares,
 )
-from deerflow.authz.adapter import GuardrailAuthorizationAdapter
-from deerflow.authz.enforcement import filter_tools_by_authorization
-from deerflow.authz.provider import AuthzDecision, AuthzReason, Principal
-from deerflow.authz.rbac import RbacAuthorizationProvider
-from deerflow.config.app_config import AppConfig
-from deerflow.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
-from deerflow.config.guardrails_config import GuardrailProviderConfig, GuardrailsConfig
-from deerflow.config.model_config import ModelConfig
-from deerflow.config.sandbox_config import SandboxConfig
-from deerflow.guardrails.middleware import GuardrailMiddleware
-from deerflow.tools.builtins.tool_search import assemble_deferred_tools
-from deerflow.tools.mcp_metadata import tag_mcp_tool
+from SynapseAI.authz.adapter import GuardrailAuthorizationAdapter
+from SynapseAI.authz.enforcement import filter_tools_by_authorization
+from SynapseAI.authz.provider import AuthzDecision, AuthzReason, Principal
+from SynapseAI.authz.rbac import RbacAuthorizationProvider
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
+from SynapseAI.config.guardrails_config import GuardrailProviderConfig, GuardrailsConfig
+from SynapseAI.config.model_config import ModelConfig
+from SynapseAI.config.sandbox_config import SandboxConfig
+from SynapseAI.guardrails.middleware import GuardrailMiddleware
+from SynapseAI.tools.builtins.tool_search import assemble_deferred_tools
+from SynapseAI.tools.mcp_metadata import tag_mcp_tool
 
 
 def _tool(name: str) -> StructuredTool:
@@ -246,7 +246,7 @@ class TestAuthorizationGuardrailWiring:
         config = _app_config(
             authorization=AuthorizationConfig(
                 enabled=True,
-                provider=AuthorizationProviderConfig(use="deerflow.authz.rbac:RbacAuthorizationProvider", config={"roles": {"user": {}}}),
+                provider=AuthorizationProviderConfig(use="SynapseAI.authz.rbac:RbacAuthorizationProvider", config={"roles": {"user": {}}}),
             )
         )
 
@@ -261,12 +261,12 @@ class TestAuthorizationGuardrailWiring:
         config = _app_config(
             authorization=AuthorizationConfig(
                 enabled=True,
-                provider=AuthorizationProviderConfig(use="deerflow.authz.rbac:RbacAuthorizationProvider", config={"roles": {"user": {}}}),
+                provider=AuthorizationProviderConfig(use="SynapseAI.authz.rbac:RbacAuthorizationProvider", config={"roles": {"user": {}}}),
             ),
             guardrails=GuardrailsConfig(
                 enabled=True,
                 provider=GuardrailProviderConfig(
-                    use="deerflow.guardrails.builtin:AllowlistProvider",
+                    use="SynapseAI.guardrails.builtin:AllowlistProvider",
                     config={"allowed_tools": ["bash"]},
                 ),
             ),
@@ -334,7 +334,7 @@ def test_lead_agent_filters_all_model_visible_tools_and_reuses_provider(monkeypa
         authorization=AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"tools": {"allow": ["safe_tool"]}}}},
             ),
         ),
@@ -364,8 +364,8 @@ def test_lead_agent_filters_all_model_visible_tools_and_reuses_provider(monkeypa
         ),
         raising=False,
     )
-    monkeypatch.setattr("deerflow.skills.describe.build_skill_search_setup", lead_agent_module.build_skill_search_setup)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [_tool("safe_tool"), _tool("denied_tool")])
+    monkeypatch.setattr("SynapseAI.skills.describe.build_skill_search_setup", lead_agent_module.build_skill_search_setup)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [_tool("safe_tool"), _tool("denied_tool")])
     monkeypatch.setattr(lead_agent_module, "should_use_memory_tools", lambda memory_config: True)
     monkeypatch.setattr(
         lead_agent_module,

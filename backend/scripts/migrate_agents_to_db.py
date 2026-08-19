@@ -27,10 +27,10 @@ import asyncio
 import logging
 import sys
 
-from deerflow.config.app_config import get_app_config
-from deerflow.persistence.agents.base import AgentExistsError
-from deerflow.persistence.agents.file import FileAgentStore
-from deerflow.persistence.agents.sql import SqlAgentStore
+from SynapseAI.config.app_config import get_app_config
+from SynapseAI.persistence.agents.base import AgentExistsError
+from SynapseAI.persistence.agents.file import FileAgentStore
+from SynapseAI.persistence.agents.sql import SqlAgentStore
 
 logger = logging.getLogger("migrate_agents_to_db")
 
@@ -65,7 +65,7 @@ def main() -> int:
 
     # Ensure the schema exists (creates the ``agents`` table via the same
     # Alembic bootstrap the gateway runs) before the sync store writes rows.
-    from deerflow.persistence.engine import init_engine_from_config
+    from SynapseAI.persistence.engine import init_engine_from_config
 
     asyncio.run(init_engine_from_config(config.database))
 

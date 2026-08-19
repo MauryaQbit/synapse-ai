@@ -44,7 +44,7 @@ from collections.abc import Sequence
 
 import sqlalchemy as sa
 
-from deerflow.persistence.migrations._helpers import safe_add_column, safe_drop_column
+from SynapseAI.persistence.migrations._helpers import safe_add_column, safe_drop_column
 
 # revision identifiers, used by Alembic.
 revision: str = "0002_runs_token_usage"

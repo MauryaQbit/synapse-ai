@@ -17,24 +17,24 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.outputs import ChatGeneration, ChatResult
 from langchain_core.tools import tool
 
-from deerflow.agents.lead_agent import agent as lead_agent_module
-from deerflow.agents.middlewares import summarization_middleware as summarization_middleware_module
-from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
-from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
-from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
-from deerflow.agents.thread_state import DeltaThreadState, ThreadState
-from deerflow.config.agents_config import AgentConfig
-from deerflow.config.app_config import AppConfig
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.config.loop_detection_config import LoopDetectionConfig
-from deerflow.config.memory_config import MemoryConfig
-from deerflow.config.model_config import ModelConfig
-from deerflow.config.sandbox_config import SandboxConfig
-from deerflow.config.subagents_config import SubagentsAppConfig
-from deerflow.config.summarization_config import SummarizationConfig
-from deerflow.runtime.checkpoint_mode import INTERNAL_CHECKPOINT_MODE_KEY
-from deerflow.runtime.secret_context import write_slash_skill_source_path
-from deerflow.skills.types import Skill, SkillCategory
+from SynapseAI.agents.lead_agent import agent as lead_agent_module
+from SynapseAI.agents.middlewares import summarization_middleware as summarization_middleware_module
+from SynapseAI.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+from SynapseAI.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
+from SynapseAI.agents.middlewares.view_image_middleware import ViewImageMiddleware
+from SynapseAI.agents.thread_state import DeltaThreadState, ThreadState
+from SynapseAI.config.agents_config import AgentConfig
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.config.loop_detection_config import LoopDetectionConfig
+from SynapseAI.config.memory_config import MemoryConfig
+from SynapseAI.config.model_config import ModelConfig
+from SynapseAI.config.sandbox_config import SandboxConfig
+from SynapseAI.config.subagents_config import SubagentsAppConfig
+from SynapseAI.config.summarization_config import SummarizationConfig
+from SynapseAI.runtime.checkpoint_mode import INTERNAL_CHECKPOINT_MODE_KEY
+from SynapseAI.runtime.secret_context import write_slash_skill_source_path
+from SynapseAI.skills.types import Skill, SkillCategory
 
 _POLICY_INTEGRATION_TOOL_CALLS: list[str] = []
 
@@ -92,7 +92,7 @@ class _PolicyStorageStub:
 def _make_app_config(models: list[ModelConfig], loop_detection: LoopDetectionConfig | None = None) -> AppConfig:
     return AppConfig(
         models=models,
-        sandbox=SandboxConfig(use="deerflow.sandbox.local:LocalSandboxProvider"),
+        sandbox=SandboxConfig(use="SynapseAI.sandbox.local:LocalSandboxProvider"),
         loop_detection=loop_detection or LoopDetectionConfig(),
     )
 
@@ -134,7 +134,7 @@ def test_make_lead_agent_uses_server_auth_identity_for_all_user_scoped_inputs(mo
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
     captured: dict[str, object] = {}
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     def _load_agent_config(name, *, user_id=None):
         captured["agent_config_user_id"] = user_id
@@ -187,7 +187,7 @@ def test_make_lead_agent_scopes_bootstrap_middlewares_to_custom_agent(monkeypatc
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
     captured: dict[str, object] = {}
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "_load_enabled_available_skills", lambda *args, **kwargs: [])
     monkeypatch.setattr(lead_agent_module, "build_middlewares", lambda *args, **kwargs: captured.update(kwargs) or [])
@@ -215,7 +215,7 @@ def test_make_lead_agent_attaches_tracing_callbacks_at_graph_root(monkeypatch):
     """
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
@@ -250,7 +250,7 @@ def test_make_lead_agent_attaches_tracing_callbacks_at_graph_root(monkeypatch):
 def test_internal_make_lead_agent_uses_explicit_app_config(monkeypatch):
     app_config = _make_app_config([_make_model("explicit-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     def _raise_get_app_config():
         raise AssertionError("ambient get_app_config() must not be used when app_config is explicit")
@@ -287,7 +287,7 @@ def test_internal_make_lead_agent_selects_and_normalizes_delta_state(monkeypatch
     middleware = ViewImageMiddleware()
     original_schema = middleware.state_schema
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
@@ -318,7 +318,7 @@ def test_internal_make_lead_agent_selects_and_normalizes_delta_state(monkeypatch
 def test_internal_make_lead_agent_does_not_take_mode_from_runtime_context(monkeypatch):
     app_config = _make_app_config([_make_model("full-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(lead_agent_module, "build_middlewares", lambda *args, **kwargs: [])
@@ -341,7 +341,7 @@ def test_internal_make_lead_agent_does_not_take_mode_from_runtime_context(monkey
 
 
 def test_public_make_lead_agent_does_not_take_mode_from_runtime_context(monkeypatch):
-    from deerflow.runtime import checkpoint_mode
+    from SynapseAI.runtime import checkpoint_mode
 
     app_config = _make_app_config([_make_model("full-model", supports_thinking=False)])
     captured: dict[str, object] = {}
@@ -371,7 +371,7 @@ def test_public_make_lead_agent_does_not_take_mode_from_runtime_context(monkeypa
 def test_make_lead_agent_uses_runtime_app_config_from_context_without_global_read(monkeypatch):
     app_config = _make_app_config([_make_model("context-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     def _raise_get_app_config():
         raise AssertionError("ambient get_app_config() must not be used when runtime context already carries app_config")
@@ -453,7 +453,7 @@ def test_resolve_model_name_raises_when_no_models_configured(monkeypatch):
 def test_make_lead_agent_disables_thinking_when_model_does_not_support_it(monkeypatch):
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
@@ -496,7 +496,7 @@ def test_make_lead_agent_reads_runtime_options_from_context(monkeypatch):
         ]
     )
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     get_available_tools = MagicMock(return_value=[])
     monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
@@ -541,7 +541,7 @@ def test_make_lead_agent_reads_runtime_options_from_context(monkeypatch):
 def test_make_lead_agent_filters_clarification_tool_for_non_interactive_runs(monkeypatch):
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     def _named_tool(name: str):
         tool = MagicMock()
@@ -627,10 +627,10 @@ def test_build_middlewares_uses_resolved_model_name_for_vision(monkeypatch):
     #   sits at index [-5].
     assert len(middlewares) > 0 and isinstance(middlewares[-5], MagicMock)
 
-    from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
-    from deerflow.agents.middlewares.model_length_finish_reason_middleware import ModelLengthFinishReasonMiddleware
-    from deerflow.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
-    from deerflow.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
+    from SynapseAI.agents.middlewares.clarification_middleware import ClarificationMiddleware
+    from SynapseAI.agents.middlewares.model_length_finish_reason_middleware import ModelLengthFinishReasonMiddleware
+    from SynapseAI.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
+    from SynapseAI.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
 
     assert isinstance(middlewares[-4], TerminalResponseMiddleware)
     assert isinstance(middlewares[-3], ModelLengthFinishReasonMiddleware)
@@ -722,9 +722,9 @@ def test_build_middlewares_passes_run_model_name_to_summarization(monkeypatch):
 
 
 def test_build_middlewares_orders_skill_activation_before_policy_and_durable_context(monkeypatch):
-    from deerflow.agents.middlewares.durable_context_middleware import DurableContextMiddleware
-    from deerflow.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
-    from deerflow.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
+    from SynapseAI.agents.middlewares.durable_context_middleware import DurableContextMiddleware
+    from SynapseAI.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
+    from SynapseAI.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
 
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
     monkeypatch.setattr(lead_agent_module, "build_lead_runtime_middlewares", lambda *, app_config, lazy_init=True: [])
@@ -747,9 +747,9 @@ def test_build_middlewares_orders_skill_activation_before_policy_and_durable_con
 
 @pytest.mark.parametrize("use_stale_path", [False, True], ids=["restrictive-skill", "stale-active-path"])
 def test_compiled_skill_policy_chain_filters_schema_and_blocks_execution(monkeypatch, use_stale_path):
-    from deerflow.agents.middlewares.durable_context_middleware import DurableContextMiddleware
-    from deerflow.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
-    from deerflow.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
+    from SynapseAI.agents.middlewares.durable_context_middleware import DurableContextMiddleware
+    from SynapseAI.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
+    from SynapseAI.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
 
     app_config = _make_app_config(
         [_make_model("safe-model", supports_thinking=False)],
@@ -817,9 +817,9 @@ def test_compiled_skill_policy_chain_filters_schema_and_blocks_execution(monkeyp
 
 
 def test_build_middlewares_places_mcp_routing_before_deferred_filter(monkeypatch):
-    from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
-    from deerflow.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
-    from deerflow.tools.builtins.tool_search import DeferredToolSetup
+    from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+    from SynapseAI.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
+    from SynapseAI.tools.builtins.tool_search import DeferredToolSetup
 
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)], loop_detection=LoopDetectionConfig(enabled=False))
     routing = McpRoutingMiddleware({"mcp_thing": {"priority": 100, "keywords": ["orders"]}}, "hash123", 3)
@@ -1088,7 +1088,7 @@ def test_create_summarization_middleware_uses_configured_model_alias(monkeypatch
 
     monkeypatch.setattr(summarization_middleware_module, "get_app_config", _raise_get_app_config)
     monkeypatch.setattr(summarization_middleware_module, "create_chat_model", _fake_create_chat_model)
-    monkeypatch.setattr(summarization_middleware_module, "DeerFlowSummarizationMiddleware", lambda **kwargs: kwargs)
+    monkeypatch.setattr(summarization_middleware_module, "SynapseAISummarizationMiddleware", lambda **kwargs: kwargs)
 
     middleware = lead_agent_module._create_summarization_middleware(app_config=app_config)
 
@@ -1116,7 +1116,7 @@ def test_create_summarization_middleware_uses_default_when_unconfigured(monkeypa
         return fake_model
 
     monkeypatch.setattr(summarization_middleware_module, "create_chat_model", _fake_create_chat_model)
-    monkeypatch.setattr(summarization_middleware_module, "DeerFlowSummarizationMiddleware", lambda **kwargs: kwargs)
+    monkeypatch.setattr(summarization_middleware_module, "SynapseAISummarizationMiddleware", lambda **kwargs: kwargs)
 
     middleware = lead_agent_module._create_summarization_middleware(app_config=app_config)
 
@@ -1143,7 +1143,7 @@ def test_create_summarization_middleware_threads_run_model_name(monkeypatch):
     fake_model = MagicMock()
     fake_model.with_config.return_value = fake_model
     monkeypatch.setattr(summarization_middleware_module, "create_chat_model", lambda **kwargs: fake_model)
-    monkeypatch.setattr(summarization_middleware_module, "DeerFlowSummarizationMiddleware", lambda **kwargs: kwargs)
+    monkeypatch.setattr(summarization_middleware_module, "SynapseAISummarizationMiddleware", lambda **kwargs: kwargs)
 
     middleware = lead_agent_module._create_summarization_middleware(app_config=app_config, run_model_name="custom-agent-model")
 
@@ -1166,7 +1166,7 @@ def test_create_summarization_middleware_uses_frontend_supported_update_key(monk
 
     assert middleware is not None
     update_key = f"{type(middleware).__name__}.before_model"
-    assert update_key == "DeerFlowSummarizationMiddleware.before_model"
+    assert update_key == "SynapseAISummarizationMiddleware.before_model"
 
 
 def test_create_summarization_middleware_threads_resolved_app_config_to_model(monkeypatch):
@@ -1186,7 +1186,7 @@ def test_create_summarization_middleware_threads_resolved_app_config_to_model(mo
 
     monkeypatch.setattr(summarization_middleware_module, "get_app_config", lambda: fallback_app_config)
     monkeypatch.setattr(summarization_middleware_module, "create_chat_model", _fake_create_chat_model)
-    monkeypatch.setattr(summarization_middleware_module, "DeerFlowSummarizationMiddleware", lambda **kwargs: kwargs)
+    monkeypatch.setattr(summarization_middleware_module, "SynapseAISummarizationMiddleware", lambda **kwargs: kwargs)
 
     lead_agent_module._create_summarization_middleware()
 
@@ -1194,8 +1194,8 @@ def test_create_summarization_middleware_threads_resolved_app_config_to_model(mo
 
 
 def test_memory_middleware_uses_explicit_memory_config_without_global_read(monkeypatch):
-    from deerflow.agents.middlewares import memory_middleware as memory_middleware_module
-    from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+    from SynapseAI.agents.middlewares import memory_middleware as memory_middleware_module
+    from SynapseAI.agents.middlewares.memory_middleware import MemoryMiddleware
 
     def _raise_get_memory_config():
         raise AssertionError("ambient get_memory_config() must not be used when memory_config is explicit")
@@ -1208,8 +1208,8 @@ def test_memory_middleware_uses_explicit_memory_config_without_global_read(monke
 
 
 def test_memory_middleware_async_path_uses_async_manager_call(monkeypatch):
-    from deerflow.agents.middlewares import memory_middleware as memory_middleware_module
-    from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+    from SynapseAI.agents.middlewares import memory_middleware as memory_middleware_module
+    from SynapseAI.agents.middlewares.memory_middleware import MemoryMiddleware
 
     manager = SimpleNamespace(aadd=AsyncMock(), add=MagicMock(side_effect=AssertionError("sync add must not run")))
     monkeypatch.setattr(memory_middleware_module, "get_memory_manager", lambda: manager)
@@ -1239,7 +1239,7 @@ def test_resolve_runtime_option_precedence():
 
 
 def _make_agent_config(**kwargs):
-    from deerflow.config.agents_config import AgentConfig
+    from SynapseAI.config.agents_config import AgentConfig
 
     return AgentConfig(name="researcher", **kwargs)
 
@@ -1256,7 +1256,7 @@ def test_make_lead_agent_applies_agent_model_settings(monkeypatch):
         reasoning_effort="high",
     )
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "load_agent_config", lambda name, *, user_id=None: agent_config)
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
@@ -1285,7 +1285,7 @@ def test_request_thinking_overrides_agent_default(monkeypatch):
     app_config = _make_app_config([_make_model("agent-model", supports_thinking=True)])
     agent_config = _make_agent_config(model="agent-model", thinking_enabled=False)
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "load_agent_config", lambda name, *, user_id=None: agent_config)
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])
@@ -1312,7 +1312,7 @@ def test_make_lead_agent_no_agent_settings_passes_none_overrides(monkeypatch):
     """Without a custom agent, model_overrides is None (no behavior change)."""
     app_config = _make_app_config([_make_model("safe-model", supports_thinking=False)])
 
-    import deerflow.tools as tools_module
+    import SynapseAI.tools as tools_module
 
     monkeypatch.setattr(lead_agent_module, "get_app_config", lambda: app_config)
     monkeypatch.setattr(tools_module, "get_available_tools", lambda **kwargs: [])

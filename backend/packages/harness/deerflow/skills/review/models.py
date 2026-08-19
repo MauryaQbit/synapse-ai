@@ -8,12 +8,12 @@ from dataclasses import dataclass
 from pathlib import PurePosixPath
 from typing import Any, Literal
 
-PACKAGE_SNAPSHOT_SCHEMA_VERSION = "deerflow.skill-package-snapshot.v1"
-FACTS_SCHEMA_VERSION = "deerflow.skill-review.facts.v1"
-REPORT_SCHEMA_VERSION = "deerflow.skill-review.report.v1"
+PACKAGE_SNAPSHOT_SCHEMA_VERSION = "SynapseAI.skill-package-snapshot.v1"
+FACTS_SCHEMA_VERSION = "SynapseAI.skill-review.facts.v1"
+REPORT_SCHEMA_VERSION = "SynapseAI.skill-review.report.v1"
 
 Severity = Literal["blocker", "error", "warning", "info"]
-ProfileName = Literal["deerflow", "agentskills"]
+ProfileName = Literal["SynapseAI", "agentskills"]
 
 SEVERITY_RANK: dict[str, int] = {
     "blocker": 0,
@@ -76,7 +76,7 @@ def make_finding(
     message: str,
     remediation: str,
     source: str = "review-core",
-    profile: str = "deerflow",
+    profile: str = "SynapseAI",
     path: str | None = None,
     line: int | None = None,
     evidence: Any | None = None,

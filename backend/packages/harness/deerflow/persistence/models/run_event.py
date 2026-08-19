@@ -7,8 +7,8 @@ from datetime import UTC, datetime
 from sqlalchemy import JSON, DateTime, Index, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from deerflow.constants import RUN_EVENT_CATEGORY_MAX_LENGTH, RUN_EVENT_TYPE_MAX_LENGTH
-from deerflow.persistence.base import Base
+from SynapseAI.constants import RUN_EVENT_CATEGORY_MAX_LENGTH, RUN_EVENT_TYPE_MAX_LENGTH
+from SynapseAI.persistence.base import Base
 
 
 class RunEventRow(Base):

@@ -10,11 +10,11 @@ from sqlalchemy import case, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 from sqlalchemy.orm.attributes import flag_modified
 
-from deerflow.persistence.json_compat import json_match
-from deerflow.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaStore
-from deerflow.persistence.thread_meta.model import ThreadMetaRow
-from deerflow.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
-from deerflow.utils.time import coerce_iso
+from SynapseAI.persistence.json_compat import json_match
+from SynapseAI.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaStore
+from SynapseAI.persistence.thread_meta.model import ThreadMetaRow
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
+from SynapseAI.utils.time import coerce_iso
 
 logger = logging.getLogger(__name__)
 

@@ -2,9 +2,9 @@
 
 from langchain_core.messages import AIMessage, ToolMessage
 
-from deerflow.agents.middlewares.delegation_ledger import extract_delegations, render_delegation_ledger
-from deerflow.agents.thread_state import TERMINAL_STATUSES, merge_delegations
-from deerflow.subagents.status_contract import SUBAGENT_STATUS_VALUES
+from SynapseAI.agents.middlewares.delegation_ledger import extract_delegations, render_delegation_ledger
+from SynapseAI.agents.thread_state import TERMINAL_STATUSES, merge_delegations
+from SynapseAI.subagents.status_contract import SUBAGENT_STATUS_VALUES
 
 
 def _entry(entry_id: str, status: str, description: str = "d", subagent_type: str = "general-purpose"):
@@ -70,7 +70,7 @@ class TestMergeDelegations:
         assert out[0]["run_id"] == "run-1"
 
     def test_over_cap_keeps_most_recent_entries(self):
-        from deerflow.agents import thread_state as thread_state_module
+        from SynapseAI.agents import thread_state as thread_state_module
 
         cap = getattr(thread_state_module, "_DELEGATION_LEDGER_MAX_ENTRIES", None)
         assert isinstance(cap, int)

@@ -1,11 +1,11 @@
-"""Tests for deerflow.config.tracing_config."""
+"""Tests for SynapseAI.config.tracing_config."""
 
 from __future__ import annotations
 
 import pytest
 
-from deerflow.config import tracing_config as tracing_module
-from deerflow.config.tracing_config import reset_tracing_config
+from SynapseAI.config import tracing_config as tracing_module
+from SynapseAI.config.tracing_config import reset_tracing_config
 
 
 def _reset_tracing_cache() -> None:
@@ -100,7 +100,7 @@ def test_defaults_when_project_not_set(monkeypatch):
     _reset_tracing_cache()
     cfg = tracing_module.get_tracing_config()
 
-    assert cfg.langsmith.project == "deer-flow"
+    assert cfg.langsmith.project == "synapse-ai"
 
 
 def test_langfuse_config_is_loaded(monkeypatch):

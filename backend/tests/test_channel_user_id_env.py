@@ -4,7 +4,7 @@ Two halves:
 - Gateway: only an internally authenticated caller's top-level ``body.context``
   may supply ``channel_user_id``; free-form RunnableConfig values are cleared.
 - Sandbox: ``bash_tool`` exposes the id as the fixed env var
-  ``DEERFLOW_CHANNEL_USER_ID`` via an ``export`` prefix on the command string.
+  ``SynapseAI_CHANNEL_USER_ID`` via an ``export`` prefix on the command string.
   It must NOT ride the ``env=`` parameter: on ``AioSandbox`` a non-empty env
   switches execution to the ``bash.exec`` API, which requires image >= 1.9.3
   and abandons the persistent shell session — that channel is reserved for
@@ -13,16 +13,16 @@ Two halves:
 
 from types import SimpleNamespace
 
-from deerflow.sandbox.tools import (
+from SynapseAI.sandbox.tools import (
     CHANNEL_USER_ID_ENV,
     _channel_identity_prefix,
     bash_tool,
 )
 
 _THREAD_DATA = {
-    "workspace_path": "/tmp/deer-flow/threads/t1/user-data/workspace",
-    "uploads_path": "/tmp/deer-flow/threads/t1/user-data/uploads",
-    "outputs_path": "/tmp/deer-flow/threads/t1/user-data/outputs",
+    "workspace_path": "/tmp/synapse-ai/threads/t1/user-data/workspace",
+    "uploads_path": "/tmp/synapse-ai/threads/t1/user-data/uploads",
+    "outputs_path": "/tmp/synapse-ai/threads/t1/user-data/outputs",
 }
 
 
@@ -45,8 +45,8 @@ class _CapturingSandbox:
 
 def _run_bash(monkeypatch, runtime, command: str = "echo hi") -> _CapturingSandbox:
     sandbox = _CapturingSandbox()
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
     bash_tool.func(runtime=runtime, description="test", command=command)
     return sandbox
 
@@ -189,10 +189,10 @@ class TestBashToolChannelIdentityPrefix:
             context={"channel_user_id": "ou_1", "thread_id": "t1"},
         )
         sandbox = _CapturingSandbox()
-        monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-        monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-        monkeypatch.setattr("deerflow.sandbox.tools.is_host_bash_allowed", lambda: True)
-        monkeypatch.setattr("deerflow.sandbox.tools._is_windows", lambda: True)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.is_host_bash_allowed", lambda: True)
+        monkeypatch.setattr("SynapseAI.sandbox.tools._is_windows", lambda: True)
 
         bash_tool.func(runtime=runtime, description="test", command="echo hi")
 
@@ -205,10 +205,10 @@ class TestBashToolChannelIdentityPrefix:
             context={"channel_user_id": "ou_1", "thread_id": "t1"},
         )
         sandbox = _CapturingSandbox()
-        monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-        monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-        monkeypatch.setattr("deerflow.sandbox.tools.is_host_bash_allowed", lambda: True)
-        monkeypatch.setattr("deerflow.sandbox.tools._is_windows", lambda: False)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+        monkeypatch.setattr("SynapseAI.sandbox.tools.is_host_bash_allowed", lambda: True)
+        monkeypatch.setattr("SynapseAI.sandbox.tools._is_windows", lambda: False)
 
         bash_tool.func(runtime=runtime, description="test", command="echo hi")
 

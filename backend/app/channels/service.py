@@ -18,9 +18,9 @@ from app.channels.store import ChannelStore
 logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
-    from deerflow.config.channel_connections_config import ChannelConnectionsConfig
-    from deerflow.runtime import StreamBridge
+    from SynapseAI.config.app_config import AppConfig
+    from SynapseAI.config.channel_connections_config import ChannelConnectionsConfig
+    from SynapseAI.runtime import StreamBridge
 
 # Channel name → import path for lazy loading
 _CHANNEL_REGISTRY: dict[str, str] = {
@@ -47,8 +47,8 @@ _CHANNEL_CREDENTIAL_KEYS: dict[str, list[str]] = {
     "wechat": ["bot_token"],
 }
 
-_CHANNELS_LANGGRAPH_URL_ENV = "DEER_FLOW_CHANNELS_LANGGRAPH_URL"
-_CHANNELS_GATEWAY_URL_ENV = "DEER_FLOW_CHANNELS_GATEWAY_URL"
+_CHANNELS_LANGGRAPH_URL_ENV = "SYNAPSE_CHANNELS_LANGGRAPH_URL"
+_CHANNELS_GATEWAY_URL_ENV = "SYNAPSE_CHANNELS_GATEWAY_URL"
 
 
 def _channel_has_credentials(name: str, channel_config: dict[str, Any]) -> bool:
@@ -96,8 +96,8 @@ def _make_connection_repo(connection_config: ChannelConnectionsConfig | None):
         return None
 
     try:
-        from deerflow.persistence.channel_connections import ChannelConnectionRepository
-        from deerflow.persistence.engine import get_session_factory
+        from SynapseAI.persistence.channel_connections import ChannelConnectionRepository
+        from SynapseAI.persistence.engine import get_session_factory
     except Exception:
         logger.exception("Failed to import channel connection repository")
         return None
@@ -173,7 +173,7 @@ class ChannelService:
         auto-draining can omit it.
         """
         if app_config is None:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             app_config = get_app_config()
         channels_config = {}
@@ -310,7 +310,7 @@ class ChannelService:
         Falls back to the cached ``self._config`` when config loading fails.
         """
         try:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             app_config = get_app_config()
             extra = app_config.model_extra or {}
@@ -382,7 +382,7 @@ class ChannelService:
             return False
 
         try:
-            from deerflow.reflection import resolve_class
+            from SynapseAI.reflection import resolve_class
 
             channel_cls = resolve_class(import_path, base_class=None)
         except Exception:

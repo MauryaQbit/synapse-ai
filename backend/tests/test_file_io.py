@@ -5,7 +5,7 @@ import threading
 
 import pytest
 
-from deerflow.utils.file_io import run_file_io
+from SynapseAI.utils.file_io import run_file_io
 
 
 @pytest.mark.anyio

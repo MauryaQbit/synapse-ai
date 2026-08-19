@@ -13,7 +13,7 @@ The agent sees deferred tool names in <available-deferred-tools> but cannot
 call them until it fetches their full schema via the tool_search tool. The
 deferred set rides on a build-time closure and promotion lives in per-thread
 graph state — there is no ContextVar. Source-agnostic: a tool is "deferred"
-when it carries the ``deerflow_mcp`` metadata tag.
+when it carries the ``SynapseAI_mcp`` metadata tag.
 """
 
 import hashlib
@@ -32,7 +32,7 @@ from langchain_core.tools import InjectedToolCallId, tool
 from langchain_core.utils.function_calling import convert_to_openai_function
 from langgraph.types import Command
 
-from deerflow.tools.mcp_metadata import get_mcp_routing, is_mcp_tool
+from SynapseAI.tools.mcp_metadata import get_mcp_routing, is_mcp_tool
 
 if TYPE_CHECKING:
     from langchain.agents.middleware import AgentMiddleware
@@ -271,7 +271,7 @@ def build_mcp_routing_middleware(
     if not routing_index:
         return None
 
-    from deerflow.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
+    from SynapseAI.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
 
     return McpRoutingMiddleware(routing_index, deferred_setup.catalog_hash, top_k)
 

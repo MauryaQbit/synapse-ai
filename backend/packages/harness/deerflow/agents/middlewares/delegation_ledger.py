@@ -9,8 +9,8 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, AnyMessage, ToolMessage
 
-from deerflow.agents.thread_state import DelegationEntry
-from deerflow.subagents.status_contract import (
+from SynapseAI.agents.thread_state import DelegationEntry
+from SynapseAI.subagents.status_contract import (
     read_subagent_result_metadata,
 )
 

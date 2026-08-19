@@ -14,7 +14,7 @@ from datetime import datetime
 from sqlalchemy import DateTime, Index, PrimaryKeyConstraint, String, func
 from sqlalchemy.orm import Mapped, mapped_column
 
-from deerflow.persistence.base import Base
+from SynapseAI.persistence.base import Base
 
 
 class WebhookDeliveryRow(Base):

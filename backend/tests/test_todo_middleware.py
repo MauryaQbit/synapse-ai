@@ -10,14 +10,14 @@ from langchain_core.language_models.fake_chat_models import FakeMessagesListChat
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from pydantic import PrivateAttr
 
-from deerflow.agents.middlewares.todo_middleware import (
+from SynapseAI.agents.middlewares.todo_middleware import (
     TodoMiddleware,
     _format_todos,
     _has_tool_call_intent_or_error,
     _reminder_in_messages,
     _todos_in_messages,
 )
-from deerflow.agents.thread_state import ThreadState
+from SynapseAI.agents.thread_state import ThreadState
 
 
 def _ai_with_write_todos():
@@ -470,7 +470,7 @@ class TestAafterModel:
 
 class TestWrapModelCall:
     def test_no_pending_reminder_still_injects_todo_system_prompt(self):
-        """Regression for bytedance/deer-flow#4714: the base class system-prompt
+        """Regression for bytedance/synapse-ai#4714: the base class system-prompt
         injection must survive the override, otherwise the model never learns
         about `write_todos` and no todo list is ever produced."""
         mw = TodoMiddleware()
@@ -560,7 +560,7 @@ class TestTodoMiddlewareAgentGraphIntegration:
 
         assert result["todos"] == [{"content": "Step 1", "status": "pending"}]
 
-        # Regression for bytedance/deer-flow#4714: the model request must carry
+        # Regression for bytedance/synapse-ai#4714: the model request must carry
         # the `write_todos` system prompt (injected by the base class), otherwise
         # the model never produces a todo list.
         first_model_call = model.seen_messages[0]

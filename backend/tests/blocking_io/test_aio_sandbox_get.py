@@ -7,7 +7,7 @@ lookup. A prior change renewed the cross-process lease inside ``get()``
 — reported on PR #4221.
 
 Under the strict Blockbuster context (this directory's conftest), any blocking IO
-reached from ``deerflow.*`` while on the event loop raises ``BlockingError``.
+reached from ``SynapseAI.*`` while on the event loop raises ``BlockingError``.
 
 The ownership store is injected here as a **blocking probe**: every store method
 does real file IO. That keeps the anchor honest across backends — the configured
@@ -54,7 +54,7 @@ class _BlockingProbeStore:
         return True
 
     def renew(self, sandbox_id: str):
-        from deerflow.community.aio_sandbox.ownership import RenewOutcome
+        from SynapseAI.community.aio_sandbox.ownership import RenewOutcome
 
         self._blocking_touch()
         return RenewOutcome.RENEWED
@@ -71,8 +71,8 @@ class _BlockingProbeStore:
 
 def _make_provider(tmp_path: Path):
     """Build an ``AioSandboxProvider`` without ``__init__`` (no Docker, no threads)."""
-    from deerflow.community.aio_sandbox.aio_sandbox_provider import AioSandboxProvider
-    from deerflow.config.sandbox_config import SandboxOwnershipConfig
+    from SynapseAI.community.aio_sandbox.aio_sandbox_provider import AioSandboxProvider
+    from SynapseAI.config.sandbox_config import SandboxOwnershipConfig
 
     provider = AioSandboxProvider.__new__(AioSandboxProvider)
     provider._lock = threading.Lock()
@@ -132,14 +132,14 @@ async def test_async_acquire_offloads_ownership_publish(tmp_path, monkeypatch):
     these two were called directly, putting a Redis round trip on the event loop
     for every discover/create.
     """
-    import deerflow.community.aio_sandbox.aio_sandbox_provider as aio_mod
-    from deerflow.community.aio_sandbox.sandbox_info import SandboxInfo
+    import SynapseAI.community.aio_sandbox.aio_sandbox_provider as aio_mod
+    from SynapseAI.community.aio_sandbox.sandbox_info import SandboxInfo
 
     provider = _make_provider(tmp_path)
     info = SandboxInfo(
         sandbox_id="sb-async",
         sandbox_url="http://localhost:8080",
-        container_name="deer-flow-sandbox-sb-async",
+        container_name="synapse-ai-sandbox-sb-async",
         created_at=1.0,
     )
     provider._backend.discover = MagicMock(return_value=info)

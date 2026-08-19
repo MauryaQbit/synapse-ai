@@ -106,7 +106,7 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     parser.add_argument(
         "--python",
         default=sys.executable,
-        help="Python executable used to invoke python -m deerflow.skills.review.cli.",
+        help="Python executable used to invoke python -m SynapseAI.skills.review.cli.",
     )
     args = parser.parse_args(argv)
 
@@ -240,7 +240,7 @@ def find_public_skill_package(path: PurePosixPath, repo_root: Path) -> PurePosix
 
 
 def _is_eval_fixture_skill_md(path: PurePosixPath) -> bool:
-    from deerflow.skills.package_paths import is_eval_fixture_skill_md
+    from SynapseAI.skills.package_paths import is_eval_fixture_skill_md
 
     return is_eval_fixture_skill_md(path)
 
@@ -250,7 +250,7 @@ def run_review(package: Path, repo_root: Path, python_executable: str) -> int:
     command = [
         python_executable,
         "-m",
-        "deerflow.skills.review.cli",
+        "SynapseAI.skills.review.cli",
         package_rel,
         "--format",
         "text",
@@ -261,7 +261,7 @@ def run_review(package: Path, repo_root: Path, python_executable: str) -> int:
     log_command = [
         "python",
         "-m",
-        "deerflow.skills.review.cli",
+        "SynapseAI.skills.review.cli",
         package_rel,
         "--format",
         "text",

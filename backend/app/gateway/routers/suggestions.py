@@ -4,13 +4,13 @@ import logging
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, Field
 
-import deerflow.utils.llm_text as llm_text
+import SynapseAI.utils.llm_text as llm_text
 from app.gateway.authz import require_permission
 from app.gateway.deps import get_config
-from deerflow.config.app_config import AppConfig
-from deerflow.config.suggestions_config import DEFAULT_MAX_SUGGESTIONS, MAX_SUGGESTIONS_LIMIT
-from deerflow.utils.oneshot_llm import run_oneshot_llm
-from deerflow.utils.thread_id import ThreadId
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.suggestions_config import DEFAULT_MAX_SUGGESTIONS, MAX_SUGGESTIONS_LIMIT
+from SynapseAI.utils.oneshot_llm import run_oneshot_llm
+from SynapseAI.utils.thread_id import ThreadId
 
 logger = logging.getLogger(__name__)
 

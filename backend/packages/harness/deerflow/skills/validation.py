@@ -6,9 +6,9 @@ Pure-logic validation of SKILL.md frontmatter — no FastAPI or HTTP dependencie
 import re
 from pathlib import Path
 
-from deerflow.skills.frontmatter import ALLOWED_FRONTMATTER_PROPERTIES, split_skill_markdown
-from deerflow.skills.parser import parse_allowed_tools
-from deerflow.skills.types import SKILL_MD_FILE
+from SynapseAI.skills.frontmatter import ALLOWED_FRONTMATTER_PROPERTIES, split_skill_markdown
+from SynapseAI.skills.parser import parse_allowed_tools
+from SynapseAI.skills.types import SKILL_MD_FILE
 
 
 def _validate_skill_frontmatter(skill_dir: Path) -> tuple[bool, str, str | None]:

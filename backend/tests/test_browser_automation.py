@@ -14,9 +14,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deerflow.community.browser_automation import session as session_mod
-from deerflow.community.browser_automation import tools
-from deerflow.community.browser_automation.session import (
+from SynapseAI.community.browser_automation import session as session_mod
+from SynapseAI.community.browser_automation import tools
+from SynapseAI.community.browser_automation.session import (
     _LIVE_FRAME_JPEG_QUALITY,
     BrowserLiveViewerError,
     BrowserSession,

@@ -7,14 +7,14 @@ from langchain.agents.middleware.types import ModelRequest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
 from app.channels.commands import KNOWN_CHANNEL_COMMANDS
-from deerflow.agents.middlewares import skill_activation_middleware as middleware_module
-from deerflow.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware, is_slash_skill_activation_reminder
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.config.paths import Paths
-from deerflow.skills.slash import RESERVED_SLASH_SKILL_NAMES, parse_slash_skill_reference, resolve_slash_skill
-from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
-from deerflow.skills.types import Skill, SkillCategory
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from SynapseAI.agents.middlewares import skill_activation_middleware as middleware_module
+from SynapseAI.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware, is_slash_skill_activation_reminder
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.config.paths import Paths
+from SynapseAI.skills.slash import RESERVED_SLASH_SKILL_NAMES, parse_slash_skill_reference, resolve_slash_skill
+from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+from SynapseAI.skills.types import Skill, SkillCategory
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
 _SLASH_SOURCE_OWNER_TOKEN = "test-slash-source-owner"
 
@@ -155,13 +155,13 @@ def test_skill_activation_middleware_reads_public_skill_from_real_user_scoped_st
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         ),
     )
     extensions_config = ExtensionsConfig()
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
     monkeypatch.setattr(ExtensionsConfig, "from_file", classmethod(lambda cls, config_path=None: extensions_config))
-    monkeypatch.setattr("deerflow.config.extensions_config.get_extensions_config", lambda: extensions_config)
+    monkeypatch.setattr("SynapseAI.config.extensions_config.get_extensions_config", lambda: extensions_config)
     storage = UserScopedSkillStorage("test-user", host_path=str(skills_root), app_config=app_config)
     monkeypatch.setattr(middleware_module, "get_or_new_user_skill_storage", lambda user_id, **kwargs: storage)
 

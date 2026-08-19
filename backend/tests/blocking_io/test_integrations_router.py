@@ -18,8 +18,8 @@ from types import SimpleNamespace
 import pytest
 
 from app.gateway.routers import integrations
-from deerflow.config import paths as paths_module
-from deerflow.integrations import lark_cli
+from SynapseAI.config import paths as paths_module
+from SynapseAI.integrations import lark_cli
 
 pytestmark = pytest.mark.asyncio
 
@@ -64,7 +64,7 @@ exit 0
 
 
 def _reset_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path / "home"))
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path / "home"))
     monkeypatch.setattr(paths_module, "_paths", None)
 
 
@@ -81,7 +81,7 @@ async def _config(tmp_path: Path) -> SimpleNamespace:
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         )
     )
 

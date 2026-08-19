@@ -1,9 +1,9 @@
 """Compatibility exports for the native SkillScan implementation."""
 
-from deerflow.skills.skillscan import (
+from SynapseAI.skills.skillscan import (
     SecurityFinding as StaticFinding,
 )
-from deerflow.skills.skillscan import (
+from SynapseAI.skills.skillscan import (
     StaticScanBlockedError,
     StaticScannerError,
     enforce_static_scan,

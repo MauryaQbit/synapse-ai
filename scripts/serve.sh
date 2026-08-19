@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# serve.sh — Unified DeerFlow service launcher
+# serve.sh — Unified SynapseAI service launcher
 #
 # Usage:
 #   ./scripts/serve.sh [--dev|--prod] [--daemon] [--stop|--restart]
@@ -73,7 +73,7 @@ done
 
 # ── Stop helper ──────────────────────────────────────────────────────────────
 
-# Every deer-flow worktree (the main checkout + each linked worktree) hardcodes
+# Every synapse-ai worktree (the main checkout + each linked worktree) hardcodes
 # the same dev ports (8001/3000/2026), so a service started from ANY of them
 # must be reclaimable from here — otherwise `make stop`/`make dev` in this
 # worktree can neither kill nor take over a port held by a sibling worktree.
@@ -90,10 +90,10 @@ DEERFLOW_ROOTS="$(
     } | awk 'NF && !seen[$0]++ {print length($0)"\t"$0}' | sort -rn | sed 's/^[0-9]*\t//'
 )"
 
-# True if PID has an open file/cwd under any deer-flow worktree root. The
-# trailing slash keeps a sibling dir like ".../deer-flow-notes" from matching
-# the ".../deer-flow" root.
-_is_deerflow_pid() {
+# True if PID has an open file/cwd under any synapse-ai worktree root. The
+# trailing slash keeps a sibling dir like ".../synapse-ai-notes" from matching
+# the ".../synapse-ai" root.
+_is_synapse_pid() {
     local pid=$1 files root
 
     # Daemon children inherit DEERFLOW_DAEMON_ROOT from run_service. Checking
@@ -121,7 +121,7 @@ _report_reclaimed_ports() {
     local port pid files root owner
     for port in 8001 3000 2026; do
         for pid in $(lsof -nP -iTCP:"$port" -sTCP:LISTEN -t 2>/dev/null); do
-            _is_deerflow_pid "$pid" || continue
+            _is_synapse_pid "$pid" || continue
             files=$(lsof -b -w -p "$pid" 2>/dev/null)
             case "$files" in *"$REPO_ROOT"/*) continue ;; esac  # this worktree — normal
             owner=""
@@ -141,7 +141,7 @@ _kill_repo_processes() {
     local pids=""
 
     while IFS= read -r pid; do
-        if [ -n "$pid" ] && _is_deerflow_pid "$pid"; then
+        if [ -n "$pid" ] && _is_synapse_pid "$pid"; then
             case " $pids " in
                 *" $pid "*) ;;
                 *) pids="$pids $pid" ;;
@@ -160,7 +160,7 @@ _kill_repo_port() {
     local pids=""
 
     while IFS= read -r pid; do
-        if [ -n "$pid" ] && _is_deerflow_pid "$pid"; then
+        if [ -n "$pid" ] && _is_synapse_pid "$pid"; then
             case " $pids " in
                 *" $pid "*) ;;
                 *) pids="$pids $pid" ;;
@@ -219,7 +219,7 @@ _is_repo_nginx_pid() {
         esac
     done <<< "$DEERFLOW_ROOTS"
 
-    _is_deerflow_pid "$pid"
+    _is_synapse_pid "$pid"
 }
 
 _kill_repo_nginx() {
@@ -258,13 +258,13 @@ stop_all() {
     sleep 1
     _kill_repo_nginx
     # Force-kill any survivors still holding the service ports. 2026 is included
-    # so a lingering nginx (or any deer-flow process) that _kill_repo_nginx did
+    # so a lingering nginx (or any synapse-ai process) that _kill_repo_nginx did
     # not match by name still gets reclaimed — otherwise `make dev` fails its
     # nginx port preflight.
     _kill_repo_port 8001
     _kill_repo_port 3000
     _kill_repo_port 2026
-    ./scripts/cleanup-containers.sh deer-flow-sandbox 2>/dev/null || true
+    ./scripts/cleanup-containers.sh synapse-ai-sandbox 2>/dev/null || true
     echo "✓ All services stopped"
 }
 
@@ -310,15 +310,15 @@ else
 fi
 
 # Runtime path defaults. Local `make dev` launches Gateway from `backend/`,
-# so pin DeerFlow-owned state to the expected backend runtime directory and
+# so pin SynapseAI-owned state to the expected backend runtime directory and
 # create it before uvicorn builds its reload exclude filter.
-if [ -z "$DEER_FLOW_PROJECT_ROOT" ]; then
-    export DEER_FLOW_PROJECT_ROOT="$REPO_ROOT"
+if [ -z "$SYNAPSE_PROJECT_ROOT" ]; then
+    export SYNAPSE_PROJECT_ROOT="$REPO_ROOT"
 fi
 
-BACKEND_RUNTIME_HOME="$REPO_ROOT/backend/.deer-flow"
-if [ -z "$DEER_FLOW_HOME" ]; then
-    export DEER_FLOW_HOME="$BACKEND_RUNTIME_HOME"
+BACKEND_RUNTIME_HOME="$REPO_ROOT/backend/.synapse-ai"
+if [ -z "$SYNAPSE_HOME" ]; then
+    export SYNAPSE_HOME="$BACKEND_RUNTIME_HOME"
 fi
 
 # `backend/sandbox` is excluded from uvicorn's reload watcher below. uvicorn only
@@ -326,14 +326,14 @@ fi
 # otherwise it globs the pattern, and Python 3.12's pathlib rejects absolute glob
 # patterns with NotImplementedError, crashing `make dev` on a fresh checkout
 # (#3459 / #3454). Creating it here keeps every absolute exclude on the is_dir path.
-mkdir -p "$DEER_FLOW_HOME" "$BACKEND_RUNTIME_HOME" "$REPO_ROOT/backend/sandbox"
-DEER_FLOW_HOME="$(cd "$DEER_FLOW_HOME" && pwd -P)"
+mkdir -p "$SYNAPSE_HOME" "$BACKEND_RUNTIME_HOME" "$REPO_ROOT/backend/sandbox"
+SYNAPSE_HOME="$(cd "$SYNAPSE_HOME" && pwd -P)"
 BACKEND_RUNTIME_HOME="$(cd "$BACKEND_RUNTIME_HOME" && pwd -P)"
-export DEER_FLOW_HOME
+export SYNAPSE_HOME
 
 # Extra flags for uvicorn
 if $DEV_MODE && ! $DAEMON_MODE; then
-    GATEWAY_EXTRA_FLAGS="--reload --reload-include='*.yaml' --reload-include='.env' --reload-exclude='*.pyc' --reload-exclude='__pycache__' --reload-exclude='$REPO_ROOT/backend/sandbox' --reload-exclude='$DEER_FLOW_HOME' --reload-exclude='$BACKEND_RUNTIME_HOME'"
+    GATEWAY_EXTRA_FLAGS="--reload --reload-include='*.yaml' --reload-include='.env' --reload-exclude='*.pyc' --reload-exclude='__pycache__' --reload-exclude='$REPO_ROOT/backend/sandbox' --reload-exclude='$SYNAPSE_HOME' --reload-exclude='$BACKEND_RUNTIME_HOME'"
 else
     GATEWAY_EXTRA_FLAGS=""
 fi
@@ -348,11 +348,11 @@ fi
 # ── Config check ─────────────────────────────────────────────────────────────
 
 if ! { \
-        [ -n "$DEER_FLOW_CONFIG_PATH" ] && [ -f "$DEER_FLOW_CONFIG_PATH" ] || \
+        [ -n "$SYNAPSE_CONFIG_PATH" ] && [ -f "$SYNAPSE_CONFIG_PATH" ] || \
         [ -f backend/config.yaml ] || \
         [ -f config.yaml ]; \
     }; then
-    echo "✗ No DeerFlow config file found."
+    echo "✗ No SynapseAI config file found."
     echo "  Run 'make setup' (recommended) or 'make config' to generate config.yaml."
     exit 1
 fi
@@ -387,7 +387,7 @@ if ! $SKIP_INSTALL; then
     if [ -n "$UV_EXTRAS_FLAGS" ]; then
         echo "  • uv extras: $UV_EXTRAS_FLAGS"
     fi
-    # `--all-packages` propagates extras into workspace members (deerflow-harness
+    # `--all-packages` propagates extras into workspace members (synapse-harness
     # in particular). Required for postgres extras — see PR #2584.
     # Intentionally unquoted to splat multiple `--extra X` pairs.
     (cd backend && uv sync --locked --quiet --all-packages $UV_EXTRAS_FLAGS) || { echo "✗ Backend dependency install failed"; exit 1; }
@@ -401,7 +401,7 @@ fi
 
 echo ""
 echo "=========================================="
-echo "  Starting DeerFlow"
+echo "  Starting SynapseAI"
 echo "=========================================="
 echo ""
 echo "  Mode: $MODE_LABEL"
@@ -442,7 +442,7 @@ run_service() {
     if $DAEMON_MODE; then
         # Tag the daemon so every descendant (pnpm → next → next-server)
         # carries DEERFLOW_DAEMON_ROOT in its environment, letting
-        # _is_deerflow_pid recognize it at stop time.
+        # _is_synapse_pid recognize it at stop time.
         nohup env DEERFLOW_DAEMON_ROOT="$REPO_ROOT" sh -c "$cmd" > /dev/null 2>&1 &
     else
         sh -c "$cmd" &
@@ -481,7 +481,7 @@ run_service "Nginx" \
 
 echo ""
 echo "=========================================="
-echo "  ✓ DeerFlow is running!  [$MODE_LABEL]"
+echo "  ✓ SynapseAI is running!  [$MODE_LABEL]"
 echo "=========================================="
 echo ""
 echo "  🌐 http://localhost:2026"

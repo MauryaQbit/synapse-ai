@@ -13,9 +13,9 @@ import stat
 import zipfile
 from pathlib import Path, PurePosixPath, PureWindowsPath
 
-from deerflow.skills.permissions import make_skill_tree_sandbox_readable
-from deerflow.skills.security_scanner import scan_skill_content
-from deerflow.skills.security_static_scanner import (
+from SynapseAI.skills.permissions import make_skill_tree_sandbox_readable
+from SynapseAI.skills.security_scanner import scan_skill_content
+from SynapseAI.skills.security_static_scanner import (
     StaticFinding,
     StaticScanBlockedError,
     StaticScannerError,

@@ -5,13 +5,13 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable, Mapping, Sequence
 
-from deerflow_extension_api import AgentBuildContext, AgentScope, MiddlewarePlacement, Placement
+from SynapseAI_extension_api import AgentBuildContext, AgentScope, MiddlewarePlacement, Placement
 from langchain.agents.middleware import AgentMiddleware
 
-from deerflow.extensions.anchors import PlacementAnchor
-from deerflow.extensions.isolation import IsolatedMiddleware, graph_safe_middleware_name
-from deerflow.extensions.loader import Diagnostic
-from deerflow.extensions.registry import LoadedExtensions
+from SynapseAI.extensions.anchors import PlacementAnchor
+from SynapseAI.extensions.isolation import IsolatedMiddleware, graph_safe_middleware_name
+from SynapseAI.extensions.loader import Diagnostic
+from SynapseAI.extensions.registry import LoadedExtensions
 
 logger = logging.getLogger(__name__)
 

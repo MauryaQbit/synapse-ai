@@ -22,8 +22,8 @@ from langchain.agents.middleware.types import (
 from langchain_core.messages import AIMessage
 from langgraph.errors import GraphBubbleUp
 
-from deerflow.config.app_config import AppConfig
-from deerflow.utils.custom_events import aemit_custom_event, emit_custom_event
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.utils.custom_events import aemit_custom_event, emit_custom_event
 
 logger = logging.getLogger(__name__)
 
@@ -669,7 +669,7 @@ class LLMErrorHandlingMiddleware(AgentMiddleware[AgentState]):
         return AIMessage(
             content=content,
             additional_kwargs={
-                "deerflow_error_fallback": True,
+                "SynapseAI_error_fallback": True,
                 "error_type": error_type,
                 "error_reason": reason,
                 "error_detail": detail,

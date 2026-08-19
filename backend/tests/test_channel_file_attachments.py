@@ -116,7 +116,7 @@ class TestResolveAttachments:
         mock_paths.resolve_virtual_path.return_value = test_file
         mock_paths.sandbox_outputs_dir.return_value = outputs_dir
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments(thread_id, ["/mnt/user-data/outputs/report.pdf"])
 
         assert len(result) == 1
@@ -139,7 +139,7 @@ class TestResolveAttachments:
         mock_paths.resolve_virtual_path.return_value = img
         mock_paths.sandbox_outputs_dir.return_value = outputs_dir
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments(thread_id, ["/mnt/user-data/outputs/chart.png"])
 
         assert len(result) == 1
@@ -157,7 +157,7 @@ class TestResolveAttachments:
         mock_paths.resolve_virtual_path.return_value = outputs_dir / "nonexistent.txt"
         mock_paths.sandbox_outputs_dir.return_value = outputs_dir
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments("t1", ["/mnt/user-data/outputs/nonexistent.txt"])
 
         assert result == []
@@ -169,7 +169,7 @@ class TestResolveAttachments:
         mock_paths = MagicMock()
         mock_paths.resolve_virtual_path.side_effect = ValueError("bad path")
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments("t1", ["/invalid/path"])
 
         assert result == []
@@ -180,7 +180,7 @@ class TestResolveAttachments:
 
         mock_paths = MagicMock()
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments("t1", ["/mnt/user-data/uploads/secret.pdf"])
 
         assert result == []
@@ -192,7 +192,7 @@ class TestResolveAttachments:
 
         mock_paths = MagicMock()
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments("t1", ["/mnt/user-data/workspace/config.py"])
 
         assert result == []
@@ -214,7 +214,7 @@ class TestResolveAttachments:
         mock_paths.resolve_virtual_path.return_value = escaped_file
         mock_paths.sandbox_outputs_dir.return_value = outputs_dir
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments(thread_id, ["/mnt/user-data/outputs/../uploads/stolen.txt"])
 
         assert result == []
@@ -239,7 +239,7 @@ class TestResolveAttachments:
 
         mock_paths.resolve_virtual_path.side_effect = resolve_side_effect
 
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments(
                 thread_id,
                 ["/mnt/user-data/outputs/data.csv", "/mnt/user-data/outputs/missing.txt"],
@@ -268,7 +268,7 @@ class TestInboundFileIngestion:
             files=[{"type": "file", "filename": "report.pdf", "_content": b"pdf bytes"}],
         )
 
-        with patch("deerflow.uploads.manager.ensure_uploads_dir", return_value=uploads_dir):
+        with patch("SynapseAI.uploads.manager.ensure_uploads_dir", return_value=uploads_dir):
             result = _run(manager._ingest_inbound_files("thread-1", msg))
 
         assert result == [
@@ -302,7 +302,7 @@ class TestInboundFileIngestion:
             return b"attacker data"
 
         with (
-            patch("deerflow.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
+            patch("SynapseAI.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
             patch.dict(manager.INBOUND_FILE_READERS, {"test-channel": fake_reader}, clear=False),
         ):
             result = _run(manager._ingest_inbound_files("thread-1", msg))
@@ -331,7 +331,7 @@ class TestInboundFileIngestion:
             return b"attacker data"
 
         with (
-            patch("deerflow.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
+            patch("SynapseAI.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
             patch.dict(manager.INBOUND_FILE_READERS, {"test-channel": fake_reader}, clear=False),
         ):
             result = _run(manager._ingest_inbound_files("thread-1", msg))
@@ -361,7 +361,7 @@ class TestInboundFileIngestion:
             return b"new attachment data"
 
         with (
-            patch("deerflow.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
+            patch("SynapseAI.uploads.manager.ensure_uploads_dir", return_value=uploads_dir),
             patch.dict(manager.INBOUND_FILE_READERS, {"test-channel": fake_reader}, clear=False),
         ):
             result = _run(manager._ingest_inbound_files("thread-1", msg))
@@ -577,7 +577,7 @@ class TestManagerArtifactResolution:
 
         # Basic smoke test: empty artifacts returns empty list
         mock_paths = MagicMock()
-        with patch("deerflow.config.paths.get_paths", return_value=mock_paths):
+        with patch("SynapseAI.config.paths.get_paths", return_value=mock_paths):
             result = _resolve_attachments("t1", [])
         assert result == []
 

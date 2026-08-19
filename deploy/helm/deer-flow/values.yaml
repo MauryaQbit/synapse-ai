@@ -1,12 +1,12 @@
-# DeerFlow Helm chart values
+# SynapseAI Helm chart values
 #
 # Copy to my-values.yaml, edit, and install with:
-#   helm install deer-flow deploy/helm/deer-flow -n deer-flow --create-namespace -f my-values.yaml
+#   helm install synapse-ai deploy/helm/synapse-ai -n synapse-ai --create-namespace -f my-values.yaml
 
 # -- Target namespace (also used as the K8s sandbox namespace for provisioner-spawned Pods).
-namespace: deer-flow
+namespace: synapse-ai
 
-# -- Image registry & tag for the three DeerFlow images you build+push.
+# -- Image registry & tag for the three SynapseAI images you build+push.
 #    Required: set `registry` to your registry (e.g. ghcr.io/yourorg).
 image:
   registry: ""              # REQUIRED, e.g. ghcr.io/yourorg
@@ -16,12 +16,12 @@ image:
   pullSecrets: []
 
   # Image names match what .github/workflows/container.yaml publishes on GHCR
-  # as ${repository}-<name> (e.g. ghcr.io/<owner>/deer-flow-backend). Set
+  # as ${repository}-<name> (e.g. ghcr.io/<owner>/synapse-ai-backend). Set
   # `registry` to the owner prefix (e.g. ghcr.io/<owner>) and `tag` to consume
   # the published images.
-  gatewayImage: deer-flow-backend
-  frontendImage: deer-flow-frontend
-  provisionerImage: deer-flow-provisioner
+  gatewayImage: synapse-ai-backend
+  frontendImage: synapse-ai-frontend
+  provisionerImage: synapse-ai-provisioner
 
 # -- Gateway (backend) deployment.
 gateway:
@@ -123,8 +123,8 @@ postgresql:
     repository: postgres
     tag: "16"
   auth:
-    database: deerflow
-    username: deerflow
+    database: SynapseAI
+    username: SynapseAI
     # -- Password auto-generated (32 chars, persisted across upgrades) when
     #    empty. Ignored if existingSecret is set.
     password: ""
@@ -148,7 +148,7 @@ postgresql:
   #    `databaseUrl` (chart wraps it into a Secret for you) or an
   #    `existingSecret` you manage (key `database-url`).
   external:
-    # -- Full DSN, e.g. postgresql://user:pass@host:5432/deerflow. Chart
+    # -- Full DSN, e.g. postgresql://user:pass@host:5432/SynapseAI. Chart
     #    writes it into the Secret so it never touches the gateway env directly.
     databaseUrl: ""
     # -- Secret you manage (key `database-url`). Use this with External Secrets
@@ -159,7 +159,7 @@ postgresql:
 #    so live run events reach a client connected to any gateway pod (cross-pod
 #    SSE delivery + reconnect replay, PR #3191). Bundled mode (default) deploys
 #    a single-instance redis StatefulSet; set `enabled: false` to use an external
-#    managed Redis. The gateway reads DEER_FLOW_STREAM_BRIDGE_REDIS_URL from the
+#    managed Redis. The gateway reads SYNAPSE_STREAM_BRIDGE_REDIS_URL from the
 #    resolved Secret; config.yaml's stream_bridge.type is `redis` by default.
 redis:
   # -- Deploy a bundled redis StatefulSet. Disable to use an external Redis.
@@ -199,7 +199,7 @@ redis:
     #    / Sealed Secrets so the URL never appears in values files.
     existingSecret: ""
 
-# -- Persistent volume for runtime state (.deer-flow): sqlite DB, memory,
+# -- Persistent volume for runtime state (.synapse-ai): sqlite DB, memory,
 #    custom agents, and per-thread user-data. Also mounted (PVC mode) into
 #    provisioner-spawned sandbox Pods.
 persistence:
@@ -232,14 +232,14 @@ existingSecret: ""
 ingress:
   enabled: true
   className: "nginx"
-  host: "deer-flow.example.com"
+  host: "synapse-ai.example.com"
   annotations: {}
   tls:
     enabled: false
     secretName: ""
     # hosts: []   # defaults to [ingress.host]
 
-# -- DeerFlow config.yaml content. Secrets MUST stay as $VAR references — never
+# -- SynapseAI config.yaml content. Secrets MUST stay as $VAR references — never
 #    inline literal secret values here. The default enables provisioner sandbox.
 config: |
   config_version: 34
@@ -255,7 +255,7 @@ config: |
   #     request_timeout: 600.0
 
   sandbox:
-    use: deerflow.community.aio_sandbox:AioSandboxProvider
+    use: SynapseAI.community.aio_sandbox:AioSandboxProvider
     provisioner_url: http://provisioner:8002
     image: enterprise-public-cn-beijing.cr.volces.com/vefaas-public/all-in-one-sandbox:latest
     port: 8080
@@ -281,7 +281,7 @@ config: |
   # Stream bridge: `redis` (default) stores per-run SSE events in Redis Streams
   # so live run events reach a client on any gateway pod (cross-pod SSE delivery
   # + reconnect replay, PR #3191). The URL is read from the
-  # DEER_FLOW_STREAM_BRIDGE_REDIS_URL env var injected from the redis Secret.
+  # SYNAPSE_STREAM_BRIDGE_REDIS_URL env var injected from the redis Secret.
   # Set `type: memory` (and disable the redis chart) for single-pod-only mode.
   stream_bridge:
     type: redis
@@ -304,40 +304,40 @@ config: |
   tools:
     - name: web_search
       group: web
-      use: deerflow.community.ddg_search.tools:web_search_tool
+      use: SynapseAI.community.ddg_search.tools:web_search_tool
       max_results: 5
     - name: web_fetch
       group: web
-      use: deerflow.community.jina_ai.tools:web_fetch_tool
+      use: SynapseAI.community.jina_ai.tools:web_fetch_tool
       timeout: 10
     - name: image_search
       group: web
-      use: deerflow.community.image_search.tools:image_search_tool
+      use: SynapseAI.community.image_search.tools:image_search_tool
       max_results: 5
     - name: ls
       group: file:read
-      use: deerflow.sandbox.tools:ls_tool
+      use: SynapseAI.sandbox.tools:ls_tool
     - name: read_file
       group: file:read
-      use: deerflow.sandbox.tools:read_file_tool
+      use: SynapseAI.sandbox.tools:read_file_tool
     - name: glob
       group: file:read
-      use: deerflow.sandbox.tools:glob_tool
+      use: SynapseAI.sandbox.tools:glob_tool
       max_results: 200
     - name: grep
       group: file:read
-      use: deerflow.sandbox.tools:grep_tool
+      use: SynapseAI.sandbox.tools:grep_tool
       max_results: 100
     - name: write_file
       group: file:write
-      use: deerflow.sandbox.tools:write_file_tool
+      use: SynapseAI.sandbox.tools:write_file_tool
     - name: str_replace
       group: file:write
-      use: deerflow.sandbox.tools:str_replace_tool
+      use: SynapseAI.sandbox.tools:str_replace_tool
     - name: bash
       group: bash
-      use: deerflow.sandbox.tools:bash_tool
+      use: SynapseAI.sandbox.tools:bash_tool
 
-# -- DeerFlow extensions_config.json content (MCP servers + skill state).
+# -- SynapseAI extensions_config.json content (MCP servers + skill state).
 extensionsConfig: |
   {"mcpServers":{},"skills":{}}

@@ -1,7 +1,7 @@
 """The Textual application — a terminal workbench over the embedded harness.
 
 The app keeps a single immutable :class:`ViewState` and re-renders it through the
-pure renderers. Agent runs execute on a worker *thread* (``DeerFlowClient.stream``
+pure renderers. Agent runs execute on a worker *thread* (``SynapseAIClient.stream``
 is a synchronous generator); each yielded action is marshalled back onto the UI
 thread via ``call_from_thread`` and folded into the reducer.
 """
@@ -18,7 +18,7 @@ from textual.screen import ModalScreen
 from textual.widgets import Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
-from deerflow.runtime.goal import parse_goal_command
+from SynapseAI.runtime.goal import parse_goal_command
 
 from .command_registry import format_command_help
 from .input_history import InputHistory
@@ -80,7 +80,7 @@ class SelectScreen(ModalScreen):
         self.dismiss(None)
 
 
-class DeerFlowTUI(App):
+class SynapseAITUI(App):
     CSS = f"""
     Screen {{
         background: {THEME.bg};
@@ -202,7 +202,7 @@ class DeerFlowTUI(App):
             yield Static(id="transcript")
         yield Static(id="status")
         yield Static(id="palette")
-        yield ComposerInput(placeholder="Message DeerFlow…   ( / for commands )", id="composer")
+        yield ComposerInput(placeholder="Message SynapseAI…   ( / for commands )", id="composer")
 
     def on_mount(self) -> None:
         self._load_session_info()
@@ -715,7 +715,7 @@ def run_tui(plan) -> int:
     from .session import open_session
 
     session = open_session()
-    app = DeerFlowTUI(session, plan)
+    app = SynapseAITUI(session, plan)
     try:
         app.run()
     finally:

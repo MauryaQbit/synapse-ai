@@ -3,7 +3,7 @@
 Escapes blocked XML-like tags in the last genuine user message (e.g.
 ``<system>`` → ``&lt;system&gt;``) so they render as literal text instead
 of structured-context markers.  This preserves the user's intent ("how do
-I use DeerFlow's <think> tag?") while neutralizing injection attempts —
+I use SynapseAI's <think> tag?") while neutralizing injection attempts —
 the same de-identify-don't-reject strategy as AWS Bedrock's PII ANONYMIZE.
 
 Blocked: system-reserved tags (memory, analysis, etc.) + common injection
@@ -31,8 +31,8 @@ from langchain.agents.middleware.types import (
 from langchain_core.messages import HumanMessage
 from langgraph.errors import GraphBubbleUp
 
-from deerflow.agents.human_input import read_human_input_response
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY, message_content_to_text
+from SynapseAI.agents.human_input import read_human_input_response
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY, message_content_to_text
 
 logger = logging.getLogger(__name__)
 

@@ -8,8 +8,8 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from app.gateway.routers import memory
-from deerflow.agents.memory import MemoryConflictError, MemoryCorruptionError
-from deerflow.agents.memory.backends.deermem.deer_mem import DeerMem
+from SynapseAI.agents.memory import MemoryConflictError, MemoryCorruptionError
+from SynapseAI.agents.memory.backends.deermem.deer_mem import DeerMem
 
 
 def _sample_memory(facts: list[dict] | None = None) -> dict:
@@ -100,7 +100,7 @@ def test_export_memory_route_preserves_source_error() -> None:
 def test_import_memory_route_returns_imported_memory() -> None:
     app = FastAPI()
     app.include_router(memory.router)
-    imported_memory = _sample_memory(facts=[{"id": "fact_import", "content": "User works on DeerFlow.", "category": "context", "confidence": 0.87, "createdAt": "2026-03-20T00:00:00Z", "source": "manual"}])
+    imported_memory = _sample_memory(facts=[{"id": "fact_import", "content": "User works on SynapseAI.", "category": "context", "confidence": 0.87, "createdAt": "2026-03-20T00:00:00Z", "source": "manual"}])
 
     mock_mgr = MagicMock()
     mock_mgr.import_memory.return_value = imported_memory
@@ -391,7 +391,7 @@ def test_update_memory_fact_route_returns_specific_error_for_invalid_confidence(
 
 def _internal_owner_request(owner_user_id: str) -> SimpleNamespace:
     from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME, INTERNAL_SYSTEM_ROLE
-    from deerflow.runtime.user_context import DEFAULT_USER_ID
+    from SynapseAI.runtime.user_context import DEFAULT_USER_ID
 
     return SimpleNamespace(
         headers={INTERNAL_OWNER_USER_ID_HEADER_NAME: owner_user_id},
@@ -415,7 +415,7 @@ def test_get_memory_honors_bound_owner_header() -> None:
 
 
 def test_get_memory_sanitizes_unsafe_owner_header() -> None:
-    from deerflow.config.paths import make_safe_user_id
+    from SynapseAI.config.paths import make_safe_user_id
 
     raw_owner = "feishu|ou_AbC/123"
     seen: dict[str, str] = {}

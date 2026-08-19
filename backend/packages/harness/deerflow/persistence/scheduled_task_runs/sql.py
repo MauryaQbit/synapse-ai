@@ -7,11 +7,11 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from deerflow.persistence.run import RunRepository
-from deerflow.persistence.run.model import RunRow
-from deerflow.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
-from deerflow.persistence.scheduled_tasks.model import ScheduledTaskRow
-from deerflow.utils.time import coerce_iso
+from SynapseAI.persistence.run import RunRepository
+from SynapseAI.persistence.run.model import RunRow
+from SynapseAI.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
+from SynapseAI.persistence.scheduled_tasks.model import ScheduledTaskRow
+from SynapseAI.utils.time import coerce_iso
 
 TERMINAL_RUN_STATUSES: frozenset[str] = frozenset({"success", "failed", "skipped", "interrupted"})
 ACTIVE_RUN_STATUSES: tuple[str, ...] = ("queued", "running")
@@ -37,7 +37,7 @@ class ActiveScheduledRunConflict(Exception):
 
     Translating the SQLAlchemy ``IntegrityError`` into a domain exception at
     the repository boundary keeps the service layer free of ``sqlalchemy.exc``
-    coupling (mirrors ``deerflow.runtime.ConflictError`` for the runs table).
+    coupling (mirrors ``SynapseAI.runtime.ConflictError`` for the runs table).
     """
 
     def __init__(self, task_id: str) -> None:

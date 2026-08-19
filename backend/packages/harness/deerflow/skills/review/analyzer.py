@@ -7,12 +7,12 @@ import tempfile
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from deerflow.skills.frontmatter import ALLOWED_FRONTMATTER_PROPERTIES, split_skill_markdown
-from deerflow.skills.package_paths import is_eval_fixture_path, is_eval_fixture_skill_md
-from deerflow.skills.parser import parse_allowed_tools, parse_required_secrets
-from deerflow.skills.review.digest import compute_package_digest
-from deerflow.skills.review.eval_schema import analyze_eval_manifests
-from deerflow.skills.review.models import (
+from SynapseAI.skills.frontmatter import ALLOWED_FRONTMATTER_PROPERTIES, split_skill_markdown
+from SynapseAI.skills.package_paths import is_eval_fixture_path, is_eval_fixture_skill_md
+from SynapseAI.skills.parser import parse_allowed_tools, parse_required_secrets
+from SynapseAI.skills.review.digest import compute_package_digest
+from SynapseAI.skills.review.eval_schema import analyze_eval_manifests
+from SynapseAI.skills.review.models import (
     FACTS_SCHEMA_VERSION,
     SKILLSCAN_SEVERITY_MAP,
     ProfileName,
@@ -20,11 +20,11 @@ from deerflow.skills.review.models import (
     sort_findings,
     summarize_findings,
 )
-from deerflow.skills.review.resource_graph import build_resource_graph
-from deerflow.skills.skillscan.orchestrator import scan_skill_dir
+from SynapseAI.skills.review.resource_graph import build_resource_graph
+from SynapseAI.skills.skillscan.orchestrator import scan_skill_dir
 
 
-def analyze_skill_package(snapshot: dict[str, Any], *, profile: ProfileName = "deerflow") -> dict[str, Any]:
+def analyze_skill_package(snapshot: dict[str, Any], *, profile: ProfileName = "SynapseAI") -> dict[str, Any]:
     """Produce review-facts.v1 from a PackageSnapshot."""
     findings: list[dict[str, Any]] = []
     analyzer_errors: list[dict[str, Any]] = []
@@ -168,7 +168,7 @@ def _analyze_skill_md(content: str, *, profile: ProfileName, findings: list[dict
                 severity="warning",
                 path="SKILL.md",
                 message=f"Unknown frontmatter field(s): {', '.join(unexpected)}",
-                remediation="Remove unsupported fields or add them to the shared DeerFlow frontmatter schema.",
+                remediation="Remove unsupported fields or add them to the shared SynapseAI frontmatter schema.",
                 evidence=unexpected,
             )
         )
@@ -214,7 +214,7 @@ def _analyze_skill_md(content: str, *, profile: ProfileName, findings: list[dict
                 "structure.description-too-long",
                 severity="error",
                 path="SKILL.md",
-                message="Description exceeds DeerFlow's 1024 character limit.",
+                message="Description exceeds SynapseAI's 1024 character limit.",
                 remediation="Shorten the description and move detailed guidance into the body.",
             )
         )
@@ -321,7 +321,7 @@ def _scan_with_skillscan(snapshot: dict[str, Any]) -> list[dict[str, Any]]:
             make_finding(
                 str(finding.get("rule_id")),
                 source="skillscan",
-                profile="deerflow",
+                profile="SynapseAI",
                 severity=severity,
                 path=finding.get("file"),
                 line=finding.get("line"),

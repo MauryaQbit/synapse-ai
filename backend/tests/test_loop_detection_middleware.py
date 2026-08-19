@@ -14,7 +14,7 @@ from langchain_core.runnables import Runnable
 from langchain_core.tools import tool as as_tool
 from pydantic import PrivateAttr
 
-from deerflow.agents.middlewares.loop_detection_middleware import (
+from SynapseAI.agents.middlewares.loop_detection_middleware import (
     _HARD_STOP_MSG,
     _MAX_PENDING_WARNINGS_PER_RUN,
     LoopDetectionMiddleware,
@@ -463,7 +463,7 @@ class TestLoopDetection:
         ``SubagentExecutor`` sets ``context["run_id"] = self.run_id``
         unconditionally (no truthiness guard), so an embedded/TUI-dispatched
         subagent — whose ``run_id`` is never assigned per ``AGENTS.md``'s
-        description of the embedded ``DeerFlowClient`` — runs with a context
+        description of the embedded ``SynapseAIClient`` — runs with a context
         that legitimately carries ``run_id=None`` (the key is *present*, not
         absent). The executor later reads the reason back with the raw
         attribute: ``consume_stop_reason(self.run_id)``, i.e.
@@ -1212,7 +1212,7 @@ class TestFromConfig:
 
     @staticmethod
     def _config(**kwargs):
-        from deerflow.config.loop_detection_config import LoopDetectionConfig
+        from SynapseAI.config.loop_detection_config import LoopDetectionConfig
 
         return LoopDetectionConfig(**kwargs)
 

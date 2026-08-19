@@ -19,7 +19,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    from deerflow.persistence.migrations._helpers import safe_add_column
+    from SynapseAI.persistence.migrations._helpers import safe_add_column
 
     safe_add_column(
         "runs",

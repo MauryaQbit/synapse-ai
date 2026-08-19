@@ -22,7 +22,7 @@ import threading
 from collections.abc import Awaitable
 from typing import Any
 
-from deerflow.runtime.user_context import DEFAULT_USER_ID
+from SynapseAI.runtime.user_context import DEFAULT_USER_ID
 
 
 class _LoopThread:
@@ -30,7 +30,7 @@ class _LoopThread:
 
     def __init__(self) -> None:
         self._loop = asyncio.new_event_loop()
-        self._thread = threading.Thread(target=self._run, name="deerflow-tui-db", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="SynapseAI-tui-db", daemon=True)
         self._thread.start()
 
     def _run(self) -> None:
@@ -97,9 +97,9 @@ def build_persistence() -> tuple[_LoopThread, ThreadMetaWriter]:
     loop = _LoopThread()
     store = None
     try:
-        from deerflow.config.app_config import get_app_config
-        from deerflow.persistence.engine import get_session_factory, init_engine_from_config
-        from deerflow.persistence.thread_meta import make_thread_store
+        from SynapseAI.config.app_config import get_app_config
+        from SynapseAI.persistence.engine import get_session_factory, init_engine_from_config
+        from SynapseAI.persistence.thread_meta import make_thread_store
 
         config = get_app_config()
         loop.run(init_engine_from_config(config.database))

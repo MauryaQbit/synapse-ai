@@ -14,7 +14,7 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from functools import cache
 
-from deerflow.extensions.isolation import IsolatedMiddleware
+from SynapseAI.extensions.isolation import IsolatedMiddleware
 
 
 @dataclass(frozen=True)
@@ -76,13 +76,13 @@ def core_ordering_constraints() -> tuple[OrderingConstraint, ...]:
     reported an empty sequence while iteration yielded the real constraints.
     Deferring the call instead of faking the value keeps one answer.
     """
-    from deerflow.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
-    from deerflow.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
+    from SynapseAI.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
+    from SynapseAI.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
 
     return (
         OrderingConstraint(
             outer=ToolProgressMiddleware,
             inner=ToolErrorHandlingMiddleware,
-            reason=("ToolProgressMiddleware reads deerflow_tool_meta in _update_state_from_result, so its wrap_tool_call chain must enclose the ToolErrorHandlingMiddleware step that stamps it"),
+            reason=("ToolProgressMiddleware reads SynapseAI_tool_meta in _update_state_from_result, so its wrap_tool_call chain must enclose the ToolErrorHandlingMiddleware step that stamps it"),
         ),
     )

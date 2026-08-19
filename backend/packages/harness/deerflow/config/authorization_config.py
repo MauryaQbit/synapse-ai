@@ -1,9 +1,9 @@
 """Configuration for fine-grained resource authorization.
 
-When enabled, a pluggable :class:`~deerflow.authz.provider.AuthorizationProvider`
+When enabled, a pluggable :class:`~SynapseAI.authz.provider.AuthorizationProvider`
 becomes the policy brain for resource-level authorization, enforced at two
 layers: assembly-time capability filtering (tools the agent can never see) and
-run-time execution deny (reuses :class:`~deerflow.guardrails.middleware.GuardrailMiddleware`
+run-time execution deny (reuses :class:`~SynapseAI.guardrails.middleware.GuardrailMiddleware`
 via an adapter). Default ``enabled: false`` preserves today's behavior where
 every authenticated user has access to all tools, models, skills, and sandbox.
 """
@@ -14,14 +14,14 @@ from pydantic import BaseModel, Field
 class AuthorizationProviderConfig(BaseModel):
     """Configuration for an authorization provider."""
 
-    use: str = Field(description="Class path (e.g. 'deerflow.authz.rbac:RbacAuthorizationProvider')")
+    use: str = Field(description="Class path (e.g. 'SynapseAI.authz.rbac:RbacAuthorizationProvider')")
     config: dict = Field(default_factory=dict, description="Provider-specific settings passed as kwargs")
 
 
 class AuthorizationConfig(BaseModel):
     """Configuration for fine-grained resource authorization.
 
-    Mirrors :class:`~deerflow.config.guardrails_config.GuardrailsConfig` in
+    Mirrors :class:`~SynapseAI.config.guardrails_config.GuardrailsConfig` in
     shape: a provider loaded by class path, a fail-closed default, and a
     live-reloadable singleton.
     """

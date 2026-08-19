@@ -9,16 +9,16 @@ import sys
 from collections.abc import Sequence
 from pathlib import Path
 
-from deerflow.extensions.manager import ExtensionManager
+from SynapseAI.extensions.manager import ExtensionManager
 
-_NAME_ENV = "DEER_FLOW_EXTENSION_NAME"
-_SOURCE_ENV = "DEER_FLOW_EXTENSION_SOURCE"
+_NAME_ENV = "SYNAPSE_EXTENSION_NAME"
+_SOURCE_ENV = "SYNAPSE_EXTENSION_SOURCE"
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="deerflow extensions",
-        description="Install and manage trusted Python extensions for this DeerFlow checkout.",
+        prog="SynapseAI extensions",
+        description="Install and manage trusted Python extensions for this SynapseAI checkout.",
     )
     commands = parser.add_subparsers(dest="command", required=True)
     install = commands.add_parser("install", help="install an extension and enable it in config.yaml")
@@ -51,7 +51,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(list(argv) if argv is not None else None)
     try:
         root = find_project_root()
-        configured_path = os.environ.get("DEER_FLOW_CONFIG_PATH")
+        configured_path = os.environ.get("SYNAPSE_CONFIG_PATH")
         manager = ExtensionManager(root, config_path=configured_path)
         if args.command == "install":
             source = _source_argument(args)
@@ -66,15 +66,15 @@ def main(argv: Sequence[str] | None = None) -> int:
                     print("Extension installation cancelled.", file=sys.stderr)
                     return 2
             installed = manager.install(source, yes=trusted, required=args.required)
-            print(f"Installed and enabled {installed.name} ({installed.distribution}). Restart DeerFlow to load it.")
+            print(f"Installed and enabled {installed.name} ({installed.distribution}). Restart SynapseAI to load it.")
             return 0
         if args.command == "disable":
             name = manager.set_enabled(_name_argument(args), enabled=False)
-            print(f"Disabled {name}. Restart DeerFlow to apply the change.")
+            print(f"Disabled {name}. Restart SynapseAI to apply the change.")
             return 0
         if args.command == "enable":
             name = manager.set_enabled(_name_argument(args), enabled=True)
-            print(f"Enabled {name}. Restart DeerFlow to apply the change.")
+            print(f"Enabled {name}. Restart SynapseAI to apply the change.")
             return 0
         if args.command == "list":
             configured = manager.list_configured()
@@ -85,7 +85,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 0
         if args.command == "remove":
             name = manager.remove(_name_argument(args))
-            print(f"Removed {name}. Restart DeerFlow to apply the change.")
+            print(f"Removed {name}. Restart SynapseAI to apply the change.")
             return 0
     except (OSError, RuntimeError, ValueError, subprocess.CalledProcessError) as exc:
         print(f"extension command failed: {exc}", file=sys.stderr)
@@ -112,16 +112,16 @@ def _source_argument(args: argparse.Namespace) -> str:
 
 
 def find_project_root() -> Path:
-    configured = os.environ.get("DEER_FLOW_PROJECT_ROOT")
+    configured = os.environ.get("SYNAPSE_PROJECT_ROOT")
     if configured:
         candidate = Path(configured).expanduser().resolve()
         if (candidate / "backend" / "pyproject.toml").is_file():
             return candidate
-        raise FileNotFoundError(f"DEER_FLOW_PROJECT_ROOT is not a DeerFlow checkout: {candidate}")
+        raise FileNotFoundError(f"SYNAPSE_PROJECT_ROOT is not a SynapseAI checkout: {candidate}")
 
     candidates = (Path.cwd(), *Path.cwd().parents)
     for candidate in candidates:
         candidate = candidate.resolve()
         if (candidate / "backend" / "pyproject.toml").is_file():
             return candidate
-    raise FileNotFoundError("could not find a DeerFlow checkout; set DEER_FLOW_PROJECT_ROOT")
+    raise FileNotFoundError("could not find a SynapseAI checkout; set SYNAPSE_PROJECT_ROOT")

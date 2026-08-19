@@ -15,12 +15,12 @@ from langchain_core.messages import HumanMessage
 from langchain_core.runnables import run_in_executor
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
-from deerflow.config.paths import Paths, get_paths
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.uploads.manager import is_upload_staging_file
-from deerflow.utils.file_outline import extract_outline_for_file
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY, message_content_to_text
+from SynapseAI.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
+from SynapseAI.config.paths import Paths, get_paths
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.uploads.manager import is_upload_staging_file
+from SynapseAI.utils.file_outline import extract_outline_for_file
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY, message_content_to_text
 
 logger = logging.getLogger(__name__)
 
@@ -301,7 +301,7 @@ class UploadsMiddleware(AgentMiddleware[UploadsMiddlewareState]):
         langgraph would otherwise execute the sync hook directly on the event
         loop, so it is dispatched to a worker thread via ``run_in_executor``.
         ``run_in_executor`` copies the current context, preserving both
-        LangGraph's runnable config and DeerFlow's request ContextVar fallback.
+        LangGraph's runnable config and SynapseAI's request ContextVar fallback.
         The runtime itself is also passed explicitly for the authoritative
         ``runtime.context["user_id"]`` channel.
         """

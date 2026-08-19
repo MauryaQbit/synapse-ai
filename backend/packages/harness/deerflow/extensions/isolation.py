@@ -36,7 +36,7 @@ from typing import Any
 from langchain.agents.middleware import AgentMiddleware
 from langgraph.errors import GraphBubbleUp
 
-from deerflow.extensions.loader import Diagnostic
+from SynapseAI.extensions.loader import Diagnostic
 
 logger = logging.getLogger(__name__)
 

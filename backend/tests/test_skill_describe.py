@@ -4,14 +4,14 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.skills.catalog import SkillCatalog
-from deerflow.skills.describe import (
+from SynapseAI.skills.catalog import SkillCatalog
+from SynapseAI.skills.describe import (
     _render_skill_metadata,
     build_describe_skill_tool,
     build_skill_search_setup,
     get_skill_index_prompt_section,
 )
-from deerflow.skills.types import Skill, SkillCategory
+from SynapseAI.skills.types import Skill, SkillCategory
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
 
@@ -266,7 +266,7 @@ def test_describe_tool_keyword_search(catalog: SkillCatalog):
 
 def test_describe_tool_select_uncapped(tmp_path):
     """select: must return ALL requested skills, not capped at MAX_RESULTS."""
-    from deerflow.skills.catalog import MAX_RESULTS
+    from SynapseAI.skills.catalog import MAX_RESULTS
 
     # Build more skills than MAX_RESULTS so the cap would visibly truncate
     many_skills = [_make_skill(f"skill-{i:02d}") for i in range(MAX_RESULTS + 2)]

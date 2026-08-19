@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.skills.types import Skill
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.skills.types import Skill
 
 #: Composer control commands that own the leading slash and must never be
 #: treated as ``/skill`` activations. These values plus :data:`_SLASH_SKILL_RE`

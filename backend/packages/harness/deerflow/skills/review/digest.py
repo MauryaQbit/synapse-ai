@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-from deerflow.skills.review.models import normalize_relative_path
+from SynapseAI.skills.review.models import normalize_relative_path
 
 
 def compute_package_digest(snapshot: dict[str, Any]) -> str:

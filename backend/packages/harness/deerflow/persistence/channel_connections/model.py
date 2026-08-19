@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 from sqlalchemy import JSON, DateTime, ForeignKey, Index, Integer, String, Text, UniqueConstraint, text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from deerflow.persistence.base import Base
+from SynapseAI.persistence.base import Base
 
 
 def _utc_now() -> datetime:

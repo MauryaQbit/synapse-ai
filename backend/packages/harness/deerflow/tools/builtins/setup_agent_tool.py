@@ -4,11 +4,11 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langgraph.types import Command
 
-from deerflow.config.agents_config import SOUL_FILENAME, validate_agent_name
-from deerflow.config.paths import get_paths
-from deerflow.persistence.agents import get_agent_store
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.tools.types import Runtime
+from SynapseAI.config.agents_config import SOUL_FILENAME, validate_agent_name
+from SynapseAI.config.paths import get_paths
+from SynapseAI.persistence.agents import get_agent_store
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ def setup_agent(
     runtime: Runtime,
     skills: list[str] | None = None,
 ) -> Command:
-    """Setup the custom DeerFlow agent.
+    """Setup the custom SynapseAI agent.
 
     Args:
         soul: Full SOUL.md content defining the agent's personality and behavior.

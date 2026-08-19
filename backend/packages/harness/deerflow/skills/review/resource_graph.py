@@ -6,8 +6,8 @@ import re
 from pathlib import PurePosixPath
 from typing import Any
 
-from deerflow.skills.package_paths import is_eval_fixture_path
-from deerflow.skills.review.models import make_finding, normalize_relative_path
+from SynapseAI.skills.package_paths import is_eval_fixture_path
+from SynapseAI.skills.review.models import make_finding, normalize_relative_path
 
 _MARKDOWN_LINK_RE = re.compile(r"!?\[[^\]]*]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 _CODE_SPAN_RE = re.compile(r"`([^`]+)`")

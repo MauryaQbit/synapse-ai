@@ -8,7 +8,7 @@ Architecture:
   ToolProgressMiddleware (outer)
     └── handler → ToolErrorHandlingMiddleware (inner) → actual tool
                                                               ↓
-  ToolProgressMiddleware reads deerflow_tool_meta from the normalized result
+  ToolProgressMiddleware reads SynapseAI_tool_meta from the normalized result
 
 State machine transitions per (thread_id, tool_name):
   ACTIVE → WARNED (at stagnation_threshold problems)
@@ -64,10 +64,10 @@ from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.runtime import Runtime
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.tool_result_meta import TOOL_META_KEY, ToolResultMeta
+from SynapseAI.agents.middlewares.tool_result_meta import TOOL_META_KEY, ToolResultMeta
 
 if TYPE_CHECKING:
-    from deerflow.config.tool_progress_config import ToolProgressConfig
+    from SynapseAI.config.tool_progress_config import ToolProgressConfig
 
 logger = logging.getLogger(__name__)
 
@@ -311,7 +311,7 @@ class ToolProgressMiddleware(AgentMiddleware[AgentState]):
         if meta is None:
             if tool_name not in self._exempt_tools:
                 logger.warning(
-                    "tool_progress: deerflow_tool_meta missing for non-exempt tool %s — verify ToolProgressMiddleware is outer of ToolErrorHandlingMiddleware",
+                    "tool_progress: SynapseAI_tool_meta missing for non-exempt tool %s — verify ToolProgressMiddleware is outer of ToolErrorHandlingMiddleware",
                     tool_name,
                 )
             return result

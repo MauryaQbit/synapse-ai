@@ -9,7 +9,7 @@ otherwise Store follows the unified ``database`` section in *config.yaml*:
 
 Usage (e.g. FastAPI lifespan)::
 
-    from deerflow.runtime.store import make_store
+    from SynapseAI.runtime.store import make_store
 
     async with make_store() as store:
         app.state.store = store
@@ -24,9 +24,9 @@ from collections.abc import AsyncIterator
 
 from langgraph.store.base import BaseStore
 
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.persistence.postgres_schema import dsn_with_search_path, ensure_postgres_schema_async
-from deerflow.runtime.store.provider import (
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.persistence.postgres_schema import dsn_with_search_path, ensure_postgres_schema_async
+from SynapseAI.runtime.store.provider import (
     POSTGRES_CONN_REQUIRED,
     POSTGRES_STORE_INSTALL,
     SQLITE_STORE_INSTALL,
@@ -52,7 +52,7 @@ async def _ensure_postgres_schema(conn_string: str, schema: str) -> None:
 async def _async_store(config) -> AsyncIterator[BaseStore]:
     """Async context manager that constructs and tears down a Store.
 
-    The ``config`` argument is a :class:`deerflow.config.checkpointer_config.CheckpointerConfig`
+    The ``config`` argument is a :class:`SynapseAI.config.checkpointer_config.CheckpointerConfig`
     instance — the same object used by the checkpointer factory.
     """
     if config.type == "memory":
@@ -108,7 +108,7 @@ async def make_store(app_config: AppConfig | None = None) -> AsyncIterator[BaseS
 
     The legacy ``checkpointer`` section takes precedence when configured;
     otherwise the unified ``database`` section selects the backend, matching
-    :func:`deerflow.runtime.checkpointer.async_provider.make_checkpointer`::
+    :func:`SynapseAI.runtime.checkpointer.async_provider.make_checkpointer`::
 
         async with make_store(app_config) as store:
             app.state.store = store

@@ -16,7 +16,7 @@ from kubernetes.client.rest import ApiException
 
 
 def test_provisioner_thread_id_pattern_matches_gateway_contract(provisioner_module) -> None:
-    from deerflow.utils.thread_id import THREAD_ID_PATTERN
+    from SynapseAI.utils.thread_id import THREAD_ID_PATTERN
 
     assert provisioner_module.SAFE_THREAD_ID_PATTERN == THREAD_ID_PATTERN
 
@@ -108,7 +108,7 @@ class _RecordingCoreV1:
 
     def list_namespaced_service(self, _namespace: str, *, label_selector: str):
         self._record_k8s_call()
-        assert label_selector == "app=deer-flow-sandbox"
+        assert label_selector == "app=synapse-ai-sandbox"
         return SimpleNamespace(items=[_node_port_service("sandbox-listed")])
 
 

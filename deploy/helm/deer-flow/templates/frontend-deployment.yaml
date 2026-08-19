@@ -1,24 +1,24 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "deer-flow.fullname" . }}-frontend
-  namespace: {{ include "deer-flow.namespace" . }}
+  name: {{ include "synapse-ai.fullname" . }}-frontend
+  namespace: {{ include "synapse-ai.namespace" . }}
   labels:
-    {{- include "deer-flow.labels" . | nindent 4 }}
+    {{- include "synapse-ai.labels" . | nindent 4 }}
     app.kubernetes.io/component: frontend
 spec:
   replicas: {{ .Values.frontend.replicas }}
   selector:
     matchLabels:
-      {{- include "deer-flow.selectorLabels" . | nindent 6 }}
+      {{- include "synapse-ai.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: frontend
   template:
     metadata:
       labels:
-        {{- include "deer-flow.selectorLabels" . | nindent 8 }}
+        {{- include "synapse-ai.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: frontend
     spec:
-      {{- include "deer-flow.imagePullSecrets" . | nindent 6 }}
+      {{- include "synapse-ai.imagePullSecrets" . | nindent 6 }}
       securityContext:
         # Non-root: node:22-alpine ships a `node` user (uid 1000). fsGroup 1000
         # is harmless here (no PVC) but keeps the pod spec uniform.
@@ -30,7 +30,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: frontend
-          image: {{ include "deer-flow.frontendImage" . }}
+          image: {{ include "synapse-ai.frontendImage" . }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
             allowPrivilegeEscalation: false
@@ -44,12 +44,12 @@ spec:
           env:
             - name: NODE_ENV
               value: production
-            - name: DEER_FLOW_INTERNAL_GATEWAY_BASE_URL
+            - name: SYNAPSE_INTERNAL_GATEWAY_BASE_URL
               value: http://gateway:8001
             - name: BETTER_AUTH_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "deer-flow.appSecret" . }}
+                  name: {{ include "synapse-ai.appSecret" . }}
                   key: BETTER_AUTH_SECRET
           readinessProbe:
             tcpSocket:

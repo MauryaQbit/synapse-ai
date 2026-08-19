@@ -12,9 +12,9 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
-from deerflow.authz.principal import normalize_authz_attributes
-from deerflow.guardrails.provider import GuardrailDecision, GuardrailProvider, GuardrailReason, GuardrailRequest
-from deerflow.runtime.events.catalog import MIDDLEWARE_GUARDRAIL_TAG
+from SynapseAI.authz.principal import normalize_authz_attributes
+from SynapseAI.guardrails.provider import GuardrailDecision, GuardrailProvider, GuardrailReason, GuardrailRequest
+from SynapseAI.runtime.events.catalog import MIDDLEWARE_GUARDRAIL_TAG
 
 logger = logging.getLogger(__name__)
 

@@ -29,16 +29,16 @@ from app.gateway.routers.agents import (
     get_agent,
     list_agents,
 )
-from deerflow.config.agents_api_config import load_agents_api_config_from_dict
-from deerflow.config.paths import get_paths
-from deerflow.runtime.user_context import get_effective_user_id
+from SynapseAI.config.agents_api_config import load_agents_api_config_from_dict
+from SynapseAI.config.paths import get_paths
+from SynapseAI.runtime.user_context import get_effective_user_id
 
 pytestmark = pytest.mark.asyncio
 
 
 async def test_create_agent_does_not_block_event_loop(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     load_agents_api_config_from_dict({"enabled": True})
     try:
         response = await create_agent_endpoint(AgentCreateRequest(name="loop-make-agent", soul="You are a test agent."))
@@ -53,8 +53,8 @@ async def test_create_agent_does_not_block_event_loop(tmp_path: Path, monkeypatc
 
 
 async def test_delete_agent_does_not_block_event_loop(tmp_path: Path, monkeypatch) -> None:
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     load_agents_api_config_from_dict({"enabled": True})
     try:
         user_id = get_effective_user_id()
@@ -75,8 +75,8 @@ async def test_read_endpoints_do_not_block_event_loop(tmp_path: Path, monkeypatc
     # list/get/check read through the sync agent store; on the db backend each is
     # a DB round trip. They must offload via asyncio.to_thread, or the strict
     # Blockbuster gate raises BlockingError here (finding: reads on the loop).
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     load_agents_api_config_from_dict({"enabled": True})
     try:
         await create_agent_endpoint(AgentCreateRequest(name="loop-read-agent", soul="You are a test agent."))

@@ -1,4 +1,4 @@
-"""``TenkiSandbox`` — DeerFlow :class:`Sandbox` backed by a Tenki cloud sandbox.
+"""``TenkiSandbox`` — SynapseAI :class:`Sandbox` backed by a Tenki cloud sandbox.
 
 Tenki's Python SDK (``tenki-sandbox``) is synchronous, so — unlike
 ``community/boxlite`` — this adapter calls the SDK directly with no event-loop
@@ -7,7 +7,7 @@ bridge. File transport uses Tenki's native ``sandbox.fs`` API (``read_text`` /
 and streams, so no base64/shell encoding is involved. Directory and content
 *search* (``list_dir`` / ``glob`` / ``grep``) still shells out to ``find`` /
 ``grep`` — the fs API is single-level and has no content search — and is parsed
-with the shared ``deerflow.sandbox.search`` helpers, the same approach as
+with the shared ``SynapseAI.sandbox.search`` helpers, the same approach as
 ``community/e2b_sandbox``. Those commands use only busybox-portable flags so any
 Tenki base image works.
 
@@ -27,9 +27,9 @@ import shlex
 import threading
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.sandbox.sandbox import Sandbox, _validate_extra_env
-from deerflow.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.sandbox.sandbox import Sandbox, _validate_extra_env
+from SynapseAI.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 _MAX_DOWNLOAD_SIZE = 100 * 1024 * 1024  # 100 MB
 # Tenki sandboxes run as the unprivileged ``tenki`` user (HOME=/home/tenki) and
-# ``/mnt`` is root-owned, so DeerFlow's ``/mnt/user-data`` virtual prefix is not
+# ``/mnt`` is root-owned, so SynapseAI's ``/mnt/user-data`` virtual prefix is not
 # writable directly. Like ``community/e2b_sandbox``, file ops are remapped under
 # this home dir (the provider also best-effort symlinks /mnt/user-data → here so
 # agent shell commands using the literal path still work).
@@ -71,10 +71,10 @@ _TERMINAL_ERROR_NAMES = frozenset(
 
 
 class TenkiSandbox(Sandbox):
-    """DeerFlow Sandbox adapter that delegates to a live Tenki cloud sandbox.
+    """SynapseAI Sandbox adapter that delegates to a live Tenki cloud sandbox.
 
     Args:
-        id: DeerFlow-side sandbox id (the provider's cache key).
+        id: SynapseAI-side sandbox id (the provider's cache key).
         sandbox: A live, started ``tenki_sandbox.Sandbox``. The provider owns
             its lifecycle; this adapter terminates it on :meth:`close`.
         default_env: Static environment merged into every command, overridden
@@ -212,7 +212,7 @@ class TenkiSandbox(Sandbox):
         return normalized
 
     def _resolve_path(self, path: str) -> str:
-        """Map DeerFlow virtual paths into the writable sandbox home dir.
+        """Map SynapseAI virtual paths into the writable sandbox home dir.
 
         ``VIRTUAL_PATH_PREFIX`` (``/mnt/user-data``) is rewritten under
         :attr:`_home_dir`; other absolute paths pass through so the sandbox can
@@ -247,7 +247,7 @@ class TenkiSandbox(Sandbox):
     ) -> str:
         """Run ``command`` through a shell in the Tenki sandbox and return output.
 
-        DeerFlow passes a bash command *string*; it runs through ``sh -lc``.
+        SynapseAI passes a bash command *string*; it runs through ``sh -lc``.
         Per-call ``env`` is layered over the static config environment and
         scoped to this command only (request-scoped secrets, issue #3861).
         """

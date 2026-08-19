@@ -24,11 +24,11 @@ from langchain.agents import create_agent
 from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
 from langchain_core.messages import AIMessage, HumanMessage
 
-from deerflow.agents.middlewares.dynamic_context_middleware import (
+from SynapseAI.agents.middlewares.dynamic_context_middleware import (
     _DYNAMIC_CONTEXT_REMINDER_KEY,
     DynamicContextMiddleware,
 )
-from deerflow.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
+from SynapseAI.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
 
 pytestmark = pytest.mark.asyncio
 
@@ -57,7 +57,7 @@ async def test_abefore_agent_does_not_block_event_loop() -> None:
 
     with (
         mock.patch.object(mw, "_build_full_reminder", slow_build_reminder),
-        mock.patch("deerflow.agents.lead_agent.prompt._get_memory_context", return_value=""),
+        mock.patch("SynapseAI.agents.lead_agent.prompt._get_memory_context", return_value=""),
     ):
         agent = await asyncio.to_thread(
             lambda: create_agent(
@@ -84,8 +84,8 @@ async def test_abefore_agent_returns_same_result_as_before_agent() -> None:
     runtime = SimpleNamespace(context={})
 
     with (
-        mock.patch("deerflow.agents.lead_agent.prompt._get_memory_context", return_value=""),
-        mock.patch("deerflow.agents.middlewares.dynamic_context_middleware.datetime") as mock_dt,
+        mock.patch("SynapseAI.agents.lead_agent.prompt._get_memory_context", return_value=""),
+        mock.patch("SynapseAI.agents.middlewares.dynamic_context_middleware.datetime") as mock_dt,
     ):
         mock_dt.now.return_value.strftime.return_value = "2026-06-05, Friday"
 
@@ -135,7 +135,7 @@ async def test_abefore_agent_returns_none_on_timeout() -> None:
     with (
         mock.patch.object(mw, "_inject", blocking_inject),
         mock.patch(
-            "deerflow.agents.middlewares.dynamic_context_middleware._INJECT_TIMEOUT_SECONDS",
+            "SynapseAI.agents.middlewares.dynamic_context_middleware._INJECT_TIMEOUT_SECONDS",
             0.01,
         ),
     ):
@@ -194,7 +194,7 @@ async def test_abefore_agent_records_checkpointed_memory_on_timeout() -> None:
     with (
         mock.patch.object(mw, "_inject", blocking_inject),
         mock.patch(
-            "deerflow.agents.middlewares.dynamic_context_middleware._INJECT_TIMEOUT_SECONDS",
+            "SynapseAI.agents.middlewares.dynamic_context_middleware._INJECT_TIMEOUT_SECONDS",
             0.01,
         ),
     ):

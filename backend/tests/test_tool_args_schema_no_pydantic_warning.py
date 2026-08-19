@@ -1,12 +1,12 @@
 """Regression test: tool args schemas must not emit Pydantic serialization warnings.
 
-DeerFlow tools annotate their runtime parameter as ``Runtime``
-(``deerflow.tools.types.Runtime`` = ``ToolRuntime[dict[str, Any], ThreadState]``)
+SynapseAI tools annotate their runtime parameter as ``Runtime``
+(``SynapseAI.tools.types.Runtime`` = ``ToolRuntime[dict[str, Any], ThreadState]``)
 so the LangChain tool framework injects the runtime automatically.
 When the inner ``Runtime.context`` field is left as the unbound ``ContextT``
 TypeVar (default ``None``), Pydantic's ``model_dump()`` on the auto-generated
 args schema emits a ``PydanticSerializationUnexpectedValue`` warning on every
-tool call because the actual context DeerFlow installs is a dict. Using the
+tool call because the actual context SynapseAI installs is a dict. Using the
 ``Runtime`` alias (which binds the context to ``dict[str, Any]``) keeps
 Pydantic's serialization expectations aligned with reality.
 """
@@ -19,7 +19,7 @@ import pytest
 from langchain.tools import ToolRuntime
 from langchain_core.utils.function_calling import convert_to_openai_tool
 
-from deerflow.sandbox.tools import (
+from SynapseAI.sandbox.tools import (
     bash_tool,
     glob_tool,
     grep_tool,
@@ -28,13 +28,13 @@ from deerflow.sandbox.tools import (
     str_replace_tool,
     write_file_tool,
 )
-from deerflow.tools.builtins.list_uploaded_files_tool import list_uploaded_files
-from deerflow.tools.builtins.present_file_tool import present_file_tool
-from deerflow.tools.builtins.setup_agent_tool import setup_agent
-from deerflow.tools.builtins.task_tool import task_tool
-from deerflow.tools.builtins.update_agent_tool import update_agent
-from deerflow.tools.builtins.view_image_tool import view_image_tool
-from deerflow.tools.skill_manage_tool import skill_manage_tool
+from SynapseAI.tools.builtins.list_uploaded_files_tool import list_uploaded_files
+from SynapseAI.tools.builtins.present_file_tool import present_file_tool
+from SynapseAI.tools.builtins.setup_agent_tool import setup_agent
+from SynapseAI.tools.builtins.task_tool import task_tool
+from SynapseAI.tools.builtins.update_agent_tool import update_agent
+from SynapseAI.tools.builtins.view_image_tool import view_image_tool
+from SynapseAI.tools.skill_manage_tool import skill_manage_tool
 
 
 def _make_runtime(context: dict) -> ToolRuntime:

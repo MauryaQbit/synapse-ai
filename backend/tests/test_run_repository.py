@@ -8,14 +8,14 @@ from datetime import UTC, datetime, timedelta
 import pytest
 from sqlalchemy.dialects import postgresql
 
-from deerflow.persistence.run import RunRepository
-from deerflow.runtime import CancelOutcome, RunManager, RunStatus, ThreadOperationKind
-from deerflow.runtime.runs.manager import ConflictError
-from deerflow.runtime.runs.store.base import RunStore
+from SynapseAI.persistence.run import RunRepository
+from SynapseAI.runtime import CancelOutcome, RunManager, RunStatus, ThreadOperationKind
+from SynapseAI.runtime.runs.manager import ConflictError
+from SynapseAI.runtime.runs.store.base import RunStore
 
 
 async def _make_repo(tmp_path):
-    from deerflow.persistence.engine import get_session_factory, init_engine
+    from SynapseAI.persistence.engine import get_session_factory, init_engine
 
     url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
     await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -23,7 +23,7 @@ async def _make_repo(tmp_path):
 
 
 async def _cleanup():
-    from deerflow.persistence.engine import close_engine
+    from SynapseAI.persistence.engine import close_engine
 
     await close_engine()
 
@@ -519,7 +519,7 @@ class TestRunRepository:
     @pytest.mark.anyio
     async def test_model_name_persistence(self, tmp_path):
         """RunRepository should persist, normalize, and truncate model_name correctly via SQL."""
-        from deerflow.persistence.engine import get_session_factory, init_engine
+        from SynapseAI.persistence.engine import get_session_factory, init_engine
 
         url = f"sqlite+aiosqlite:///{tmp_path / 'test.db'}"
         await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -739,7 +739,7 @@ class TestRunRepository:
         """
         from datetime import UTC, datetime, timedelta
 
-        from deerflow.config.run_ownership_config import RunOwnershipConfig
+        from SynapseAI.config.run_ownership_config import RunOwnershipConfig
 
         repo = await _make_repo(tmp_path)
         manager = RunManager(
@@ -848,7 +848,7 @@ class TestRunRepository:
 
         from sqlalchemy.exc import IntegrityError
 
-        from deerflow.runtime.runs.manager import _is_unique_violation
+        from SynapseAI.runtime.runs.manager import _is_unique_violation
 
         repo = await _make_repo(tmp_path)
 
@@ -881,7 +881,7 @@ class TestRunRepository:
         type. The fix gates the fallback on
         ``isinstance(current, (SAIntegrityError, sqlite3.IntegrityError))``.
         """
-        from deerflow.runtime.runs.manager import _is_unique_violation
+        from SynapseAI.runtime.runs.manager import _is_unique_violation
 
         assert _is_unique_violation(ValueError("duplicate key in input data: 'email'")) is False
         assert _is_unique_violation(RuntimeError("unique violat detected in config")) is False
@@ -897,7 +897,7 @@ class TestRunRepository:
         """
         from sqlalchemy.exc import IntegrityError as SAIntegrityError
 
-        from deerflow.runtime.runs.manager import _is_unique_violation
+        from SynapseAI.runtime.runs.manager import _is_unique_violation
 
         # Simulate psycopg3's sqlstate attribute on a wrapped IntegrityError
         dbapi_err = Exception()

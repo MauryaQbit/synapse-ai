@@ -2,9 +2,9 @@ import pytest
 
 from app.gateway.routers.thread_runs import _record_to_response
 from app.gateway.routers.threads import HistoryEntry, ThreadResponse, ThreadStateResponse
-from deerflow.runtime.runs.manager import RunRecord
-from deerflow.runtime.runs.schemas import DisconnectMode, RunStatus
-from deerflow.runtime.secret_context import (
+from SynapseAI.runtime.runs.manager import RunRecord
+from SynapseAI.runtime.runs.schemas import DisconnectMode, RunStatus
+from SynapseAI.runtime.secret_context import (
     LegacyRunMetadataSecretError,
     redact_config_secrets,
     redact_metadata_secrets,

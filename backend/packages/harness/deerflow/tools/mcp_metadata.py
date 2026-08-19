@@ -1,6 +1,6 @@
 """Single source of truth for the MCP-tool metadata tag.
 
-A tool is "MCP-sourced" when it carries the ``deerflow_mcp`` metadata flag.
+A tool is "MCP-sourced" when it carries the ``SynapseAI_mcp`` metadata flag.
 The tag is *written* where MCP tools are loaded (``tools.py``) and *read* by
 deferred-tool assembly (``tool_search.py``) and the agent build site
 (``agent.py``). Keeping the key, the tagger, and the predicate here means the
@@ -18,8 +18,8 @@ from typing import Any
 
 from langchain.tools import BaseTool
 
-MCP_TOOL_METADATA_KEY = "deerflow_mcp"
-MCP_TOOL_ROUTING_METADATA_KEY = "deerflow_mcp_routing"
+MCP_TOOL_METADATA_KEY = "SynapseAI_mcp"
+MCP_TOOL_ROUTING_METADATA_KEY = "SynapseAI_mcp_routing"
 
 
 def tag_mcp_tool(tool: BaseTool) -> BaseTool:

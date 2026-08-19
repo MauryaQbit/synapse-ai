@@ -4,9 +4,9 @@ The translation layer is pure and is exercised here against real
 ``StreamEvent`` objects plus a fake client, with no Textual involved.
 """
 
-from deerflow.client import StreamEvent
-from deerflow.tui.runtime import stream_actions, translate
-from deerflow.tui.view_state import (
+from SynapseAI.client import StreamEvent
+from SynapseAI.tui.runtime import stream_actions, translate
+from SynapseAI.tui.view_state import (
     AssistantDelta,
     AssistantError,
     RunEnded,

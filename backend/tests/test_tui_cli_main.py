@@ -4,8 +4,8 @@ import json
 
 import pytest
 
-from deerflow.client import StreamEvent
-from deerflow.tui import cli
+from SynapseAI.client import StreamEvent
+from SynapseAI.tui import cli
 
 
 class _FakeClient:
@@ -86,4 +86,4 @@ def test_main_headless_help_returns_2_and_prints_usage(monkeypatch, capsys):
     monkeypatch.setattr(cli.sys.stdin, "isatty", lambda: True)
     rc = cli.main(["--cli"])
     assert rc == 2
-    assert "deerflow" in capsys.readouterr().err
+    assert "SynapseAI" in capsys.readouterr().err

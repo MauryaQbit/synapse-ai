@@ -1,6 +1,6 @@
-"""Pure-argument factory for DeerFlow agents.
+"""Pure-argument factory for SynapseAI agents.
 
-``create_deerflow_agent`` accepts plain Python arguments — no YAML files, no
+``create_SynapseAI_agent`` accepts plain Python arguments — no YAML files, no
 global singletons.  It is the SDK-level entry point sitting between the raw
 ``langchain.agents.create_agent`` primitive and the config-driven
 ``make_lead_agent`` application factory.
@@ -18,13 +18,13 @@ from typing import TYPE_CHECKING
 from langchain.agents import create_agent
 from langchain.agents.middleware import AgentMiddleware
 
-from deerflow.agents.features import RuntimeFeatures
-from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
-from deerflow.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
-from deerflow.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
-from deerflow.agents.thread_state import adapt_state_schema_for_mode, get_thread_state_schema, normalize_middleware_state_schemas
-from deerflow.config.database_config import CheckpointChannelMode
-from deerflow.tools.builtins import ask_clarification_tool
+from SynapseAI.agents.features import RuntimeFeatures
+from SynapseAI.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from SynapseAI.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
+from SynapseAI.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
+from SynapseAI.agents.thread_state import adapt_state_schema_for_mode, get_thread_state_schema, normalize_middleware_state_schemas
+from SynapseAI.config.database_config import CheckpointChannelMode
+from SynapseAI.tools.builtins import ask_clarification_tool
 
 if TYPE_CHECKING:
     from langchain_core.language_models import BaseChatModel
@@ -32,7 +32,7 @@ if TYPE_CHECKING:
     from langgraph.checkpoint.base import BaseCheckpointSaver
     from langgraph.graph.state import CompiledStateGraph
 
-    from deerflow.config.memory_config import MemoryConfig
+    from SynapseAI.config.memory_config import MemoryConfig
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ _TODO_TOOL_DESCRIPTION = "Use this tool to create and manage a structured task l
 # ---------------------------------------------------------------------------
 
 
-def create_deerflow_agent(
+def create_SynapseAI_agent(
     model: BaseChatModel,
     tools: list[BaseTool] | None = None,
     *,
@@ -76,7 +76,7 @@ def create_deerflow_agent(
     checkpointer: BaseCheckpointSaver | None = None,
     name: str = "default",
 ) -> CompiledStateGraph:
-    """Create a DeerFlow agent from plain Python arguments.
+    """Create a SynapseAI agent from plain Python arguments.
 
     The factory assembly itself reads no config files.  Some injected runtime
     components (e.g. ``task_tool``) may still depend on global config at
@@ -126,11 +126,11 @@ def create_deerflow_agent(
         raise ValueError("Cannot specify both 'middleware' and 'features'.  Use one or the other.")
     if checkpoint_channel_mode == "delta" and checkpointer is not None:
         raise ValueError(
-            "create_deerflow_agent does not support checkpoint_channel_mode='delta' with a checkpointer: "
+            "create_SynapseAI_agent does not support checkpoint_channel_mode='delta' with a checkpointer: "
             "persisted graphs built here bypass checkpoint mode marker injection and the fail-closed "
-            "compatibility gate (see deerflow.runtime.checkpoint_mode), so a mixed-mode store would "
+            "compatibility gate (see SynapseAI.runtime.checkpoint_mode), so a mixed-mode store would "
             "silently corrupt thread state.  Use the guarded application paths (make_lead_agent or "
-            "DeerFlowClient) for delta persistence; delta without a checkpointer is ephemeral and allowed."
+            "SynapseAIClient) for delta persistence; delta without a checkpointer is ephemeral and allowed."
         )
     if middleware is not None and extra_middleware:
         raise ValueError("Cannot use 'extra_middleware' with 'middleware' (full takeover).")
@@ -223,9 +223,9 @@ def _assemble_from_features(
         if isinstance(feat.sandbox, AgentMiddleware):
             chain.append(feat.sandbox)
         else:
-            from deerflow.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
-            from deerflow.agents.middlewares.uploads_middleware import UploadsMiddleware
-            from deerflow.sandbox.middleware import SandboxMiddleware
+            from SynapseAI.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
+            from SynapseAI.agents.middlewares.uploads_middleware import UploadsMiddleware
+            from SynapseAI.sandbox.middleware import SandboxMiddleware
 
             chain.append(ThreadDataMiddleware(lazy_init=True))
             chain.append(UploadsMiddleware())
@@ -253,7 +253,7 @@ def _assemble_from_features(
 
     # --- [7] TodoMiddleware (plan_mode) ---
     if plan_mode:
-        from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
+        from SynapseAI.agents.middlewares.todo_middleware import TodoMiddleware
 
         chain.append(TodoMiddleware(system_prompt=_TODO_SYSTEM_PROMPT, tool_description=_TODO_TOOL_DESCRIPTION))
 
@@ -262,7 +262,7 @@ def _assemble_from_features(
         if isinstance(feat.auto_title, AgentMiddleware):
             chain.append(feat.auto_title)
         else:
-            from deerflow.agents.middlewares.title_middleware import TitleMiddleware
+            from SynapseAI.agents.middlewares.title_middleware import TitleMiddleware
 
             chain.append(TitleMiddleware())
 
@@ -271,12 +271,12 @@ def _assemble_from_features(
         if isinstance(feat.memory, AgentMiddleware):
             chain.append(feat.memory)
         else:
-            from deerflow.config.memory_config import get_memory_config, should_use_memory_tools
+            from SynapseAI.config.memory_config import get_memory_config, should_use_memory_tools
 
             memory_cfg: MemoryConfig = feat.memory_config or get_memory_config()
             if should_use_memory_tools(memory_cfg):
-                from deerflow.agents.memory.manager import backend_requires_passive_writes_in_tool_mode
-                from deerflow.agents.memory.tools import get_memory_tools
+                from SynapseAI.agents.memory.manager import backend_requires_passive_writes_in_tool_mode
+                from SynapseAI.agents.memory.tools import get_memory_tools
 
                 existing_names = {tool.name for tool in extra_tools}
                 for memory_tool in get_memory_tools():
@@ -286,13 +286,13 @@ def _assemble_from_features(
                     extra_tools.append(memory_tool)
                     existing_names.add(memory_tool.name)
                 if backend_requires_passive_writes_in_tool_mode(memory_cfg.manager_class):
-                    from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+                    from SynapseAI.agents.middlewares.memory_middleware import MemoryMiddleware
 
                     chain.append(MemoryMiddleware(agent_name=name, memory_config=memory_cfg))
             else:
                 if memory_cfg.mode == "tool" and not memory_cfg.enabled:
                     logger.warning("memory.mode is 'tool' but memory.enabled is false; memory tools will not be registered.")
-                from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
+                from SynapseAI.agents.middlewares.memory_middleware import MemoryMiddleware
 
                 chain.append(MemoryMiddleware(agent_name=name, memory_config=memory_cfg))
 
@@ -301,12 +301,12 @@ def _assemble_from_features(
         if isinstance(feat.vision, AgentMiddleware):
             chain.append(feat.vision)
         else:
-            from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
+            from SynapseAI.agents.middlewares.view_image_middleware import ViewImageMiddleware
 
             chain.append(ViewImageMiddleware())
 
         if feat.sandbox is not False:
-            from deerflow.tools.builtins import view_image_tool
+            from SynapseAI.tools.builtins import view_image_tool
 
             extra_tools.append(view_image_tool)
 
@@ -315,10 +315,10 @@ def _assemble_from_features(
         if isinstance(feat.subagent, AgentMiddleware):
             chain.append(feat.subagent)
         else:
-            from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
+            from SynapseAI.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
 
             chain.append(SubagentLimitMiddleware())
-        from deerflow.tools.builtins import task_tool
+        from SynapseAI.tools.builtins import task_tool
 
         extra_tools.append(task_tool)
 
@@ -327,8 +327,8 @@ def _assemble_from_features(
         if isinstance(feat.loop_detection, AgentMiddleware):
             chain.append(feat.loop_detection)
         else:
-            from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
-            from deerflow.config.loop_detection_config import LoopDetectionConfig
+            from SynapseAI.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+            from SynapseAI.config.loop_detection_config import LoopDetectionConfig
 
             chain.append(LoopDetectionMiddleware.from_config(LoopDetectionConfig()))
 
@@ -337,8 +337,8 @@ def _assemble_from_features(
         if isinstance(feat.token_budget, AgentMiddleware):
             chain.append(feat.token_budget)
         else:
-            from deerflow.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
-            from deerflow.config.token_budget_config import TokenBudgetConfig
+            from SynapseAI.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
+            from SynapseAI.config.token_budget_config import TokenBudgetConfig
 
             chain.append(TokenBudgetMiddleware.from_config(TokenBudgetConfig()))
 

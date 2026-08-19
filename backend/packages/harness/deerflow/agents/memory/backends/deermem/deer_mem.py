@@ -1,8 +1,8 @@
 """DeerMem -- the default :class:`MemoryManager` backend (self-contained).
 
-DeerMem wraps the DeerFlow memory machinery (the five ``core/`` modules:
+DeerMem wraps the SynapseAI memory machinery (the five ``core/`` modules:
 storage / queue / updater / prompt / message_processing) behind the
-backend-neutral :class:`~deerflow.agents.memory.manager.MemoryManager`
+backend-neutral :class:`~SynapseAI.agents.memory.manager.MemoryManager`
 contract. DeerMem owns its storage / queue / updater as ``PrivateAttr`` dependencies
 (no module-level singletons): the factory passes ``backend_config`` to the
 BaseModel field, and ``model_post_init`` parses it into a :class:`DeerMemConfig`
@@ -29,7 +29,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import PrivateAttr
 
-from deerflow.agents.memory.manager import MemoryConflictError, MemoryCorruptionError, MemoryManager
+from SynapseAI.agents.memory.manager import MemoryConflictError, MemoryCorruptionError, MemoryManager
 
 from .deermem.config import DeerMemConfig
 from .deermem.core.eviction import EVICTION_POLICY_HYBRID_V1
@@ -51,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 def _resolve_agent_name(agent_name: str | None) -> str:
-    """Return DeerFlow's case-insensitive canonical agent identifier."""
+    """Return SynapseAI's case-insensitive canonical agent identifier."""
     return agent_name.lower() if agent_name is not None else DEFAULT_AGENT_BUCKET
 
 

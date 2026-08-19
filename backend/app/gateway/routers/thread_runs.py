@@ -1,8 +1,8 @@
 """Runs endpoints — create, stream, wait, cancel.
 
 Implements the LangGraph Platform runs API on top of
-:class:`deerflow.agents.runs.RunManager` and
-:class:`deerflow.agents.stream_bridge.StreamBridge`.
+:class:`SynapseAI.agents.runs.RunManager` and
+:class:`SynapseAI.agents.stream_bridge.StreamBridge`.
 
 SSE format is aligned with the LangGraph Platform protocol so that
 the ``useStream`` React hook from ``@langchain/langgraph-sdk/react``
@@ -39,12 +39,12 @@ from app.gateway.pagination import trim_run_message_page
 from app.gateway.run_models import RunCreateRequest
 from app.gateway.services import build_checkpoint_state_accessor, build_thread_checkpoint_state_accessor, sse_consumer, start_run, wait_for_run_completion
 from app.gateway.utils import sanitize_log_param
-from deerflow.agents.middlewares.dynamic_context_middleware import strip_injected_user_message_id_suffix
-from deerflow.runtime import CancelOutcome, RunRecord, RunStatus, serialize_channel_values_for_api
-from deerflow.runtime.secret_context import redact_config_secrets, redact_metadata_secrets
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY, get_original_user_content_text, message_to_text
-from deerflow.utils.thread_id import ThreadId
-from deerflow.workspace_changes import get_workspace_changes_response
+from SynapseAI.agents.middlewares.dynamic_context_middleware import strip_injected_user_message_id_suffix
+from SynapseAI.runtime import CancelOutcome, RunRecord, RunStatus, serialize_channel_values_for_api
+from SynapseAI.runtime.secret_context import redact_config_secrets, redact_metadata_secrets
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY, get_original_user_content_text, message_to_text
+from SynapseAI.utils.thread_id import ThreadId
+from SynapseAI.workspace_changes import get_workspace_changes_response
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["runs"])

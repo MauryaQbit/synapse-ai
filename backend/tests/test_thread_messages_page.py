@@ -12,10 +12,10 @@ from fastapi.testclient import TestClient
 from langchain_core.messages import AIMessage, HumanMessage
 
 from app.gateway.routers import thread_runs
-from deerflow.runtime import RunRecord
-from deerflow.runtime.events.store.memory import MemoryRunEventStore
-from deerflow.runtime.journal import build_branch_history_seed_events
-from deerflow.runtime.runs.manager import EditReplayVisibility
+from SynapseAI.runtime import RunRecord
+from SynapseAI.runtime.events.store.memory import MemoryRunEventStore
+from SynapseAI.runtime.journal import build_branch_history_seed_events
+from SynapseAI.runtime.runs.manager import EditReplayVisibility
 
 
 def _make_app(

@@ -4,8 +4,8 @@ import os
 from firecrawl import FirecrawlApp
 from langchain.tools import tool
 
-from deerflow.community.url_safety import validate_public_http_url
-from deerflow.config import get_app_config
+from SynapseAI.community.url_safety import validate_public_http_url
+from SynapseAI.config import get_app_config
 
 # fastCRW is a Firecrawl-compatible web data engine (single Rust binary; self-host
 # or cloud). Because the REST API is Firecrawl-compatible, this provider reuses the

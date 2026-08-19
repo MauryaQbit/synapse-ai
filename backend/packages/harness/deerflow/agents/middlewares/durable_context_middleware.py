@@ -20,12 +20,12 @@ from langchain.agents.middleware.types import ModelCallResult, ModelRequest, Mod
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.delegation_ledger import extract_delegations, render_delegation_ledger
-from deerflow.agents.middlewares.skill_context import extract_skills, render_skill_context
-from deerflow.agents.thread_state import _DELEGATION_LEDGER_MAX_ENTRIES, TERMINAL_STATUSES
-from deerflow.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
+from SynapseAI.agents.middlewares.delegation_ledger import extract_delegations, render_delegation_ledger
+from SynapseAI.agents.middlewares.skill_context import extract_skills, render_skill_context
+from SynapseAI.agents.thread_state import _DELEGATION_LEDGER_MAX_ENTRIES, TERMINAL_STATUSES
+from SynapseAI.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
 
 _DURABLE_CONTEXT_DATA_KEY = "durable_context_data"
 _SUMMARY_RENDER_CHAR_BUDGET = 6000

@@ -16,10 +16,10 @@ from langgraph.types import Overwrite
 
 from app.gateway import services as gateway_services
 from app.gateway.routers import thread_runs, threads
-from deerflow.config.paths import Paths
-from deerflow.persistence.thread_meta import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError
-from deerflow.persistence.thread_meta.memory import THREADS_NS, MemoryThreadMetaStore
-from deerflow.runtime.checkpoint_state import CheckpointStateAccessor
+from SynapseAI.config.paths import Paths
+from SynapseAI.persistence.thread_meta import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError
+from SynapseAI.persistence.thread_meta.memory import THREADS_NS, MemoryThreadMetaStore
+from SynapseAI.runtime.checkpoint_state import CheckpointStateAccessor
 
 _ISO_TIMESTAMP_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}")
 
@@ -84,8 +84,8 @@ def _build_thread_app() -> tuple[FastAPI, InMemoryStore, InMemorySaver]:
 
 def test_compact_rejects_run_owned_by_another_worker(monkeypatch) -> None:
     """The HTTP guard must consult the shared store, not only local run memory."""
-    from deerflow.runtime import RunManager, RunStatus
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager, RunStatus
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     app, _store, _checkpointer = _build_thread_app()
     run_store = MemoryRunStore()
@@ -115,8 +115,8 @@ def test_compact_rejects_run_owned_by_another_worker(monkeypatch) -> None:
 
 def test_update_state_rejects_run_owned_by_another_worker(monkeypatch) -> None:
     """All out-of-run writes share the same durable thread-operation admission."""
-    from deerflow.runtime import RunManager, RunStatus
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager, RunStatus
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     app, _store, _checkpointer = _build_thread_app()
     run_store = MemoryRunStore()
@@ -354,7 +354,7 @@ def test_delete_thread_data_rejects_invalid_thread_id(tmp_path):
 
 
 def test_delete_thread_route_cleans_thread_directory(tmp_path):
-    from deerflow.runtime.user_context import get_effective_user_id
+    from SynapseAI.runtime.user_context import get_effective_user_id
 
     paths = Paths(tmp_path)
     user_id = get_effective_user_id()
@@ -386,7 +386,7 @@ def test_delete_thread_route_closes_browser_session(tmp_path):
     with (
         patch("app.gateway.routers.threads.get_paths", return_value=paths),
         patch(
-            "deerflow.community.browser_automation.get_browser_session_manager",
+            "SynapseAI.community.browser_automation.get_browser_session_manager",
             return_value=manager,
         ),
     ):
@@ -749,8 +749,8 @@ def test_goal_status_and_clear_round_trip() -> None:
 
 def test_goal_mutations_reject_run_owned_by_another_worker() -> None:
     """PUT and DELETE goal writes share the durable thread-operation boundary."""
-    from deerflow.runtime import RunManager, RunStatus
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager, RunStatus
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     app, _store, _checkpointer = _build_thread_app()
     run_store = MemoryRunStore()
@@ -1431,7 +1431,7 @@ def test_get_thread_history_injects_turn_duration_once_per_run() -> None:
     messages."""
     from unittest.mock import AsyncMock, MagicMock
 
-    from deerflow.runtime import RunRecord
+    from SynapseAI.runtime import RunRecord
 
     def _run(run_id: str, seconds: int) -> RunRecord:
         return RunRecord(
@@ -2013,7 +2013,7 @@ def test_branch_thread_real_mutation_graph_finishes_without_scheduling(monkeypat
     branch_snapshot = asyncio.run(accessor.aget(config))
     assert [message.id for message in branch_snapshot.values["messages"]] == ["h1", "a1"]
     assert branch_snapshot.next == ()
-    assert branch_snapshot.metadata["deerflow_branch"] is True
+    assert branch_snapshot.metadata["SynapseAI_branch"] is True
     assert branch_snapshot.metadata["branch_parent_checkpoint_id"] == "ckpt-1"
 
 
@@ -2031,7 +2031,7 @@ def _wire_extension_agent(monkeypatch, app, checkpointer, mode):
     from langchain.agents.middleware import AgentMiddleware
     from langchain_core.language_models.fake_chat_models import FakeMessagesListChatModel
 
-    from deerflow.agents.thread_state import get_thread_state_schema
+    from SynapseAI.agents.thread_state import get_thread_state_schema
 
     class ExtensionState(TypedDict):
         ext_list: NotRequired[Annotated[list[str], operator.add]]
@@ -2241,7 +2241,7 @@ def test_branch_seeds_run_events_with_parent_history(monkeypatch, mode) -> None:
     message rows, so the inherited history vanishes from the UI as soon as
     the branch's first run refreshes the feed (#4380 problem 2).
     """
-    from deerflow.runtime.events.store.memory import MemoryRunEventStore
+    from SynapseAI.runtime.events.store.memory import MemoryRunEventStore
 
     app, _store, checkpointer = _build_thread_app()
     custom_factory = _wire_extension_agent(monkeypatch, app, checkpointer, mode)
@@ -2466,7 +2466,7 @@ def test_branch_thread_rejects_sidecar_threads() -> None:
     with TestClient(app) as client:
         created = client.post(
             "/api/threads",
-            json={"thread_id": "sidecar-thread", "metadata": {"deerflow_sidecar": True}},
+            json={"thread_id": "sidecar-thread", "metadata": {"SynapseAI_sidecar": True}},
         )
         assert created.status_code == 200, created.text
 

@@ -9,8 +9,8 @@ from app.gateway.authz import (
     resolve_model_authorization,
 )
 from app.gateway.deps import get_config, get_optional_user_from_request
-from deerflow.authz.provider import AuthzDecision, AuthzRequest
-from deerflow.config.app_config import AppConfig
+from SynapseAI.authz.provider import AuthzDecision, AuthzRequest
+from SynapseAI.config.app_config import AppConfig
 
 logger = logging.getLogger(__name__)
 

@@ -7,15 +7,15 @@ import sys
 from pathlib import Path
 from typing import Any
 
-from deerflow.skills.review.analyzer import analyze_skill_package
-from deerflow.skills.review.models import DEFAULT_PACKAGE_LIMITS, SEVERITY_RANK, PackageLimits, stable_json_dumps
-from deerflow.skills.review.readers import ArchivePackageReader, LocalDirectoryReader
+from SynapseAI.skills.review.analyzer import analyze_skill_package
+from SynapseAI.skills.review.models import DEFAULT_PACKAGE_LIMITS, SEVERITY_RANK, PackageLimits, stable_json_dumps
+from SynapseAI.skills.review.readers import ArchivePackageReader, LocalDirectoryReader
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Analyze a skill package without executing it.")
     parser.add_argument("target", help="Skill directory or .skill archive to review")
-    parser.add_argument("--profile", choices=["deerflow", "agentskills"], default="deerflow")
+    parser.add_argument("--profile", choices=["SynapseAI", "agentskills"], default="SynapseAI")
     parser.add_argument("--format", choices=["json", "text"], default="json")
     parser.add_argument(
         "--fail-on",

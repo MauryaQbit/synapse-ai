@@ -31,7 +31,7 @@ from app.gateway.routers.mcp import (
     update_mcp_configuration,
     update_mcp_server_state,
 )
-from deerflow.config.extensions_config import ExtensionsConfig, McpServerConfig
+from SynapseAI.config.extensions_config import ExtensionsConfig, McpServerConfig
 
 # ---------------------------------------------------------------------------
 # _mask_server_config

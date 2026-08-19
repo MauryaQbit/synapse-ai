@@ -1,11 +1,11 @@
 """Unified database backend configuration.
 
-Controls BOTH the LangGraph checkpointer and the DeerFlow application
+Controls BOTH the LangGraph checkpointer and the SynapseAI application
 persistence layer (runs, threads metadata, users, etc.). The user
 configures one backend; the system handles physical separation details.
 
 SQLite mode: checkpointer and app share a single .db file
-({sqlite_dir}/deerflow.db) with WAL journal mode enabled on every
+({sqlite_dir}/SynapseAI.db) with WAL journal mode enabled on every
 connection. WAL allows concurrent readers and a single writer without
 blocking, making a unified file safe for both workloads.  Writers
 that contend for the lock wait via the default 5-second sqlite3
@@ -37,7 +37,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from deerflow.config.postgres_schema import POSTGRES_SCHEMA_PATTERN, validate_postgres_schema
+from SynapseAI.config.postgres_schema import POSTGRES_SCHEMA_PATTERN, validate_postgres_schema
 
 logger = logging.getLogger(__name__)
 
@@ -121,7 +121,7 @@ class CheckpointCacheConfig(BaseModel):
     )
     redis_url: str | None = Field(
         default=None,
-        description=("Redis URL for type=redis. If omitted, DEER_FLOW_CHECKPOINT_CACHE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used."),
+        description=("Redis URL for type=redis. If omitted, SYNAPSE_CHECKPOINT_CACHE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used."),
     )
     ttl_seconds: int = Field(
         default=86400,
@@ -166,15 +166,15 @@ class DatabaseConfig(BaseModel):
         description="Delta-mode checkpoint history cache. Performance-only; safe to differ across workers.",
     )
     sqlite_dir: str = Field(
-        default=".deer-flow/data",
-        description=("Directory for the SQLite database file. Both checkpointer and application data share {sqlite_dir}/deerflow.db."),
+        default=".synapse-ai/data",
+        description=("Directory for the SQLite database file. Both checkpointer and application data share {sqlite_dir}/SynapseAI.db."),
     )
     postgres_url: str = Field(
         default="",
         description=(
             "PostgreSQL connection URL, shared by checkpointer and app. "
             "Use $DATABASE_URL in config.yaml to reference .env. "
-            "Example: postgresql://user:pass@host:5432/deerflow "
+            "Example: postgresql://user:pass@host:5432/SynapseAI "
             "(the +asyncpg driver suffix is added automatically where needed)."
         ),
     )
@@ -265,7 +265,7 @@ class DatabaseConfig(BaseModel):
     @property
     def sqlite_path(self) -> str:
         """Unified SQLite file path shared by checkpointer and app."""
-        return os.path.join(self._resolved_sqlite_dir, "deerflow.db")
+        return os.path.join(self._resolved_sqlite_dir, "SynapseAI.db")
 
     # Backward-compatible aliases
     @property

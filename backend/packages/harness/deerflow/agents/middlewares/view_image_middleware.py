@@ -11,7 +11,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, ToolMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.thread_state import ThreadState
+from SynapseAI.agents.thread_state import ThreadState
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # case the file grew on disk between view and injection.
 _MAX_IMAGE_BYTES = 20 * 1024 * 1024
 _IMAGE_CONTEXT_MESSAGE_ID_PREFIX = "view-image-context:"
-_IMAGE_CONTEXT_MESSAGE_MARKER_KEY = "deerflow_view_image_context"
+_IMAGE_CONTEXT_MESSAGE_MARKER_KEY = "SynapseAI_view_image_context"
 
 
 class ViewImageMiddlewareState(ThreadState):

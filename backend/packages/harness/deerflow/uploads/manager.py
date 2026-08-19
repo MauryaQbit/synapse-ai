@@ -11,9 +11,9 @@ import stat
 from pathlib import Path
 from urllib.parse import quote
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX, get_paths
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.utils.thread_id import validate_thread_id
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX, get_paths
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.utils.thread_id import validate_thread_id
 
 
 class PathTraversalError(ValueError):

@@ -11,8 +11,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from deerflow.config.runtime_paths import existing_project_file
-from deerflow.constants import (
+from SynapseAI.config.runtime_paths import existing_project_file
+from SynapseAI.constants import (
     DEFAULT_MCP_SESSION_INIT_TIMEOUT,
     MCP_TASK_NAME_MAX_LENGTH,
     MCP_TASK_SERVER_NAME_MAX_LENGTH,
@@ -234,7 +234,7 @@ class ExtensionsConfig(BaseModel):
 
         Priority:
         1. If provided `config_path` argument, use it.
-        2. If provided `DEER_FLOW_EXTENSIONS_CONFIG_PATH` environment variable, use it.
+        2. If provided `SYNAPSE_EXTENSIONS_CONFIG_PATH` environment variable, use it.
         3. Otherwise, search the caller project root for `extensions_config.json`, then `mcp_config.json`.
         4. For backward compatibility, also search legacy backend/repository-root defaults.
         5. If not found via search, return None (extensions are optional).
@@ -244,7 +244,7 @@ class ExtensionsConfig(BaseModel):
 
         Resolution order:
             1. If provided `config_path` argument, use it.
-            2. If provided `DEER_FLOW_EXTENSIONS_CONFIG_PATH` environment variable, use it.
+            2. If provided `SYNAPSE_EXTENSIONS_CONFIG_PATH` environment variable, use it.
             3. Otherwise, search the caller project root for
                `extensions_config.json`, then legacy `mcp_config.json`.
             4. Finally, search backend/repository-root defaults for monorepo compatibility.
@@ -254,7 +254,7 @@ class ExtensionsConfig(BaseModel):
             order above.
 
             An explicit `config_path` argument or a set
-            `DEER_FLOW_EXTENSIONS_CONFIG_PATH` is an operator assertion that
+            `SYNAPSE_EXTENSIONS_CONFIG_PATH` is an operator assertion that
             one particular file must be used, so a missing file in either of
             those two modes raises ``FileNotFoundError`` (see Raises below)
             instead of degrading to "no config" — a bad Docker mount, typo,
@@ -266,12 +266,12 @@ class ExtensionsConfig(BaseModel):
             var set) returns ``None`` when nothing is found: that case means
             extensions were never configured in the first place, which is the
             legitimate "extensions are optional" case some callers (e.g. the
-            MCP tools-cache staleness check in `deerflow.mcp.cache`) rely on
+            MCP tools-cache staleness check in `SynapseAI.mcp.cache`) rely on
             as a clean, expected signal.
 
         Raises:
             FileNotFoundError: If `config_path` is given, or
-                `DEER_FLOW_EXTENSIONS_CONFIG_PATH` is set, and the resolved
+                `SYNAPSE_EXTENSIONS_CONFIG_PATH` is set, and the resolved
                 path does not exist.
         """
         if config_path:
@@ -279,10 +279,10 @@ class ExtensionsConfig(BaseModel):
             if not path.exists():
                 raise FileNotFoundError(f"Extensions config file specified by param `config_path` not found at {path}")
             return path
-        elif env_path := os.getenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH"):
+        elif env_path := os.getenv("SYNAPSE_EXTENSIONS_CONFIG_PATH"):
             path = Path(env_path)
             if not path.exists():
-                raise FileNotFoundError(f"Extensions config file specified by environment variable `DEER_FLOW_EXTENSIONS_CONFIG_PATH` not found at {path}")
+                raise FileNotFoundError(f"Extensions config file specified by environment variable `SYNAPSE_EXTENSIONS_CONFIG_PATH` not found at {path}")
             return path
         else:
             project_config = existing_project_file(("extensions_config.json", "mcp_config.json"))

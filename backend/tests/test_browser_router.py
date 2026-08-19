@@ -97,7 +97,7 @@ def test_browser_stream_closes_4501_when_browser_runtime_unavailable():
     real_import = __import__
 
     def fail_browser_runtime_import(name, globals=None, locals=None, fromlist=(), level=0):
-        if name == "deerflow.community.browser_automation" and "get_browser_session_manager" in fromlist:
+        if name == "SynapseAI.community.browser_automation" and "get_browser_session_manager" in fromlist:
             raise ImportError("browser runtime unavailable")
         return real_import(name, globals, locals, fromlist, level)
 
@@ -117,7 +117,7 @@ def test_browser_navigate_rejects_legacy_null_owner_thread():
 
     with (
         patch.object(browser_router, "_browser_tools_enabled", return_value=True),
-        patch("deerflow.community.browser_automation.navigate_and_capture", new=AsyncMock()),
+        patch("SynapseAI.community.browser_automation.navigate_and_capture", new=AsyncMock()),
     ):
         response = TestClient(app).post(
             "/api/threads/thread-1/browser/navigate",
@@ -133,7 +133,7 @@ def test_browser_tools_disabled_when_cdp_risk_not_explicitly_accepted():
     app_config = SimpleNamespace(tools=[tool_cfg])
 
     with (
-        patch("deerflow.config.get_app_config", return_value=app_config),
+        patch("SynapseAI.config.get_app_config", return_value=app_config),
         patch("app.gateway.browser_capability.browser_multi_worker_error", return_value=None),
         patch("app.gateway.browser_capability.importlib.util.find_spec", return_value=object()),
     ):
@@ -148,7 +148,7 @@ def test_browser_tools_enabled_when_cdp_risk_explicitly_accepted():
     app_config = SimpleNamespace(tools=[tool_cfg])
 
     with (
-        patch("deerflow.config.get_app_config", return_value=app_config),
+        patch("SynapseAI.config.get_app_config", return_value=app_config),
         patch("app.gateway.browser_capability.browser_multi_worker_error", return_value=None),
         patch("app.gateway.browser_capability.importlib.util.find_spec", return_value=object()),
     ):
@@ -166,7 +166,7 @@ def test_browser_navigate_redacts_failure_url_from_logs_and_response(caplog):
     with (
         patch.object(browser_router, "_browser_tools_enabled", return_value=True),
         patch(
-            "deerflow.community.browser_automation.navigate_and_capture",
+            "SynapseAI.community.browser_automation.navigate_and_capture",
             new=AsyncMock(side_effect=RuntimeError(f"timed out opening {failing_url}")),
         ),
     ):
@@ -184,20 +184,20 @@ def test_browser_navigate_redacts_failure_url_from_logs_and_response(caplog):
 
 
 def test_browser_stream_seed_applies_to_blank_page():
-    assert _should_apply_browser_seed("about:blank", "https://github.com/bytedance/deer-flow")
+    assert _should_apply_browser_seed("about:blank", "https://github.com/bytedance/synapse-ai")
 
 
 def test_browser_stream_seed_applies_when_current_url_differs():
     assert _should_apply_browser_seed(
         "https://docs.byteplus.com/en/docs/InfoQuest/What_is_Info_Quest",
-        "https://github.com/bytedance/deer-flow",
+        "https://github.com/bytedance/synapse-ai",
     )
 
 
 def test_browser_stream_seed_ignores_hash_and_trailing_slash_for_same_page():
     assert not _should_apply_browser_seed(
-        "https://github.com/bytedance/deer-flow/#readme",
-        "https://github.com/bytedance/deer-flow/",
+        "https://github.com/bytedance/synapse-ai/#readme",
+        "https://github.com/bytedance/synapse-ai/",
     )
 
 
@@ -306,9 +306,9 @@ def test_browser_frames_dirname_shared_between_tools_and_scanner():
     that they resolve to the same value so the workspace-changes ignore cannot
     silently drift away from where the browser tools write frames.
     """
-    from deerflow.community.browser_automation import tools as browser_tools
-    from deerflow.constants import BROWSER_FRAMES_DIRNAME
-    from deerflow.workspace_changes.scanner import EXCLUDED_DIR_NAMES
+    from SynapseAI.community.browser_automation import tools as browser_tools
+    from SynapseAI.constants import BROWSER_FRAMES_DIRNAME
+    from SynapseAI.workspace_changes.scanner import EXCLUDED_DIR_NAMES
 
     assert browser_tools._BROWSER_FRAMES_DIRNAME == BROWSER_FRAMES_DIRNAME
     assert BROWSER_FRAMES_DIRNAME in EXCLUDED_DIR_NAMES
@@ -321,8 +321,8 @@ def test_validate_browser_url_rejects_private_and_non_http(monkeypatch):
     loopback / metadata / non-http targets, so the live stream cannot be steered
     at internal infrastructure.
     """
-    from deerflow.community.browser_automation import tools as browser_tools
-    from deerflow.community.browser_automation import validate_browser_url
+    from SynapseAI.community.browser_automation import tools as browser_tools
+    from SynapseAI.community.browser_automation import validate_browser_url
 
     # Isolate from any local config.yaml that may set allow_private_addresses.
     monkeypatch.setattr(browser_tools, "_get_tool_config", lambda _tool_name: {})
@@ -332,4 +332,4 @@ def test_validate_browser_url_rejects_private_and_non_http(monkeypatch):
     assert validate_browser_url("file:///etc/passwd") is not None
     assert validate_browser_url("ftp://example.com") is not None
     # A normal public URL passes (returns None = allowed).
-    assert validate_browser_url("https://github.com/bytedance/deer-flow") is None
+    assert validate_browser_url("https://github.com/bytedance/synapse-ai") is None

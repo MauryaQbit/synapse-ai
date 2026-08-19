@@ -6,7 +6,7 @@ implements, plus a singleton :func:`get_memory_manager` factory that resolves
 the active backend from ``MemoryConfig.manager_class``.
 
 Swap backend = drop a ``backends/<name>/`` folder exposing ``MANAGER_CLASS``
-and set ``manager_class: <name>``. Nothing else in deer-flow changes.
+and set ``manager_class: <name>``. Nothing else in synapse-ai changes.
 
 Scope note: this phase is *pluggable only*, not black-box. Agent-side
 conventions (``enabled`` gating at call sites, ``<memory>`` wrapping in
@@ -27,7 +27,7 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from deerflow.config.memory_config import get_memory_config
+from SynapseAI.config.memory_config import get_memory_config
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class MemoryCallbacks:
         """Post-LLM-call hook for host-owned observation. Default: no-op.
 
         This callback keeps the vendorable DeerMem backend independent from
-        DeerFlow's extension API. It is invoked for both provider success and
+        SynapseAI's extension API. It is invoked for both provider success and
         failure, and backend callers isolate exceptions raised by an
         implementation.
         """
@@ -109,8 +109,8 @@ class MemoryManager(BaseModel):
     validation / serialization.
 
     Memories are bucketed per ``(agent_name, user_id)``; ``thread_id`` aligns
-    with the deer-flow conversation thread. The contract is deliberately
-    neutral so a third-party memory system can be adapted without deer-flow
+    with the synapse-ai conversation thread. The contract is deliberately
+    neutral so a third-party memory system can be adapted without synapse-ai
     code changes:
 
     - :meth:`get_context` returns plain injection text; the *format* is the
@@ -538,7 +538,7 @@ def _scan_backends() -> dict[str, type[MemoryManager]]:
             continue
         if not (entry / "__init__.py").is_file():
             continue
-        dotted = f"deerflow.agents.memory.backends.{entry.name}"
+        dotted = f"SynapseAI.agents.memory.backends.{entry.name}"
         try:
             module: ModuleType = importlib.import_module(dotted)
         except Exception:  # noqa: BLE001 - a broken backend must not break the factory
@@ -620,7 +620,7 @@ def backend_requires_passive_writes_in_tool_mode(manager_class: str) -> bool:
 #
 # These callables are the host's defaults for the slots a backend may consume
 # (tracing, hidden-message filtering, trace-context binding, a host default
-# LLM). The portable backend package never names a deer-flow concept; the host
+# LLM). The portable backend package never names a synapse-ai concept; the host
 # supplies them HERE (host code outside ``backends/deermem/``). The factory
 # passes them to ``cls.from_config(..., **host_hooks)``; each backend's
 # ``from_config`` consumes the ones it needs (DeerMem does; noop ignores them).
@@ -643,7 +643,7 @@ class LangfuseMemoryCallbacks(MemoryCallbacks):
 
     def __init__(self, *, extensions=None) -> None:
         if extensions is None:
-            from deerflow.extensions import get_loaded_extensions
+            from SynapseAI.extensions import get_loaded_extensions
 
             extensions = get_loaded_extensions()
         self._extensions = extensions
@@ -657,7 +657,7 @@ class LangfuseMemoryCallbacks(MemoryCallbacks):
         trace_id: str | None,
         model_name: str | None,
     ) -> None:
-        from deerflow.tracing import inject_langfuse_metadata
+        from SynapseAI.tracing import inject_langfuse_metadata
 
         inject_langfuse_metadata(
             invoke_config,
@@ -665,8 +665,8 @@ class LangfuseMemoryCallbacks(MemoryCallbacks):
             user_id=user_id,
             assistant_id="memory_agent",
             model_name=model_name,
-            environment=os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT"),
-            deerflow_trace_id=trace_id,
+            environment=os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT"),
+            SynapseAI_trace_id=trace_id,
         )
 
     def on_memory_llm_result(
@@ -684,13 +684,13 @@ class LangfuseMemoryCallbacks(MemoryCallbacks):
         if not extensions.has_system_model_observers:
             return
         try:
-            from deerflow_extension_api import (
+            from SynapseAI_extension_api import (
                 SystemModelRequest,
                 SystemModelResult,
                 SystemOperationKind,
             )
 
-            from deerflow.extensions.notify import (
+            from SynapseAI.extensions.notify import (
                 dispatch_system_model_observation,
                 notify_system_model_call,
                 task_store_for_system_call,
@@ -725,7 +725,7 @@ class LangfuseMemoryCallbacks(MemoryCallbacks):
 
 
 def _host_default_should_keep_hidden_message(additional_kwargs: Any) -> bool:
-    """deer-flow default for DeerMem's ``should_keep_hidden_message`` slot.
+    """synapse-ai default for DeerMem's ``should_keep_hidden_message`` slot.
 
     Keep a ``hide_from_ui`` message only when it carries a human-input
     clarification response, so the user's clarification is captured into
@@ -733,13 +733,13 @@ def _host_default_should_keep_hidden_message(additional_kwargs: Any) -> bool:
     view-image payloads, etc.). Restores the pre-abstraction behaviour where
     ``message_processing`` imported ``read_human_input_response`` directly.
     """
-    from deerflow.agents.human_input import read_human_input_response
+    from SynapseAI.agents.human_input import read_human_input_response
 
     return read_human_input_response(additional_kwargs) is not None
 
 
 def _host_default_llm() -> Any:
-    """deer-flow default for DeerMem's ``host_llm`` slot (zero-config extraction).
+    """synapse-ai default for DeerMem's ``host_llm`` slot (zero-config extraction).
 
     Builds the host's default chat model (``create_chat_model(name=None)`` ->
     app default, ``attach_tracing=True`` so memory LLM calls surface in langfuse
@@ -749,7 +749,7 @@ def _host_default_llm() -> Any:
     crashing startup.
     """
     try:
-        from deerflow.models import create_chat_model
+        from SynapseAI.models import create_chat_model
 
         return create_chat_model(name=None)
     except Exception:  # noqa: BLE001 - no default model is a config state, not a crash
@@ -758,7 +758,7 @@ def _host_default_llm() -> Any:
 
 
 def _host_default_extraction_callback(payload: Any) -> None:
-    """deer-flow default for DeerMem's ``extraction_callback`` slot.
+    """synapse-ai default for DeerMem's ``extraction_callback`` slot.
 
     Logs post-extraction metrics (token usage, facts passing/rejected by the
     confidence filter, gate rejection rate) for ops observability, and flags a
@@ -831,7 +831,7 @@ def _collect_host_hooks() -> dict[str, Any]:
     of its own) -- building an unused default on every startup would waste
     time. The others are direct values (cheap function refs).
     """
-    from deerflow.trace_context import request_trace_context
+    from SynapseAI.trace_context import request_trace_context
 
     return {
         "callbacks": LangfuseMemoryCallbacks(),
@@ -855,7 +855,7 @@ def get_memory_manager() -> MemoryManager:
     if _memory_manager is not None:
         return _memory_manager
 
-    # deer-flow is multi-threaded: memory injection runs via asyncio.to_thread,
+    # synapse-ai is multi-threaded: memory injection runs via asyncio.to_thread,
     # the update queue fires on a Timer thread, and gateway/agent threads all
     # reach here. Double-checked locking ensures only one instance is built even
     # on first-call contention -- essential since backends now own stateful
@@ -869,12 +869,12 @@ def get_memory_manager() -> MemoryManager:
         manager_class = cfg.manager_class
         cls = _resolve_manager_class(manager_class)
         backend_config = dict(cfg.backend_config or {})
-        # Zero-config UX: default DeerMem storage to deer-flow's state dir
+        # Zero-config UX: default DeerMem storage to synapse-ai's state dir
         # (absolute, CWD-independent) so memory lands at
-        # {runtime_home}/users/{user_id}/memory.json (deer-flow's base_dir,
+        # {runtime_home}/users/{user_id}/memory.json (synapse-ai's base_dir,
         # same as pre-abstraction) unless the host explicitly sets storage_path.
         if not backend_config.get("storage_path"):
-            from deerflow.config.runtime_paths import runtime_home
+            from SynapseAI.config.runtime_paths import runtime_home
 
             backend_config["storage_path"] = str(runtime_home())
         elif not Path(backend_config.get("storage_path", "")).is_absolute():
@@ -882,7 +882,7 @@ def get_memory_manager() -> MemoryManager:
             # relative, CWD-independent) to preserve pre-abstraction semantics; left
             # as-is it would be CWD-relative and fragile. (Resolved here in host code
             # so the portable paths.py stays free of any runtime_home dependency.)
-            from deerflow.config.runtime_paths import runtime_home
+            from SynapseAI.config.runtime_paths import runtime_home
 
             backend_config["storage_path"] = str((Path(runtime_home()) / backend_config["storage_path"]).resolve())
         # storage_path-is-a-file guard lives on DeerMemConfig.model_validator

@@ -18,11 +18,11 @@ from __future__ import annotations
 
 from typing import Any
 
-from deerflow.config import get_enabled_tracing_providers
-from deerflow.trace_context import DEERFLOW_TRACE_METADATA_KEY, get_current_trace_id, normalize_trace_id
+from SynapseAI.config import get_enabled_tracing_providers
+from SynapseAI.trace_context import SynapseAI_TRACE_METADATA_KEY, get_current_trace_id, normalize_trace_id
 
-# Lazy-imported below to avoid a circular import: ``deerflow.runtime`` eagerly
-# imports the run worker, which in turn needs ``deerflow.tracing``.
+# Lazy-imported below to avoid a circular import: ``SynapseAI.runtime`` eagerly
+# imports the run worker, which in turn needs ``SynapseAI.tracing``.
 _DEFAULT_TRACE_NAME = "lead-agent"
 
 
@@ -33,7 +33,7 @@ def build_langfuse_trace_metadata(
     assistant_id: str | None = None,
     model_name: str | None = None,
     environment: str | None = None,
-    deerflow_trace_id: str | None = None,
+    SynapseAI_trace_id: str | None = None,
 ) -> dict[str, Any]:
     """Return Langfuse trace-attribute metadata for ``RunnableConfig.metadata``.
 
@@ -49,22 +49,22 @@ def build_langfuse_trace_metadata(
         model_name: Model name; emitted as ``model:<name>`` in ``langfuse_tags``.
         environment: Deployment env (e.g. ``"production"``); emitted as
             ``env:<value>`` in ``langfuse_tags``.
-        deerflow_trace_id: Optional DeerFlow request trace id; falls back to
+        SynapseAI_trace_id: Optional SynapseAI request trace id; falls back to
             the current request trace context when omitted.
     """
     if "langfuse" not in get_enabled_tracing_providers():
         return {}
 
-    from deerflow.runtime.user_context import DEFAULT_USER_ID
+    from SynapseAI.runtime.user_context import DEFAULT_USER_ID
 
     metadata: dict[str, Any] = {
         "langfuse_session_id": thread_id,
         "langfuse_user_id": user_id or DEFAULT_USER_ID,
         "langfuse_trace_name": assistant_id or _DEFAULT_TRACE_NAME,
     }
-    request_trace_id = normalize_trace_id(deerflow_trace_id) or get_current_trace_id()
+    request_trace_id = normalize_trace_id(SynapseAI_trace_id) or get_current_trace_id()
     if request_trace_id:
-        metadata[DEERFLOW_TRACE_METADATA_KEY] = request_trace_id
+        metadata[SynapseAI_TRACE_METADATA_KEY] = request_trace_id
 
     tags: list[str] = []
     if environment:
@@ -85,7 +85,7 @@ def inject_langfuse_metadata(
     assistant_id: str | None = None,
     model_name: str | None = None,
     environment: str | None = None,
-    deerflow_trace_id: str | None = None,
+    SynapseAI_trace_id: str | None = None,
 ) -> None:
     """Merge Langfuse trace-attribute metadata into ``config["metadata"]``.
 
@@ -103,7 +103,7 @@ def inject_langfuse_metadata(
         assistant_id=assistant_id,
         model_name=model_name,
         environment=environment,
-        deerflow_trace_id=deerflow_trace_id,
+        SynapseAI_trace_id=SynapseAI_trace_id,
     )
     if not langfuse_metadata:
         return

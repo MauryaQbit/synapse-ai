@@ -14,9 +14,9 @@ from app.gateway.auth.models import User
 from app.gateway.deps import get_config
 from app.gateway.routers import skills as skills_router
 from app.gateway.routers import uploads as uploads_router
-from deerflow.skills.security_static_scanner import StaticScannerError
-from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
-from deerflow.skills.types import Skill
+from SynapseAI.skills.security_static_scanner import StaticScannerError
+from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+from SynapseAI.skills.types import Skill
 
 
 def _make_admin_user() -> User:
@@ -30,7 +30,7 @@ def _skill_content(name: str, description: str = "Demo skill") -> str:
 
 
 async def _async_scan(decision: str, reason: str):
-    from deerflow.skills.security_scanner import ScanResult
+    from SynapseAI.skills.security_scanner import ScanResult
 
     return ScanResult(decision=decision, reason=reason)
 
@@ -87,7 +87,7 @@ def test_install_skill_archive_runs_security_scan(monkeypatch, tmp_path):
     refresh_calls = []
 
     async def _scan(content, *, executable, location, app_config=None, static_findings=None):
-        from deerflow.skills.security_scanner import ScanResult
+        from SynapseAI.skills.security_scanner import ScanResult
 
         scan_calls.append({"content": content, "executable": executable, "location": location})
         return ScanResult(decision="allow", reason="ok")
@@ -95,24 +95,24 @@ def test_install_skill_archive_runs_security_scan(monkeypatch, tmp_path):
     async def _refresh(user_id: str):
         refresh_calls.append(("refresh", user_id))
 
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = Paths(base_dir=tmp_path)
     # Monkeypatch paths BEFORE constructing UserScopedSkillStorage,
     # because __init__ calls get_paths() to resolve _user_custom_root.
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: paths)
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: paths)
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
     # Use UserScopedSkillStorage so install goes to user-level dir
     storage = UserScopedSkillStorage("default", host_path=str(skills_root))
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
     monkeypatch.setattr(skills_router, "resolve_thread_virtual_path", lambda thread_id, path: archive)
     # Monkeypatch _get_user_skill_storage to return our test storage
     monkeypatch.setattr(skills_router, "_get_user_skill_storage", lambda cfg: storage)
-    monkeypatch.setattr("deerflow.skills.installer.scan_skill_content", _scan)
+    monkeypatch.setattr("SynapseAI.skills.installer.scan_skill_content", _scan)
     monkeypatch.setattr(skills_router, "refresh_user_skills_system_prompt_cache_async", _refresh)
     monkeypatch.setattr(skills_router, "get_effective_user_id", lambda: "default")
 
@@ -143,28 +143,28 @@ def test_uploaded_skill_archive_installs_sandbox_readable_tree(monkeypatch, tmp_
     refresh_calls = []
 
     async def _scan(*args, **kwargs):
-        from deerflow.skills.security_scanner import ScanResult
+        from SynapseAI.skills.security_scanner import ScanResult
 
         return ScanResult(decision="allow", reason="ok")
 
     async def _refresh(user_id: str):
         refresh_calls.append(("refresh", user_id))
 
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
         uploads=SimpleNamespace(auto_convert_documents=False),
     )
     provider = SimpleNamespace(uses_thread_data_mounts=True)
 
     # Monkeypatch paths BEFORE constructing UserScopedSkillStorage
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
-    monkeypatch.setenv("DEER_FLOW_HOME", str(home))
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
+    monkeypatch.setenv("SYNAPSE_HOME", str(home))
     monkeypatch.setattr(uploads_router, "get_sandbox_provider", lambda: provider)
-    monkeypatch.setattr("deerflow.skills.installer.scan_skill_content", _scan)
+    monkeypatch.setattr("SynapseAI.skills.installer.scan_skill_content", _scan)
     monkeypatch.setattr(skills_router, "refresh_user_skills_system_prompt_cache_async", _refresh)
 
     # Use UserScopedSkillStorage
@@ -211,27 +211,27 @@ def test_install_skill_archive_security_scan_block_returns_400(monkeypatch, tmp_
     refresh_calls = []
 
     async def _scan(*args, **kwargs):
-        from deerflow.skills.security_scanner import ScanResult
+        from SynapseAI.skills.security_scanner import ScanResult
 
         return ScanResult(decision="block", reason="prompt injection")
 
     async def _refresh(user_id: str):
         refresh_calls.append(("refresh", user_id))
 
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     # Monkeypatch paths BEFORE constructing UserScopedSkillStorage
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
     storage = UserScopedSkillStorage("default", host_path=str(skills_root))
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
     monkeypatch.setattr(skills_router, "resolve_thread_virtual_path", lambda thread_id, path: archive)
     monkeypatch.setattr(skills_router, "_get_user_skill_storage", lambda cfg: storage)
-    monkeypatch.setattr("deerflow.skills.installer.scan_skill_content", _scan)
+    monkeypatch.setattr("SynapseAI.skills.installer.scan_skill_content", _scan)
     monkeypatch.setattr(skills_router, "refresh_user_skills_system_prompt_cache_async", _refresh)
     monkeypatch.setattr(skills_router, "get_effective_user_id", lambda: "default")
 
@@ -258,7 +258,7 @@ def test_install_skill_archive_static_scan_block_returns_findings(monkeypatch, t
     llm_calls = []
 
     async def _scan(*args, **kwargs):
-        from deerflow.skills.security_scanner import ScanResult
+        from SynapseAI.skills.security_scanner import ScanResult
 
         llm_calls.append({"args": args, "kwargs": kwargs})
         return ScanResult(decision="allow", reason="ok")
@@ -266,17 +266,17 @@ def test_install_skill_archive_static_scan_block_returns_findings(monkeypatch, t
     async def _refresh(user_id: str):
         refresh_calls.append(("refresh", user_id))
 
-    from deerflow.skills.storage.local_skill_storage import LocalSkillStorage
+    from SynapseAI.skills.storage.local_skill_storage import LocalSkillStorage
 
     storage = LocalSkillStorage(host_path=str(skills_root))
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
     monkeypatch.setattr(skills_router, "resolve_thread_virtual_path", lambda thread_id, path: archive)
     monkeypatch.setattr(skills_router, "get_or_new_user_skill_storage", lambda user_id, **kw: storage)
     monkeypatch.setattr(skills_router, "get_effective_user_id", lambda: "default")
-    monkeypatch.setattr("deerflow.skills.installer.scan_skill_content", _scan)
+    monkeypatch.setattr("SynapseAI.skills.installer.scan_skill_content", _scan)
     monkeypatch.setattr(skills_router, "refresh_user_skills_system_prompt_cache_async", _refresh)
 
     app = _make_test_app(config)
@@ -295,7 +295,7 @@ def test_install_skill_archive_static_scan_block_returns_findings(monkeypatch, t
 
 def test_custom_skills_router_lifecycle(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     # Create a skill in user-level custom dir
     user_custom = _user_custom_dir(tmp_path, "default")
@@ -304,12 +304,12 @@ def test_custom_skills_router_lifecycle(monkeypatch, tmp_path):
     (custom_dir / "SKILL.md").write_text(_skill_content("demo-skill"), encoding="utf-8")
 
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     monkeypatch.setattr("app.gateway.routers.skills.scan_skill_content", lambda *args, **kwargs: _async_scan("allow", "ok"))
     refresh_calls = []
 
@@ -351,19 +351,19 @@ def test_custom_skills_router_lifecycle(monkeypatch, tmp_path):
 
 def test_custom_skill_update_static_scan_failure_blocks_edit_before_llm(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     custom_dir = _user_custom_dir(tmp_path, "default") / "demo-skill"
     custom_dir.mkdir(parents=True, exist_ok=True)
     original_content = _skill_content("demo-skill")
     (custom_dir / "SKILL.md").write_text(original_content, encoding="utf-8")
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     refresh_calls = []
     llm_calls = []
 
@@ -400,7 +400,7 @@ def test_custom_skill_update_static_scan_failure_blocks_edit_before_llm(monkeypa
 
 def test_custom_skill_rollback_blocked_by_scanner(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     user_custom = _user_custom_dir(tmp_path, "default")
     custom_dir = user_custom / "demo-skill"
@@ -410,12 +410,12 @@ def test_custom_skill_rollback_blocked_by_scanner(monkeypatch, tmp_path):
     (custom_dir / "SKILL.md").write_text(edited_content, encoding="utf-8")
 
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
     # Write history file directly for the rollback test
     storage = UserScopedSkillStorage("default", host_path=str(skills_root))
@@ -433,7 +433,7 @@ def test_custom_skill_rollback_blocked_by_scanner(monkeypatch, tmp_path):
     monkeypatch.setattr("app.gateway.routers.skills.get_effective_user_id", lambda: "default")
 
     async def _scan(*args, **kwargs):
-        from deerflow.skills.security_scanner import ScanResult
+        from SynapseAI.skills.security_scanner import ScanResult
 
         return ScanResult(decision="block", reason="unsafe rollback")
 
@@ -453,7 +453,7 @@ def test_custom_skill_rollback_blocked_by_scanner(monkeypatch, tmp_path):
 
 def test_custom_skill_delete_preserves_history_and_allows_restore(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     user_custom = _user_custom_dir(tmp_path, "default")
     custom_dir = user_custom / "demo-skill"
@@ -462,12 +462,12 @@ def test_custom_skill_delete_preserves_history_and_allows_restore(monkeypatch, t
     (custom_dir / "SKILL.md").write_text(original_content, encoding="utf-8")
 
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     monkeypatch.setattr("app.gateway.routers.skills.scan_skill_content", lambda *args, **kwargs: _async_scan("allow", "ok"))
     refresh_calls = []
 
@@ -497,19 +497,19 @@ def test_custom_skill_delete_preserves_history_and_allows_restore(monkeypatch, t
 
 def test_custom_skill_delete_continues_when_history_write_is_readonly(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     user_custom = _user_custom_dir(tmp_path, "default")
     custom_dir = user_custom / "demo-skill"
     custom_dir.mkdir(parents=True, exist_ok=True)
     (custom_dir / "SKILL.md").write_text(_skill_content("demo-skill"), encoding="utf-8")
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     refresh_calls = []
 
     async def _refresh(user_id: str):
@@ -518,7 +518,7 @@ def test_custom_skill_delete_continues_when_history_write_is_readonly(monkeypatc
     def _readonly_history(*args, **kwargs):
         raise OSError(errno.EROFS, "Read-only file system", str(user_custom / ".history"))
 
-    monkeypatch.setattr("deerflow.skills.storage.user_scoped_skill_storage.UserScopedSkillStorage.append_history", _readonly_history)
+    monkeypatch.setattr("SynapseAI.skills.storage.user_scoped_skill_storage.UserScopedSkillStorage.append_history", _readonly_history)
     monkeypatch.setattr("app.gateway.routers.skills.refresh_user_skills_system_prompt_cache_async", _refresh)
     monkeypatch.setattr("app.gateway.routers.skills.get_effective_user_id", lambda: "default")
 
@@ -535,19 +535,19 @@ def test_custom_skill_delete_continues_when_history_write_is_readonly(monkeypatc
 
 def test_custom_skill_delete_fails_when_skill_dir_removal_fails(monkeypatch, tmp_path):
     skills_root = tmp_path / "skills"
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     user_custom = _user_custom_dir(tmp_path, "default")
     custom_dir = user_custom / "demo-skill"
     custom_dir.mkdir(parents=True, exist_ok=True)
     (custom_dir / "SKILL.md").write_text(_skill_content("demo-skill"), encoding="utf-8")
     config = SimpleNamespace(
-        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage"),
+        skills=SimpleNamespace(get_skills_path=lambda: skills_root, container_path="/mnt/skills", use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage"),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.get_app_config", lambda: config)
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.get_app_config", lambda: config)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     refresh_calls = []
 
     async def _refresh(user_id: str):
@@ -556,7 +556,7 @@ def test_custom_skill_delete_fails_when_skill_dir_removal_fails(monkeypatch, tmp
     def _fail_rmtree(*args, **kwargs):
         raise PermissionError(errno.EACCES, "Permission denied", str(custom_dir))
 
-    monkeypatch.setattr("deerflow.skills.storage.local_skill_storage.shutil.rmtree", _fail_rmtree)
+    monkeypatch.setattr("SynapseAI.skills.storage.local_skill_storage.shutil.rmtree", _fail_rmtree)
     monkeypatch.setattr("app.gateway.routers.skills.refresh_user_skills_system_prompt_cache_async", _refresh)
     monkeypatch.setattr("app.gateway.routers.skills.get_effective_user_id", lambda: "default")
 
@@ -607,7 +607,7 @@ def test_update_skill_refreshes_prompt_cache_before_return(monkeypatch, tmp_path
     # router takes the per-user ``set_skill_enabled_state`` branch.
     # We patch the symbol on the storage module because the router
     # function imports ``UserScopedSkillStorage`` lazily from there.
-    from deerflow.skills.storage import user_scoped_skill_storage as uss_module
+    from SynapseAI.skills.storage import user_scoped_skill_storage as uss_module
 
     class _FakeUserScopedStorage:
         def __init__(self, *args, **kwargs) -> None:
@@ -624,7 +624,7 @@ def test_update_skill_refreshes_prompt_cache_before_return(monkeypatch, tmp_path
     # The router also calls ``isinstance(storage, UserScopedSkillStorage)``
     # against the symbol it imported; monkeypatch the symbol on the
     # storage module so the isinstance check accepts our mock.
-    monkeypatch.setattr("deerflow.skills.storage.user_scoped_skill_storage.UserScopedSkillStorage", _FakeUserScopedStorage)
+    monkeypatch.setattr("SynapseAI.skills.storage.user_scoped_skill_storage.UserScopedSkillStorage", _FakeUserScopedStorage)
     mock_storage = _FakeUserScopedStorage()
     monkeypatch.setattr(skills_router, "_get_user_skill_storage", lambda cfg: mock_storage)
     monkeypatch.setattr(skills_router, "get_effective_user_id", lambda: "default")
@@ -658,8 +658,8 @@ def test_public_skill_toggle_clears_all_users_cache(monkeypatch, tmp_path):
     load_calls = {"n": 0}
 
     def _load_skills(*, enabled_only: bool):
-        from deerflow.config.extensions_config import ExtensionsConfig
-        from deerflow.skills.types import Skill
+        from SynapseAI.config.extensions_config import ExtensionsConfig
+        from SynapseAI.skills.types import Skill
 
         # The router re-loads after the toggle so the response reflects
         # the new state. The second call therefore reads the on-disk
@@ -764,9 +764,9 @@ def test_public_skill_toggle_creates_missing_extensions_config(monkeypatch, tmp_
 
 
 def test_public_skill_toggle_rebuilds_projection_before_response(monkeypatch, tmp_path):
-    from deerflow.config.extensions_config import ExtensionsConfig, SkillStateConfig, reset_extensions_config, set_extensions_config
-    from deerflow.config.paths import Paths
-    from deerflow.skills.projection import rebuild_skill_projections
+    from SynapseAI.config.extensions_config import ExtensionsConfig, SkillStateConfig, reset_extensions_config, set_extensions_config
+    from SynapseAI.config.paths import Paths
+    from SynapseAI.skills.projection import rebuild_skill_projections
 
     skills_root = tmp_path / "skills"
     skill_file = skills_root / "public" / "public-skill" / "SKILL.md"
@@ -786,19 +786,19 @@ def test_public_skill_toggle_rebuilds_projection_before_response(monkeypatch, tm
         ),
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_path))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(config_path))
 
     paths = Paths(base_dir=tmp_path)
     config = SimpleNamespace(
         skills=SimpleNamespace(
             get_skills_path=lambda: skills_root,
             container_path="/mnt/skills",
-            use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+            use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
         ),
         skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
     )
-    monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: paths)
-    monkeypatch.setattr("deerflow.config.paths._paths", None)
+    monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: paths)
+    monkeypatch.setattr("SynapseAI.config.paths._paths", None)
     monkeypatch.setattr(skills_router, "get_effective_user_id", lambda: "default")
     monkeypatch.setattr(skills_router, "clear_skills_system_prompt_cache", lambda: None)
     # Simulate another worker having updated the file after this worker cached
@@ -836,10 +836,10 @@ class TestMultiUserSkillIsolation:
     @staticmethod
     def _setup_two_user_env(monkeypatch, tmp_path, skills_root):
         """Shared setup: patch paths and create two UserScopedSkillStorage instances."""
-        from deerflow.config.paths import Paths
+        from SynapseAI.config.paths import Paths
 
-        monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-        monkeypatch.setattr("deerflow.config.paths._paths", None)
+        monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+        monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
         alice_storage = UserScopedSkillStorage("alice", host_path=str(skills_root))
         bob_storage = UserScopedSkillStorage("bob", host_path=str(skills_root))
@@ -848,7 +848,7 @@ class TestMultiUserSkillIsolation:
             skills=SimpleNamespace(
                 get_skills_path=lambda: skills_root,
                 container_path="/mnt/skills",
-                use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+                use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
             ),
             skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
         )
@@ -1033,10 +1033,10 @@ class TestMultiUserSkillIsolation:
         (global_custom_dir / "SKILL.md").write_text(_skill_content("legacy-shared-skill", "Legacy shared skill"), encoding="utf-8")
 
         # Create a per-user custom skill
-        from deerflow.config.paths import Paths
+        from SynapseAI.config.paths import Paths
 
-        monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-        monkeypatch.setattr("deerflow.config.paths._paths", None)
+        monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+        monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
         alice_storage = UserScopedSkillStorage("alice", host_path=str(skills_root))
         alice_custom = _user_custom_dir(tmp_path, "alice")
@@ -1048,7 +1048,7 @@ class TestMultiUserSkillIsolation:
             skills=SimpleNamespace(
                 get_skills_path=lambda: skills_root,
                 container_path="/mnt/skills",
-                use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+                use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
             ),
             skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
         )
@@ -1082,10 +1082,10 @@ class TestMultiUserSkillIsolation:
         skills_root = tmp_path / "skills"
         skills_root.mkdir()
 
-        from deerflow.config.paths import Paths
+        from SynapseAI.config.paths import Paths
 
-        monkeypatch.setattr("deerflow.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
-        monkeypatch.setattr("deerflow.config.paths._paths", None)
+        monkeypatch.setattr("SynapseAI.config.paths.get_paths", lambda: Paths(base_dir=tmp_path))
+        monkeypatch.setattr("SynapseAI.config.paths._paths", None)
 
         alice_storage = UserScopedSkillStorage("alice", host_path=str(skills_root))
         alice_custom = _user_custom_dir(tmp_path, "alice")
@@ -1097,7 +1097,7 @@ class TestMultiUserSkillIsolation:
             skills=SimpleNamespace(
                 get_skills_path=lambda: skills_root,
                 container_path="/mnt/skills",
-                use="deerflow.skills.storage.local_skill_storage:LocalSkillStorage",
+                use="SynapseAI.skills.storage.local_skill_storage:LocalSkillStorage",
             ),
             skill_evolution=SimpleNamespace(enabled=True, moderation_model_name=None),
         )

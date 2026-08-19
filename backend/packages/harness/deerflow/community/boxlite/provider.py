@@ -1,8 +1,8 @@
-"""``BoxliteProvider`` — DeerFlow :class:`SandboxProvider` backed by BoxLite.
+"""``BoxliteProvider`` — SynapseAI :class:`SandboxProvider` backed by BoxLite.
 
 Integrates `BoxLite <https://github.com/boxlite-ai/boxlite>`_ — a daemonless,
-OCI-native micro-VM runtime — as a DeerFlow sandbox backend. See
-https://github.com/bytedance/deer-flow/issues/3936.
+OCI-native micro-VM runtime — as a SynapseAI sandbox backend. See
+https://github.com/bytedance/synapse-ai/issues/3936.
 
 Config is read off :class:`SandboxConfig` (``extra="allow"``), so BoxLite keys
 may appear under ``sandbox:`` in ``config.yaml`` even though they are not declared
@@ -23,11 +23,11 @@ import uuid
 from collections.abc import Awaitable
 from typing import TYPE_CHECKING, Any, TypeVar
 
-from deerflow.config import get_app_config
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from SynapseAI.config import get_app_config
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider
 
 from ..warm_pool_lifecycle import WarmPoolLifecycleMixin
 from .box import BoxliteBox
@@ -40,9 +40,9 @@ logger = logging.getLogger(__name__)
 T = TypeVar("T")
 
 DEFAULT_IMAGE = "python:3.12-slim"
-_BOX_NAME_PREFIX = "deer-flow-boxlite-"
+_BOX_NAME_PREFIX = "synapse-ai-boxlite-"
 _NO_ACTIVE_IDENTITY = object()
-# DeerFlow's virtual prefixes, materialised on the box rootfs at start so the
+# SynapseAI's virtual prefixes, materialised on the box rootfs at start so the
 # Sandbox file APIs (which address /mnt/user-data/...) resolve natively.
 _VIRTUAL_DIRS = (
     f"{VIRTUAL_PATH_PREFIX}/workspace",
@@ -73,7 +73,7 @@ def _import_simplebox() -> type[SimpleBox]:
     try:
         from boxlite import SimpleBox
     except ImportError as e:  # pragma: no cover - depends on the optional dependency
-        raise ImportError("BoxliteProvider requires the optional 'boxlite' dependency. Install it with: pip install 'deerflow-harness[boxlite]' or pip install boxlite.") from e
+        raise ImportError("BoxliteProvider requires the optional 'boxlite' dependency. Install it with: pip install 'SynapseAI-harness[boxlite]' or pip install boxlite.") from e
     return SimpleBox
 
 
@@ -82,14 +82,14 @@ def _import_sync_boxlite_runtime():
     try:
         from boxlite import SyncBoxlite
     except ImportError as e:  # pragma: no cover - depends on the optional dependency
-        raise ImportError("BoxliteProvider requires the optional 'boxlite' dependency. Install it with: pip install 'deerflow-harness[boxlite]' or pip install boxlite.") from e
+        raise ImportError("BoxliteProvider requires the optional 'boxlite' dependency. Install it with: pip install 'SynapseAI-harness[boxlite]' or pip install boxlite.") from e
     return SyncBoxlite
 
 
 class _EventLoopThread:
     """A private asyncio event loop running on a dedicated daemon thread.
 
-    BoxLite is async-native and its box handles are loop-affine, while DeerFlow's
+    BoxLite is async-native and its box handles are loop-affine, while SynapseAI's
     ``Sandbox`` contract is synchronous and may be invoked from arbitrary
     ``asyncio.to_thread`` workers. Owning one loop here and marshalling every
     coroutine onto it via ``run_coroutine_threadsafe`` gives a stable, thread-safe
@@ -167,7 +167,7 @@ def _run_sync_adapter[T](coro: Awaitable[T], *, timeout: float | None = None) ->
 
 
 class BoxliteProvider(WarmPoolLifecycleMixin[BoxliteBox], SandboxProvider):
-    """Run each DeerFlow sandbox as a BoxLite micro-VM."""
+    """Run each SynapseAI sandbox as a BoxLite micro-VM."""
 
     uses_thread_data_mounts = False
     needs_upload_permission_adjustment = True
@@ -305,9 +305,9 @@ class BoxliteProvider(WarmPoolLifecycleMixin[BoxliteBox], SandboxProvider):
         box_to_close.close()
 
     def _reconcile_orphans(self) -> None:
-        """Adopt DeerFlow-owned BoxLite boxes left by a previous provider/process.
+        """Adopt SynapseAI-owned BoxLite boxes left by a previous provider/process.
 
-        BoxLite boxes are discovered by a DeerFlow-specific name prefix. Adopted
+        BoxLite boxes are discovered by a SynapseAI-specific name prefix. Adopted
         boxes enter the warm pool so the normal idle reaper can reclaim them.
         """
         try:
@@ -439,7 +439,7 @@ class BoxliteProvider(WarmPoolLifecycleMixin[BoxliteBox], SandboxProvider):
                 cpus=self._config["cpus"],
             )
             await box.start()
-            # Materialise DeerFlow's virtual prefixes so file ops resolve natively.
+            # Materialise SynapseAI's virtual prefixes so file ops resolve natively.
             await box.exec("sh", "-lc", mkdir_cmd)
             return box
 

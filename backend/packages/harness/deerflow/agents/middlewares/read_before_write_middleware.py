@@ -39,12 +39,12 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.tool_result_meta import normalize_tool_result
-from deerflow.sandbox.tools import read_current_file_content
+from SynapseAI.agents.middlewares.tool_result_meta import normalize_tool_result
+from SynapseAI.sandbox.tools import read_current_file_content
 
 logger = logging.getLogger(__name__)
 
-READ_MARK_KEY = "deerflow_read_mark"
+READ_MARK_KEY = "SynapseAI_read_mark"
 
 _READ_TOOLS = frozenset({"read_file"})
 _GATED_WRITE_TOOLS = frozenset({"write_file", "str_replace"})
@@ -108,7 +108,7 @@ class ReadBeforeWriteMiddleware(AgentMiddleware):
             with self._lock_for(request, path):
                 blocked = self._check_write_gate(request)
                 if blocked is not None:
-                    # Stamp deerflow_tool_meta so ToolProgressMiddleware can classify
+                    # Stamp SynapseAI_tool_meta so ToolProgressMiddleware can classify
                     # the blocked write even though it bypasses ToolErrorHandlingMiddleware.
                     return normalize_tool_result(blocked)
                 return handler(request)

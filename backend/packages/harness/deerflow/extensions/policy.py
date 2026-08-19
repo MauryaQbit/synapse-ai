@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from deerflow_extension_api import HostPolicySnapshot
+from SynapseAI_extension_api import HostPolicySnapshot
 
 _UNSET = object()
 

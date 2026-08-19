@@ -8,8 +8,8 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
-from deerflow.config.agents_api_config import get_agents_api_config
-from deerflow.config.agents_config import (
+from SynapseAI.config.agents_api_config import get_agents_api_config
+from SynapseAI.config.agents_config import (
     AgentConfig,
     AgentModelSettings,
     list_custom_agents,
@@ -17,10 +17,10 @@ from deerflow.config.agents_config import (
     load_agent_soul,
     preserve_non_managed_fields,
 )
-from deerflow.config.app_config import get_app_config
-from deerflow.config.paths import get_paths
-from deerflow.persistence.agents import AgentExistsError, get_agent_store
-from deerflow.runtime.user_context import get_effective_user_id
+from SynapseAI.config.app_config import get_app_config
+from SynapseAI.config.paths import get_paths
+from SynapseAI.persistence.agents import AgentExistsError, get_agent_store
+from SynapseAI.runtime.user_context import get_effective_user_id
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api", tags=["agents"])

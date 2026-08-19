@@ -1,7 +1,7 @@
 """Repair AIMessages the provider safety-terminated so they are neither
 executed nor persisted empty.
 
-Background — see issues bytedance/deer-flow#3028 (truncated tool calls) and
+Background — see issues bytedance/synapse-ai#3028 (truncated tool calls) and
 #4393 (empty response poisons the thread).
 
 Some providers (OpenAI ``finish_reason='content_filter'``, Anthropic
@@ -57,18 +57,18 @@ from langchain_core.messages import AIMessage
 from langgraph.errors import GraphBubbleUp
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.safety_termination_detectors import (
+from SynapseAI.agents.middlewares.safety_termination_detectors import (
     SafetyTermination,
     SafetyTerminationDetector,
     default_detectors,
 )
-from deerflow.agents.middlewares.tool_call_metadata import clone_ai_message_with_tool_calls
-from deerflow.runtime.events.catalog import MIDDLEWARE_SAFETY_TERMINATION_TAG
-from deerflow.utils.custom_events import aemit_custom_event, emit_custom_event
-from deerflow.utils.messages import message_content_to_text
+from SynapseAI.agents.middlewares.tool_call_metadata import clone_ai_message_with_tool_calls
+from SynapseAI.runtime.events.catalog import MIDDLEWARE_SAFETY_TERMINATION_TAG
+from SynapseAI.utils.custom_events import aemit_custom_event, emit_custom_event
+from SynapseAI.utils.messages import message_content_to_text
 
 if TYPE_CHECKING:
-    from deerflow.config.safety_finish_reason_config import SafetyFinishReasonConfig
+    from SynapseAI.config.safety_finish_reason_config import SafetyFinishReasonConfig
 
 logger = logging.getLogger(__name__)
 
@@ -120,7 +120,7 @@ class SafetyFinishReasonMiddleware(AgentMiddleware[AgentState]):
         if not config.detectors:
             raise ValueError("safety_finish_reason.detectors must be omitted (use built-ins) or contain at least one entry; use enabled=false to disable the middleware entirely.")
 
-        from deerflow.reflection import resolve_variable
+        from SynapseAI.reflection import resolve_variable
 
         detectors: list[SafetyTerminationDetector] = []
         for entry in config.detectors:

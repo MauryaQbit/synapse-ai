@@ -7,7 +7,7 @@ Supported backends: memory, sqlite, postgres.
 
 Usage::
 
-    from deerflow.runtime.checkpointer.provider import get_checkpointer, checkpointer_context
+    from SynapseAI.runtime.checkpointer.provider import get_checkpointer, checkpointer_context
 
     # Singleton — reused across calls, closed on process exit
     cp = get_checkpointer()
@@ -26,11 +26,11 @@ from collections.abc import Iterator
 
 from langgraph.types import Checkpointer
 
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.config.checkpointer_config import CheckpointerConfig, ensure_config_loaded, get_checkpointer_config
-from deerflow.persistence.postgres_schema import dsn_with_search_path, ensure_postgres_schema
-from deerflow.runtime.checkpoint_mode import frozen_checkpoint_channel_mode
-from deerflow.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.config.checkpointer_config import CheckpointerConfig, ensure_config_loaded, get_checkpointer_config
+from SynapseAI.persistence.postgres_schema import dsn_with_search_path, ensure_postgres_schema
+from SynapseAI.runtime.checkpoint_mode import frozen_checkpoint_channel_mode
+from SynapseAI.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
 
 logger = logging.getLogger(__name__)
 
@@ -40,7 +40,7 @@ logger = logging.getLogger(__name__)
 
 SQLITE_INSTALL = "langgraph-checkpoint-sqlite is required for the SQLite checkpointer. Install it with: uv add langgraph-checkpoint-sqlite"
 POSTGRES_INSTALL = (
-    "langgraph-checkpoint-postgres is required for the PostgreSQL checkpointer. Install the package extra with: pip install 'deerflow-harness[postgres]' (or use: uv sync --all-packages --extra postgres when developing locally)"
+    "langgraph-checkpoint-postgres is required for the PostgreSQL checkpointer. Install the package extra with: pip install 'SynapseAI-harness[postgres]' (or use: uv sync --all-packages --extra postgres when developing locally)"
 )
 POSTGRES_CONN_REQUIRED = "checkpointer.connection_string is required for the postgres backend"
 
@@ -61,7 +61,7 @@ def _resolve_checkpointer_config(app_config: AppConfig) -> CheckpointerConfig:
     The legacy ``checkpointer`` section remains authoritative when present so
     Checkpointer and Store keep using the same backend. Otherwise the unified
     ``database`` section drives the checkpointer, matching the async
-    :func:`~deerflow.runtime.checkpointer.async_provider.make_checkpointer`
+    :func:`~SynapseAI.runtime.checkpointer.async_provider.make_checkpointer`
     factory and the sync Store provider's ``_resolve_store_config``.
     """
     if app_config.checkpointer is not None:
@@ -180,9 +180,9 @@ def _wrap_sync_if_delta(saver: Checkpointer, app_config: AppConfig) -> Checkpoin
     cache_config = app_config.database.checkpoint_cache
     if cache_config.type == "redis":
         raise ValueError("database.checkpoint_cache.type 'redis' is not supported on the sync checkpointer path (TUI/embedded); use 'memory'.")
-    from deerflow.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
-    from deerflow.runtime.checkpoint_cache.provider import checkpoint_cache_key_prefix
-    from deerflow.runtime.checkpointer.cached_saver import CachedHistorySaver
+    from SynapseAI.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
+    from SynapseAI.runtime.checkpoint_cache.provider import checkpoint_cache_key_prefix
+    from SynapseAI.runtime.checkpointer.cached_saver import CachedHistorySaver
 
     key_prefix = checkpoint_cache_key_prefix(app_config)
     # Recreate on capacity OR namespace change: entries under a stale prefix

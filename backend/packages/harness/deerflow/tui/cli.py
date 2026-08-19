@@ -1,10 +1,10 @@
-"""Command-line entry point and launch-mode planning for the DeerFlow TUI.
+"""Command-line entry point and launch-mode planning for the SynapseAI TUI.
 
 ``plan_launch`` is a pure decision function (fully unit-tested): given argv, TTY
 state and the environment, it decides whether to open the terminal UI or run a
-headless one-shot. ``main`` wires that decision to the embedded ``DeerFlowClient``
+headless one-shot. ``main`` wires that decision to the embedded ``SynapseAIClient``
 and lazily imports the Textual app only when actually launching the UI, so the
-``deerflow`` console script still runs headless commands without Textual present.
+``SynapseAI`` console script still runs headless commands without Textual present.
 """
 
 from __future__ import annotations
@@ -47,9 +47,9 @@ def _positive_int(value: str) -> int:
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="deerflow",
-        description="DeerFlow terminal workbench — a TUI over the embedded DeerFlow harness.",
-        epilog="Extension management: deerflow extensions --help",
+        prog="SynapseAI",
+        description="SynapseAI terminal workbench — a TUI over the embedded SynapseAI harness.",
+        epilog="Extension management: SynapseAI extensions --help",
         add_help=True,
     )
     parser.add_argument("message", nargs="*", help="initial prompt for the TUI, or message in --cli mode")
@@ -165,12 +165,12 @@ def plan_launch(
             )
         return LaunchPlan(
             mode="headless-help",
-            reason='--cli needs a message. Try: deerflow --print "your question".',
+            reason='--cli needs a message. Try: SynapseAI --print "your question".',
         )
 
     forced_tui = bool(args.tui)
-    transparent = bool(args.tui_transparent) or _truthy(env.get("DEER_FLOW_TUI_TRANSPARENT"))
-    if forced_tui or _truthy(env.get("DEER_FLOW_TUI")) or (stdin_isatty and stdout_isatty):
+    transparent = bool(args.tui_transparent) or _truthy(env.get("SYNAPSE_TUI_TRANSPARENT"))
+    if forced_tui or _truthy(env.get("SYNAPSE_TUI")) or (stdin_isatty and stdout_isatty):
         return LaunchPlan(
             mode="tui",
             message=positional,
@@ -194,19 +194,19 @@ def plan_launch(
 # --------------------------------------------------------------------------- #
 
 _HEADLESS_HELP = """\
-deerflow — DeerFlow terminal workbench
+SynapseAI — SynapseAI terminal workbench
 
-  deerflow                      launch the terminal UI (TTY required)
-  deerflow --tui                force the terminal UI
-  deerflow --tui-transparent    use the terminal's default background
-  deerflow --continue           resume the most recent thread in the UI
-  deerflow --resume THREAD      resume a thread by id or title
-  deerflow --print "question"   one-shot answer to stdout
-  deerflow --json "question"    stream newline-delimited JSON events
-  deerflow --recursion-limit N --print "question"
+  SynapseAI                      launch the terminal UI (TTY required)
+  SynapseAI --tui                force the terminal UI
+  SynapseAI --tui-transparent    use the terminal's default background
+  SynapseAI --continue           resume the most recent thread in the UI
+  SynapseAI --resume THREAD      resume a thread by id or title
+  SynapseAI --print "question"   one-shot answer to stdout
+  SynapseAI --json "question"    stream newline-delimited JSON events
+  SynapseAI --recursion-limit N --print "question"
                               set the headless agent-loop super-step limit
-  deerflow extensions --help  install and manage trusted Python extensions
-  echo "question" | deerflow --print
+  SynapseAI extensions --help  install and manage trusted Python extensions
+  echo "question" | SynapseAI --print
 """
 
 
@@ -225,7 +225,7 @@ def _run_overrides(plan: LaunchPlan) -> dict[str, int]:
 def main(argv: Sequence[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv and argv[0] == "extensions":
-        from deerflow.extensions.cli import main as extensions_main
+        from SynapseAI.extensions.cli import main as extensions_main
 
         return extensions_main(argv[1:])
     plan = plan_launch(
@@ -289,11 +289,11 @@ def _run_tui(plan: LaunchPlan) -> int:
     try:
         # Absolute import (not `from .app`) so the harness import-boundary check,
         # which records relative module names verbatim, doesn't mistake the sibling
-        # `deerflow.tui.app` module for the forbidden top-level `app` package.
-        from deerflow.tui.app import run_tui
+        # `SynapseAI.tui.app` module for the forbidden top-level `app` package.
+        from SynapseAI.tui.app import run_tui
     except ModuleNotFoundError as exc:  # textual missing
         if getattr(exc, "name", "") == "textual" or "textual" in str(exc):
-            msg = "The terminal UI needs the optional 'textual' dependency.\nInstall it with:  uv pip install 'deerflow-harness[tui]'   (or: pip install textual)\n"
+            msg = "The terminal UI needs the optional 'textual' dependency.\nInstall it with:  uv pip install 'SynapseAI-harness[tui]'   (or: pip install textual)\n"
             if plan.forced_tui:
                 print(msg, file=sys.stderr)
                 return 1

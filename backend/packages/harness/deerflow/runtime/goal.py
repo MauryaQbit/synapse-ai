@@ -1,7 +1,7 @@
 """Thread-scoped goal state and evaluator helpers.
 
 This module implements the Claude Code-style goal loop primitives used by
-Gateway runs and thin API surfaces. It intentionally lives in ``deerflow`` so
+Gateway runs and thin API surfaces. It intentionally lives in ``SynapseAI`` so
 the harness can evaluate and continue runs without importing the FastAPI app.
 """
 
@@ -23,12 +23,12 @@ from typing import Any, Literal, NamedTuple
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.checkpoint.base import empty_checkpoint, uuid6
 
-import deerflow.utils.llm_text as llm_text
-from deerflow.agents.goal_state import GoalBlocker, GoalEvaluation, GoalState
-from deerflow.models import create_chat_model
-from deerflow.tracing import inject_langfuse_metadata
-from deerflow.utils.messages import message_to_text
-from deerflow.utils.time import now_iso
+import SynapseAI.utils.llm_text as llm_text
+from SynapseAI.agents.goal_state import GoalBlocker, GoalEvaluation, GoalState
+from SynapseAI.models import create_chat_model
+from SynapseAI.tracing import inject_langfuse_metadata
+from SynapseAI.utils.messages import message_to_text
+from SynapseAI.utils.time import now_iso
 
 logger = logging.getLogger(__name__)
 
@@ -248,7 +248,7 @@ def create_goal_evaluator_model(
 
     The evaluator runs from ``runtime/runs/worker.py`` after the main graph
     run has already completed, so — unlike ``make_lead_agent``/
-    ``DeerFlowClient.stream``, which attach ``build_tracing_callbacks()`` at
+    ``SynapseAIClient.stream``, which attach ``build_tracing_callbacks()`` at
     the graph root and correctly pass ``attach_tracing=False`` to avoid
     double-attaching — there is no graph root here for the evaluator's model
     call to inherit tracing from. It must attach its own model-level tracing
@@ -264,7 +264,7 @@ def create_goal_evaluator_model(
 
 
 def _resolve_environment() -> str | None:
-    return os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT")
+    return os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT")
 
 
 async def evaluate_goal_completion(
@@ -276,13 +276,13 @@ async def evaluate_goal_completion(
     app_config: Any | None = None,
     thread_id: str | None = None,
     user_id: str | None = None,
-    deerflow_trace_id: str | None = None,
+    SynapseAI_trace_id: str | None = None,
     task_store: Any | None = None,
     extensions: Any | None = None,
 ) -> GoalEvaluation:
     """Ask a small non-thinking model whether the active goal is satisfied.
 
-    ``thread_id``/``user_id``/``deerflow_trace_id`` are forwarded to Langfuse
+    ``thread_id``/``user_id``/``SynapseAI_trace_id`` are forwarded to Langfuse
     trace metadata only (mirrors ``oneshot_llm.run_oneshot_llm``): this is a
     standalone model call outside the main graph, so it must inject its own
     Langfuse session/user attribution instead of relying on graph-root
@@ -320,7 +320,7 @@ async def evaluate_goal_completion(
         assistant_id="goal_evaluator",
         model_name=model_name,
         environment=_resolve_environment(),
-        deerflow_trace_id=deerflow_trace_id,
+        SynapseAI_trace_id=SynapseAI_trace_id,
     )
     prompt_messages = [
         SystemMessage(content=system_instruction),
@@ -329,9 +329,9 @@ async def evaluate_goal_completion(
     if extensions is None:
         response = await model.ainvoke(prompt_messages, config=invoke_config)
     else:
-        from deerflow_extension_api import SystemOperationKind
+        from SynapseAI_extension_api import SystemOperationKind
 
-        from deerflow.extensions.notify import observe_system_model_call
+        from SynapseAI.extensions.notify import observe_system_model_call
 
         response = await observe_system_model_call(
             extensions,
@@ -421,7 +421,7 @@ def make_goal_continuation_message(goal: GoalState, evaluation: GoalEvaluation) 
         content=content,
         additional_kwargs={
             "hide_from_ui": True,
-            "deerflow_goal_continuation": True,
+            "SynapseAI_goal_continuation": True,
         },
     )
 

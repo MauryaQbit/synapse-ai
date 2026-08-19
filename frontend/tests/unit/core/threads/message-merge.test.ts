@@ -302,7 +302,7 @@ test("mergeMessages lets a visible live message replace overlapping hidden histo
   ]);
 });
 
-test("getSummarizationMiddlewareMessages matches DeerFlow summarization update keys", () => {
+test("getSummarizationMiddlewareMessages matches SynapseAI summarization update keys", () => {
   const removeAll = {
     id: "__remove_all__",
     type: "remove",
@@ -317,7 +317,7 @@ test("getSummarizationMiddlewareMessages matches DeerFlow summarization update k
 
   expect(
     getSummarizationMiddlewareMessages({
-      "DeerFlowSummarizationMiddleware.before_model": {
+      "SynapseAISummarizationMiddleware.before_model": {
         messages: [removeAll, summary],
       },
     }),
@@ -1646,7 +1646,7 @@ test("reconnected turn order moves same-run steps back behind the user message",
   const human = {
     id: "human-r",
     type: "human",
-    content: "Analyze deerflow",
+    content: "Analyze SynapseAI",
   } as Message;
   const stepB1 = {
     id: "step-b1",

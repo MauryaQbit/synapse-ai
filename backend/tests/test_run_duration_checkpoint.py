@@ -8,11 +8,11 @@ from langchain_core.messages import AIMessage, HumanMessage
 from langgraph.checkpoint.base import empty_checkpoint, uuid6
 from langgraph.checkpoint.memory import InMemorySaver
 
-import deerflow.runtime.runs.worker as worker
-from deerflow.runtime.goal import goal_thread_lock
-from deerflow.runtime.runs.manager import RunManager, RunStartOutcome
-from deerflow.runtime.runs.schemas import RunStatus
-from deerflow.runtime.runs.worker import RunContext, _persist_run_duration, run_agent
+import SynapseAI.runtime.runs.worker as worker
+from SynapseAI.runtime.goal import goal_thread_lock
+from SynapseAI.runtime.runs.manager import RunManager, RunStartOutcome
+from SynapseAI.runtime.runs.schemas import RunStatus
+from SynapseAI.runtime.runs.worker import RunContext, _persist_run_duration, run_agent
 
 
 class _YieldingSaver(InMemorySaver):

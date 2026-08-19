@@ -16,14 +16,14 @@ from app.gateway.deps import (
     get_scheduled_task_service,
     get_thread_store,
 )
-from deerflow.scheduler.schedules import (
+from SynapseAI.scheduler.schedules import (
     next_run_at as compute_next_run_at,
 )
-from deerflow.scheduler.schedules import (
+from SynapseAI.scheduler.schedules import (
     normalize_cron_expression,
     validate_timezone,
 )
-from deerflow.utils.thread_id import ThreadId
+from SynapseAI.utils.thread_id import ThreadId
 
 router = APIRouter(prefix="/api", tags=["scheduled-tasks"])
 

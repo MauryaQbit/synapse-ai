@@ -25,7 +25,7 @@ from typing import Any
 from langchain_core.runnables import RunnableConfig
 from langgraph.checkpoint.base import BaseCheckpointSaver, CheckpointTuple, PendingWrite
 
-from deerflow.runtime.checkpoint_cache.base import make_history_key
+from SynapseAI.runtime.checkpoint_cache.base import make_history_key
 
 logger = logging.getLogger(__name__)
 

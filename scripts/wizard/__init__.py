@@ -1,1 +1,1 @@
-# DeerFlow Setup Wizard package
+# SynapseAI Setup Wizard package

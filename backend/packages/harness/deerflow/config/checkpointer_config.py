@@ -4,7 +4,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field, field_validator
 
-from deerflow.config.postgres_schema import POSTGRES_SCHEMA_PATTERN, validate_postgres_schema
+from SynapseAI.config.postgres_schema import POSTGRES_SCHEMA_PATTERN, validate_postgres_schema
 
 CheckpointerType = Literal["memory", "sqlite", "postgres"]
 
@@ -16,14 +16,14 @@ class CheckpointerConfig(BaseModel):
         description="Checkpointer backend type. "
         "'memory' is in-process only (lost on restart). "
         "'sqlite' persists to a local file (requires langgraph-checkpoint-sqlite). "
-        "'postgres' persists to PostgreSQL (install with deerflow-harness[postgres])."
+        "'postgres' persists to PostgreSQL (install with SynapseAI-harness[postgres])."
     )
     connection_string: str | None = Field(
         default=None,
         description="Connection string for sqlite (file path) or postgres (DSN). "
         "Optional for sqlite and defaults to 'store.db' when omitted. "
         "Required for postgres. "
-        "For sqlite, use a file path like '.deer-flow/checkpoints.db' or ':memory:' for in-memory. "
+        "For sqlite, use a file path like '.synapse-ai/checkpoints.db' or ':memory:' for in-memory. "
         "For postgres, use a DSN like 'postgresql://user:pass@localhost:5432/db'.",
     )
     postgres_schema: str = Field(
@@ -54,7 +54,7 @@ def set_checkpointer_config(config: CheckpointerConfig | None) -> None:
 
 def ensure_config_loaded() -> None:
     """Lazily load app config when checkpointer config has not been initialized."""
-    from deerflow.config.app_config import _app_config, get_app_config
+    from SynapseAI.config.app_config import _app_config, get_app_config
 
     config = get_checkpointer_config()
     if config is not None or _app_config is not None:

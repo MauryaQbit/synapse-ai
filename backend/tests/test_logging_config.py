@@ -2,12 +2,12 @@ import io
 import logging
 from types import SimpleNamespace
 
-from deerflow.logging_config import TraceContextFilter, configure_logging
-from deerflow.trace_context import request_trace_context
+from SynapseAI.logging_config import TraceContextFilter, configure_logging
+from SynapseAI.trace_context import request_trace_context
 
 
 def test_trace_context_filter_injects_current_trace_id() -> None:
-    record = logging.LogRecord("deerflow.test", logging.INFO, __file__, 1, "hello", (), None)
+    record = logging.LogRecord("SynapseAI.test", logging.INFO, __file__, 1, "hello", (), None)
 
     with request_trace_context("trace-log-1"):
         assert TraceContextFilter().filter(record) is True
@@ -32,7 +32,7 @@ def test_configure_logging_enhanced_text_includes_trace_id() -> None:
         configure_logging(config)
 
         with request_trace_context("trace-log-2"):
-            logging.getLogger("deerflow.test").info("hello")
+            logging.getLogger("SynapseAI.test").info("hello")
 
         assert "[trace_id=trace-log-2]" in stream.getvalue()
     finally:

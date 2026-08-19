@@ -2,7 +2,7 @@ from datetime import timedelta
 
 import pytest
 
-from deerflow.mcp.tasks import McpTaskDriverRegistry, TaskSnapshot, TaskStatus, TaskSubmission, TaskSubmitRequest
+from SynapseAI.mcp.tasks import McpTaskDriverRegistry, TaskSnapshot, TaskStatus, TaskSubmission, TaskSubmitRequest
 
 
 def test_task_snapshot_normalizes_string_statuses():

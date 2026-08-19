@@ -11,9 +11,9 @@ import pytest
 from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 
-from deerflow.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE
-from deerflow.subagents.config import SubagentConfig
-from deerflow.subagents.status_contract import (
+from SynapseAI.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE
+from SynapseAI.subagents.config import SubagentConfig
+from SynapseAI.subagents.status_contract import (
     SUBAGENT_ERROR_KEY,
     SUBAGENT_MODEL_NAME_KEY,
     SUBAGENT_RESULT_BRIEF_KEY,
@@ -24,7 +24,7 @@ from deerflow.subagents.status_contract import (
 )
 
 # Use module import so tests can patch the exact symbols referenced inside task_tool().
-task_tool_module = importlib.import_module("deerflow.tools.builtins.task_tool")
+task_tool_module = importlib.import_module("SynapseAI.tools.builtins.task_tool")
 
 
 class FakeSubagentStatus(Enum):
@@ -203,7 +203,7 @@ def test_task_result_command_carries_loop_capped_from_real_loop_detection():
     the lead/ledger read, not just the in-memory result."""
     from langchain_core.messages import AIMessage
 
-    from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+    from SynapseAI.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 
     # Drive the real middleware to a hard stop (4 identical calls, hard_limit=4).
     mw = LoopDetectionMiddleware(warn_threshold=2, hard_limit=4)
@@ -263,8 +263,8 @@ def test_task_tool_forwards_the_run_extension_snapshot_to_executor(monkeypatch):
     """The lead run binds one immutable extension snapshot; delegation must
     carry that same object rather than re-reading the process singleton, which
     a concurrent replacement could have swapped underneath the run."""
-    from deerflow.extensions import EXTENSION_SNAPSHOT_CONTEXT_KEY
-    from deerflow.extensions.registry import ExtensionRegistry
+    from SynapseAI.extensions import EXTENSION_SNAPSHOT_CONTEXT_KEY
+    from SynapseAI.extensions.registry import ExtensionRegistry
 
     loaded = ExtensionRegistry().build()
     runtime = _make_runtime()
@@ -288,7 +288,7 @@ def test_task_tool_forwards_the_run_extension_snapshot_to_executor(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(runtime=runtime, description="test", prompt="p", subagent_type="general-purpose", tool_call_id="tc-ext")
 
@@ -319,7 +319,7 @@ def test_task_tool_omits_extensions_without_a_run_snapshot(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(runtime=runtime, description="test", prompt="p", subagent_type="general-purpose", tool_call_id="tc-no-ext")
 
@@ -352,7 +352,7 @@ def test_task_tool_forwards_channel_user_id_to_executor(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     output = _run_task_tool(
         runtime=runtime,
@@ -390,7 +390,7 @@ def test_task_tool_forwards_is_internal_true_to_executor(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(runtime=runtime, description="test", prompt="p", subagent_type="general-purpose", tool_call_id="tc-1")
     assert captured["executor_kwargs"]["is_internal"] is True
@@ -419,7 +419,7 @@ def test_task_tool_forwards_is_internal_false_to_executor(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(runtime=runtime, description="test", prompt="p", subagent_type="general-purpose", tool_call_id="tc-1")
     assert captured["executor_kwargs"]["is_internal"] is False
@@ -448,7 +448,7 @@ def test_task_tool_copies_attributes_to_executor(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: lambda _event: None)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(runtime=runtime, description="test", prompt="p", subagent_type="general-purpose", tool_call_id="tc-1")
     executor_attrs = captured["executor_kwargs"]["authz_attributes"]
@@ -471,7 +471,7 @@ def test_task_tool_rejects_non_mapping_attributes(monkeypatch):
     monkeypatch.setattr(task_tool_module, "SubagentStatus", FakeSubagentStatus)
     monkeypatch.setattr(task_tool_module, "SubagentExecutor", DummyExecutor)
     monkeypatch.setattr(task_tool_module, "get_subagent_config", lambda _: _make_subagent_config())
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     runtime = _make_runtime()
     runtime.context["authz_attributes"] = ["not", "a", "mapping"]
@@ -541,7 +541,7 @@ def test_task_tool_threads_runtime_app_config_to_subagent_dependencies(monkeypat
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", fake_get_available_tools)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", fake_get_available_tools)
 
     output = _run_task_tool(
         runtime=runtime,
@@ -564,7 +564,7 @@ def test_task_tool_threads_runtime_app_config_to_subagent_dependencies(monkeypat
 def test_task_tool_emits_running_and_completed_events(monkeypatch):
     config = _make_subagent_config()
     runtime = _make_runtime()
-    runtime.context["deerflow_trace_id"] = "task-trace-1"
+    runtime.context["SynapseAI_trace_id"] = "task-trace-1"
     events = []
     dispatched_events = []
     captured = {}
@@ -610,8 +610,8 @@ def test_task_tool_emits_running_and_completed_events(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module, "aemit_custom_event", fake_emit_custom_event)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    # task_tool lazily imports from deerflow.tools at call time, so patch that module-level function.
-    monkeypatch.setattr("deerflow.tools.get_available_tools", get_available_tools)
+    # task_tool lazily imports from SynapseAI.tools at call time, so patch that module-level function.
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", get_available_tools)
 
     output = _run_task_tool(
         runtime=runtime,
@@ -627,7 +627,7 @@ def test_task_tool_emits_running_and_completed_events(monkeypatch):
     assert captured["task_id"] == "tc-123"
     assert captured["executor_kwargs"]["thread_id"] == "thread-1"
     assert captured["executor_kwargs"]["parent_model"] == "ark-model"
-    assert captured["executor_kwargs"]["deerflow_trace_id"] == "task-trace-1"
+    assert captured["executor_kwargs"]["SynapseAI_trace_id"] == "task-trace-1"
     assert captured["executor_kwargs"]["config"].max_turns == config.max_turns
     # Skills are no longer appended to system_prompt; they are loaded per-session
     # by SubagentExecutor and injected as conversation items (Codex pattern).
@@ -684,7 +684,7 @@ def test_task_tool_emits_cumulative_usage_on_running_event(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", lambda *_: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     _run_task_tool(
         runtime=runtime,
@@ -735,7 +735,7 @@ def test_task_tool_propagates_tool_groups_to_subagent(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", get_available_tools)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", get_available_tools)
 
     output = _run_task_tool(
         runtime=runtime,
@@ -782,7 +782,7 @@ def test_task_tool_uses_subagent_model_override_for_tool_loading(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", get_available_tools)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", get_available_tools)
 
     output = _run_task_tool(
         runtime=runtime,
@@ -825,7 +825,7 @@ def test_task_tool_inherits_parent_skill_allowlist_for_default_subagent(monkeypa
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     output = _run_task_tool(
         runtime=runtime,
@@ -871,7 +871,7 @@ def test_task_tool_intersects_parent_and_subagent_skill_allowlists(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     output = _run_task_tool(
         runtime=runtime,
@@ -910,7 +910,7 @@ def test_task_tool_no_tool_groups_passes_none(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", get_available_tools)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", get_available_tools)
 
     output = _run_task_tool(
         runtime=runtime,
@@ -948,7 +948,7 @@ def test_task_tool_runtime_none_passes_groups_none(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", get_available_tools)
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", get_available_tools)
     fallback_app_config = SimpleNamespace(models=[SimpleNamespace(name="default-model")])
     monkeypatch.setattr(task_tool_module, "get_app_config", lambda: fallback_app_config)
 
@@ -988,7 +988,7 @@ def test_task_tool_runtime_none_passes_groups_none(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     output = _run_task_tool(
         runtime=_make_runtime(),
@@ -1025,7 +1025,7 @@ def test_task_tool_returns_timed_out_message(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     output = _run_task_tool(
         runtime=_make_runtime(),
@@ -1060,7 +1060,7 @@ def test_task_tool_surfaces_stop_reason_for_capped_run(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     output = _run_task_tool(
         runtime=_make_runtime(),
@@ -1103,7 +1103,7 @@ def test_task_tool_polling_safety_timeout(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
 
     output = _run_task_tool(
         runtime=_make_runtime(),
@@ -1143,7 +1143,7 @@ def test_cleanup_called_on_completed(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1183,7 +1183,7 @@ def test_cleanup_called_on_failed(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1223,7 +1223,7 @@ def test_cleanup_called_on_timed_out(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1281,7 +1281,7 @@ def test_cleanup_not_called_on_polling_safety_timeout(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module.asyncio, "create_task", fake_create_task)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1346,7 +1346,7 @@ def test_cleanup_scheduled_on_cancellation(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_background_task_result", get_result)
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", cancel_on_second_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1415,7 +1415,7 @@ def test_cancelled_cleanup_stops_after_timeout(monkeypatch):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", cancel_on_first_sleep)
     monkeypatch.setattr(task_tool_module.asyncio, "create_task", fake_create_task)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", fake_report_subagent_usage)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1480,7 +1480,7 @@ def test_cancellation_wait_uses_subagent_polling_budget(monkeypatch):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", cancel_then_continue)
     monkeypatch.setattr(task_tool_module.asyncio, "wait_for", fail_on_fixed_timeout)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", fake_report_subagent_usage)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1524,7 +1524,7 @@ def test_cancellation_calls_request_cancel(monkeypatch):
     )
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", cancel_on_first_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "request_cancel_background_task",
@@ -1573,7 +1573,7 @@ def test_task_tool_returns_cancelled_message(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_background_task_result", lambda _: next(responses))
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(
         task_tool_module,
         "cleanup_background_task",
@@ -1611,7 +1611,7 @@ def test_task_tool_emits_completed_metadata(monkeypatch):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", lambda *_: None)
     monkeypatch.setattr(task_tool_module, "cleanup_background_task", lambda _: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     message = _task_tool_message(
         _run_task_tool(
@@ -1643,7 +1643,7 @@ def test_task_tool_emits_disappeared_task_metadata(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_background_task_result", lambda _: None)
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module, "cleanup_background_task", lambda _: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     message = _task_tool_message(
         _run_task_tool(
@@ -1677,7 +1677,7 @@ def test_task_tool_bounds_large_result_metadata(monkeypatch):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", lambda *_: None)
     monkeypatch.setattr(task_tool_module, "cleanup_background_task", lambda _: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     message = _task_tool_message(
         _run_task_tool(
@@ -1747,7 +1747,7 @@ def test_cancellation_reports_subagent_usage(monkeypatch):
     monkeypatch.setattr(task_tool_module, "get_stream_writer", lambda: events.append)
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", cancel_on_third_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", fake_report_subagent_usage)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", lambda **kwargs: [])
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", lambda **kwargs: [])
     monkeypatch.setattr(task_tool_module, "request_cancel_background_task", lambda _: None)
     monkeypatch.setattr(
         task_tool_module,
@@ -1805,7 +1805,7 @@ def test_terminal_events_include_usage(monkeypatch, status, expected_type):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", lambda *_: None)
     monkeypatch.setattr(task_tool_module, "cleanup_background_task", lambda _: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     _run_task_tool(
         runtime=runtime,
@@ -1840,7 +1840,7 @@ def test_terminal_event_usage_none_when_no_records(monkeypatch):
     monkeypatch.setattr(task_tool_module.asyncio, "sleep", _no_sleep)
     monkeypatch.setattr(task_tool_module, "_report_subagent_usage", lambda *_: None)
     monkeypatch.setattr(task_tool_module, "cleanup_background_task", lambda _: None)
-    monkeypatch.setattr("deerflow.tools.get_available_tools", MagicMock(return_value=[]))
+    monkeypatch.setattr("SynapseAI.tools.get_available_tools", MagicMock(return_value=[]))
 
     _run_task_tool(
         runtime=runtime,

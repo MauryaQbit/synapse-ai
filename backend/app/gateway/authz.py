@@ -1,4 +1,4 @@
-"""Authorization decorators and context for DeerFlow.
+"""Authorization decorators and context for SynapseAI.
 
 Inspired by LangGraph Auth system: https://github.com/langchain-ai/langgraph/blob/main/libs/sdk-py/langgraph_sdk/auth/__init__.py
 
@@ -39,10 +39,10 @@ from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
 
 from fastapi import HTTPException, Request
 
-from deerflow.authz.principal import build_principal_from_context
-from deerflow.authz.provider import AuthorizationProvider, AuthzDecision, AuthzRequest, Principal
-from deerflow.authz.runtime import resolve_authorization_provider
-from deerflow.config.authorization_config import AuthorizationConfig
+from SynapseAI.authz.principal import build_principal_from_context
+from SynapseAI.authz.provider import AuthorizationProvider, AuthzDecision, AuthzRequest, Principal
+from SynapseAI.authz.runtime import resolve_authorization_provider
+from SynapseAI.config.authorization_config import AuthorizationConfig
 
 if TYPE_CHECKING:
     from app.gateway.auth.models import User
@@ -133,7 +133,7 @@ def _make_test_request_stub() -> Any:
     Used when decorated route handlers are invoked without FastAPI's
     request injection. Includes fields accessed by auth helpers.
     """
-    return SimpleNamespace(state=SimpleNamespace(), cookies={}, _deerflow_test_bypass_auth=True)
+    return SimpleNamespace(state=SimpleNamespace(), cookies={}, _SynapseAI_test_bypass_auth=True)
 
 
 def _get_route_authorization_config() -> AuthorizationConfig:
@@ -142,7 +142,7 @@ def _get_route_authorization_config() -> AuthorizationConfig:
     Falls back to a disabled config when AppConfig is not available (e.g. test
     environments without a config.yaml), preserving legacy all-permissions behavior.
     """
-    from deerflow.config.app_config import get_app_config
+    from SynapseAI.config.app_config import get_app_config
 
     try:
         return get_app_config().authorization
@@ -393,7 +393,7 @@ def require_auth[**P, T](func: Callable[P, T]) -> Callable[P, T]:
                 raise ValueError("require_auth decorator requires 'request' parameter")
             request = kwargs["request"]
 
-        if getattr(request, "_deerflow_test_bypass_auth", False):
+        if getattr(request, "_SynapseAI_test_bypass_auth", False):
             return await func(*args, **kwargs)
 
         # Authenticate and set context
@@ -462,7 +462,7 @@ def require_permission(
                     return await func(*args, **kwargs)
                 request = kwargs["request"]
 
-            if getattr(request, "_deerflow_test_bypass_auth", False):
+            if getattr(request, "_SynapseAI_test_bypass_auth", False):
                 return await func(*args, **kwargs)
 
             auth: AuthContext = getattr(request.state, "auth", None)
@@ -506,7 +506,7 @@ def require_permission(
                 )
                 if not allowed and getattr(auth.user, "system_role", None) == INTERNAL_SYSTEM_ROLE:
                     # Trusted internal callers (channel workers) also act for
-                    # the connection owner carried in X-DeerFlow-Owner-User-Id.
+                    # the connection owner carried in X-SynapseAI-Owner-User-Id.
                     # Scope the check to that owner instead of bypassing it; a
                     # leaked internal token must not grant cross-user thread
                     # access. The header is honored only after ``auth`` proved

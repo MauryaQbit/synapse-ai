@@ -3,10 +3,10 @@ import logging
 from langchain.chat_models import BaseChatModel
 from langchain_openai.chat_models.base import BaseChatOpenAI
 
-from deerflow.config import get_app_config
-from deerflow.config.app_config import AppConfig
-from deerflow.reflection import resolve_class
-from deerflow.tracing import build_tracing_callbacks
+from SynapseAI.config import get_app_config
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.reflection import resolve_class
+from SynapseAI.tracing import build_tracing_callbacks
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +138,7 @@ def _apply_stream_chunk_timeout_default(model_class: type, model_settings_from_c
     """Inject a generous ``stream_chunk_timeout`` for OpenAI-compatible clients.
 
     ``stream_chunk_timeout`` is a field of langchain-openai's ``BaseChatOpenAI``, so
-    it is accepted by ``ChatOpenAI`` and by every DeerFlow provider that subclasses
+    it is accepted by ``ChatOpenAI`` and by every SynapseAI provider that subclasses
     it: ``PatchedChatOpenAI`` plus the self-hosted / reasoning adapters
     ``VllmChatModel``, ``MindIEChatModel``, ``PatchedChatDeepSeek``,
     ``PatchedChatMiMo``, ``PatchedChatStepFun`` and ``PatchedChatMiniMax``. We gate on
@@ -278,7 +278,7 @@ def create_chat_model(name: str | None = None, thinking_enabled: bool = False, *
     _apply_stream_chunk_timeout_default(model_class, model_settings_from_config)
 
     # For Codex Responses API models: map thinking mode to reasoning_effort
-    from deerflow.models.openai_codex_provider import CodexChatModel
+    from SynapseAI.models.openai_codex_provider import CodexChatModel
 
     if issubclass(model_class, CodexChatModel):
         # The ChatGPT Codex endpoint currently rejects max_tokens/max_output_tokens.

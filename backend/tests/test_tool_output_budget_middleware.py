@@ -20,7 +20,7 @@ from langchain.agents.middleware.types import ModelRequest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.tool_output_budget_middleware import (
+from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
     ToolOutputBudgetMiddleware,
     _build_fallback,
     _build_preview,
@@ -34,10 +34,10 @@ from deerflow.agents.middlewares.tool_output_budget_middleware import (
     _snap_to_line_boundary,
     _tool_message_over_budget,
 )
-from deerflow.agents.middlewares.tool_output_synopsis import build_tool_output_synopsis
-from deerflow.config.app_config import AppConfig
-from deerflow.config.sandbox_config import SandboxConfig
-from deerflow.config.tool_output_config import ToolOutputConfig
+from SynapseAI.agents.middlewares.tool_output_synopsis import build_tool_output_synopsis
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.sandbox_config import SandboxConfig
+from SynapseAI.config.tool_output_config import ToolOutputConfig
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1204,25 +1204,25 @@ class TestPreScanHelpers:
 
 class TestMiddlewareChainIntegration:
     def test_budget_middleware_is_first_in_chain(self):
-        from deerflow.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
+        from SynapseAI.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
 
         app_config = AppConfig(sandbox=SandboxConfig(use="test"))
         middlewares = build_subagent_runtime_middlewares(app_config=app_config, lazy_init=False)
 
         # InputSanitizationMiddleware is the outermost wrap_model_call wrapper;
         # ToolOutputBudgetMiddleware is the first wrap_tool_call handler.
-        from deerflow.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
+        from SynapseAI.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
 
         assert isinstance(middlewares[0], InputSanitizationMiddleware)
         assert isinstance(middlewares[1], ToolOutputBudgetMiddleware)
 
     def test_budget_middleware_in_lead_chain(self):
-        from deerflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
+        from SynapseAI.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
 
         app_config = AppConfig(sandbox=SandboxConfig(use="test"))
         middlewares = build_lead_runtime_middlewares(app_config=app_config, lazy_init=False)
 
-        from deerflow.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
+        from SynapseAI.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
 
         assert isinstance(middlewares[0], InputSanitizationMiddleware)
         assert isinstance(middlewares[1], ToolOutputBudgetMiddleware)
@@ -1302,7 +1302,7 @@ class _FakeProvider:
 
 class TestExternalizeToSandbox:
     def test_writes_and_returns_virtual_path(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import (
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
             _externalize_to_sandbox,
         )
 
@@ -1323,7 +1323,7 @@ class TestExternalizeToSandbox:
         assert sb.writes[0][1] == "x" * 100
 
     def test_returns_none_when_write_raises(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import (
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
             _externalize_to_sandbox,
         )
 
@@ -1337,7 +1337,7 @@ class TestExternalizeToSandbox:
         assert result is None
 
     def test_returns_none_when_validation_fails(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import (
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
             _externalize_to_sandbox,
         )
 
@@ -1351,7 +1351,7 @@ class TestExternalizeToSandbox:
         assert result is None
 
     def test_rejects_unsafe_storage_subdir(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import (
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
             _externalize_to_sandbox,
         )
 
@@ -1381,7 +1381,7 @@ class TestExternalizeToSandbox:
         assert sb.writes == []
 
     def test_default_extension_for_unknown_tool(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import (
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import (
             _externalize_to_sandbox,
         )
 
@@ -1399,7 +1399,7 @@ class TestBudgetContentSandboxDispatch:
     """_budget_content must branch on uses_thread_data_mounts (issue #3416)."""
 
     def test_mounted_sandbox_uses_host_disk(self, monkeypatch, tmp_path):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         sb = _FakeSandbox()
         monkeypatch.setattr(
@@ -1427,7 +1427,7 @@ class TestBudgetContentSandboxDispatch:
         assert len(list(storage_dir.iterdir())) == 1
 
     def test_non_mounted_sandbox_writes_to_sandbox(self, monkeypatch, tmp_path):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         sb = _FakeSandbox()
         monkeypatch.setattr(
@@ -1452,7 +1452,7 @@ class TestBudgetContentSandboxDispatch:
         assert not (tmp_path / ".tool-results").exists()
 
     def test_non_mounted_without_sandbox_falls_back(self, monkeypatch):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         monkeypatch.setattr(
             mod,
@@ -1479,25 +1479,25 @@ class TestBudgetContentSandboxDispatch:
 
 class TestResolveSandbox:
     def test_returns_none_when_no_state(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
 
         req = SimpleNamespace(runtime=None)
         assert _resolve_sandbox(req) is None
 
     def test_returns_none_when_state_has_no_sandbox(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
 
         req = SimpleNamespace(runtime=SimpleNamespace(state={}))
         assert _resolve_sandbox(req) is None
 
     def test_returns_none_when_sandbox_id_missing(self):
-        from deerflow.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
+        from SynapseAI.agents.middlewares.tool_output_budget_middleware import _resolve_sandbox
 
         req = SimpleNamespace(runtime=SimpleNamespace(state={"sandbox": {}}))
         assert _resolve_sandbox(req) is None
 
     def test_returns_sandbox_from_provider(self, monkeypatch):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         sb = _FakeSandbox()
         monkeypatch.setattr(
@@ -1509,7 +1509,7 @@ class TestResolveSandbox:
         assert mod._resolve_sandbox(req) is sb
 
     def test_returns_none_on_provider_exception(self, monkeypatch):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         class _Boom:
             def get(self, sandbox_id):
@@ -1524,7 +1524,7 @@ class TestWrapToolCallSandboxIntegration:
     """End-to-end via wrap_tool_call for the non-mounted path (issue #3416)."""
 
     def test_oversized_output_lands_in_sandbox_not_host(self, monkeypatch, tmp_path):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         sb = _FakeSandbox()
         monkeypatch.setattr(
@@ -1567,7 +1567,7 @@ class TestBudgetContentNoSandboxNoProviderCall:
     """
 
     def test_no_provider_call_when_sandbox_absent(self, monkeypatch, tmp_path):
-        from deerflow.agents.middlewares import tool_output_budget_middleware as mod
+        from SynapseAI.agents.middlewares import tool_output_budget_middleware as mod
 
         called = {"n": 0}
 

@@ -2,8 +2,8 @@ import logging
 
 from langchain.tools import tool
 
-from deerflow.community.url_safety import validate_public_http_url
-from deerflow.config import get_app_config
+from SynapseAI.community.url_safety import validate_public_http_url
+from SynapseAI.config import get_app_config
 
 from .crawl4ai_client import Crawl4AiClient
 

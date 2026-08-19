@@ -13,7 +13,7 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field
 
-from deerflow.config.reload_boundary import format_field_description
+from SynapseAI.config.reload_boundary import format_field_description
 
 
 class DedupeStorageBackend(StrEnum):

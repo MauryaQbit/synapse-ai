@@ -1,4 +1,4 @@
-"""Tests for MCP tools cache staleness detection (``deerflow.mcp.cache``).
+"""Tests for MCP tools cache staleness detection (``SynapseAI.mcp.cache``).
 
 Regression coverage for the content-signature invalidation fix. The cache used
 to invalidate on a strict extensions-config *mtime* ``>`` comparison and tracked
@@ -12,7 +12,7 @@ tools serving in the LangGraph-embedded runtime and every non-writer worker:
 3. a resolved-path switch to a different config file whose mtime is <= the one
    recorded at initialization.
 
-The fix mirrors ``deerflow.config.app_config``'s ``(path, (mtime, size,
+The fix mirrors ``SynapseAI.config.app_config``'s ``(path, (mtime, size,
 sha256))`` detection so both runtime-editable config files share one staleness
 signal. These tests fail on the pre-fix code (cases 1-3 return ``False``) and
 pass afterwards.
@@ -27,8 +27,8 @@ from pathlib import Path
 
 import pytest
 
-import deerflow.mcp.cache as cache_module
-from deerflow.config.extensions_config import ExtensionsConfig
+import SynapseAI.mcp.cache as cache_module
+from SynapseAI.config.extensions_config import ExtensionsConfig
 
 _MISSING = object()
 
@@ -56,7 +56,7 @@ def _server(command: str = "npx") -> dict:
 
 @pytest.fixture()
 def cache_globals():
-    """Snapshot/restore ``deerflow.mcp.cache`` module globals and reset the lock."""
+    """Snapshot/restore ``SynapseAI.mcp.cache`` module globals and reset the lock."""
     saved = {name: getattr(cache_module, name, _MISSING) for name in _TRACKED_GLOBALS}
 
     cache_module._mcp_tools_cache = None
@@ -86,12 +86,12 @@ def _initialize_against(monkeypatch, config_path: Path) -> None:
     signature after loading tools; the tool load itself is stubbed so this stays
     a cache-state unit test with no real MCP servers.
     """
-    monkeypatch.setenv("DEER_FLOW_EXTENSIONS_CONFIG_PATH", str(config_path))
+    monkeypatch.setenv("SYNAPSE_EXTENSIONS_CONFIG_PATH", str(config_path))
 
     async def _fake_get_mcp_tools():
         return []
 
-    monkeypatch.setattr("deerflow.mcp.tools.get_mcp_tools", _fake_get_mcp_tools)
+    monkeypatch.setattr("SynapseAI.mcp.tools.get_mcp_tools", _fake_get_mcp_tools)
     asyncio.run(cache_module.initialize_mcp_tools())
     assert cache_module._cache_initialized is True
 
@@ -158,7 +158,7 @@ def test_config_path_switch_is_stale(cache_globals, monkeypatch, tmp_path):
     older = recorded_mtime - 50
     os.utime(cfg_b, (older, older))  # a DIFFERENT file, mtime <= recorded
 
-    # The resolver now points at cfg_b (e.g. DEER_FLOW_EXTENSIONS_CONFIG_PATH
+    # The resolver now points at cfg_b (e.g. SYNAPSE_EXTENSIONS_CONFIG_PATH
     # was repointed, or default resolution now finds a different file).
     monkeypatch.setattr(
         ExtensionsConfig,
@@ -257,7 +257,7 @@ def test_config_deleted_after_init_is_not_stale(cache_globals, monkeypatch, tmp_
 def test_config_deleted_after_init_via_real_env_resolution_does_not_raise(cache_globals, monkeypatch, tmp_path):
     """End-to-end regression for the explicit-vs-search distinction raised by
     fancyboi999 [P1] on PR #4275: when the extensions config path comes from
-    ``DEER_FLOW_EXTENSIONS_CONFIG_PATH`` (exactly how Docker dev/prod point at
+    ``SYNAPSE_EXTENSIONS_CONFIG_PATH`` (exactly how Docker dev/prod point at
     it, per backend/AGENTS.md) and the file is deleted after a successful
     init, ``_is_cache_stale()`` must not raise — even though
     ``ExtensionsConfig.resolve_config_path()`` itself now (again) raises
@@ -277,7 +277,7 @@ def test_config_deleted_after_init_via_real_env_resolution_does_not_raise(cache_
     """
     cfg = tmp_path / "extensions_config.json"
     _write_extensions_config(cfg, {"srv1": _server()})
-    _initialize_against(monkeypatch, cfg)  # sets DEER_FLOW_EXTENSIONS_CONFIG_PATH=cfg
+    _initialize_against(monkeypatch, cfg)  # sets SYNAPSE_EXTENSIONS_CONFIG_PATH=cfg
     assert cache_module._config_signature is not None  # guard: had a real signature
 
     cfg.unlink()  # config deleted; env var still points at the now-missing path

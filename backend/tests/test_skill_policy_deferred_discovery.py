@@ -8,16 +8,16 @@ from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.tools import tool
 from pydantic import Field
 
-from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
-from deerflow.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
-from deerflow.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
-from deerflow.agents.thread_state import ThreadState
-from deerflow.runtime.secret_context import SKILL_TOOL_POLICY_DECISION_CONTEXT_KEY, write_slash_skill_source_path
-from deerflow.runtime.serialization import serialize
-from deerflow.skills.describe import build_skill_search_setup
-from deerflow.skills.types import Skill, SkillCategory
-from deerflow.tools.builtins.tool_search import build_deferred_tool_setup
-from deerflow.tools.mcp_metadata import tag_mcp_tool
+from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+from SynapseAI.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware
+from SynapseAI.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
+from SynapseAI.agents.thread_state import ThreadState
+from SynapseAI.runtime.secret_context import SKILL_TOOL_POLICY_DECISION_CONTEXT_KEY, write_slash_skill_source_path
+from SynapseAI.runtime.serialization import serialize
+from SynapseAI.skills.describe import build_skill_search_setup
+from SynapseAI.skills.types import Skill, SkillCategory
+from SynapseAI.tools.builtins.tool_search import build_deferred_tool_setup
+from SynapseAI.tools.mcp_metadata import tag_mcp_tool
 
 _SLASH_SOURCE_OWNER_TOKEN = "test-slash-source-owner"
 _CALC_CALLS: list[str] = []

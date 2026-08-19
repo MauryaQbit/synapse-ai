@@ -1,10 +1,10 @@
 """Surface provider length-capped model responses as run stop reasons.
 
-Background — see issue bytedance/deer-flow#4271.
+Background — see issue bytedance/synapse-ai#4271.
 
 Some providers stop generation because the output budget is exhausted and
 surface that through ``finish_reason='length'`` while still returning assistant
-content. DeerFlow should preserve that content for audit, but it should not
+content. SynapseAI should preserve that content for audit, but it should not
 silently treat the run as an uncapped clean completion when the provider has
 explicitly signaled truncation.
 
@@ -29,7 +29,7 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.model_length_termination_detectors import (
+from SynapseAI.agents.middlewares.model_length_termination_detectors import (
     ModelLengthTermination,
     ModelLengthTerminationDetector,
     default_detectors,

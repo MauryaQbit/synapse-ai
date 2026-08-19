@@ -9,7 +9,7 @@ import zipfile
 from pathlib import Path, PurePosixPath
 from typing import Any
 
-from deerflow.skills.review.models import (
+from SynapseAI.skills.review.models import (
     DEFAULT_PACKAGE_LIMITS,
     PACKAGE_SNAPSHOT_SCHEMA_VERSION,
     PackageLimits,

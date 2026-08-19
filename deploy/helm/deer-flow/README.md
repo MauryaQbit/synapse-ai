@@ -1,6 +1,6 @@
-# DeerFlow Helm Chart
+# SynapseAI Helm Chart
 
-Deploys the full DeerFlow stack to Kubernetes: **gateway** (backend + embedded
+Deploys the full SynapseAI stack to Kubernetes: **gateway** (backend + embedded
 LangGraph runtime), **frontend** (Next.js), **nginx** (internal reverse proxy
 preserving the compose routing), and the **provisioner** (K8s-native sandbox
 that spawns code-execution Pods on demand).
@@ -12,7 +12,7 @@ Kubernetes resources. No existing repo files are modified.
 
 - A Kubernetes cluster (Docker Desktop K8s, OrbStack, kind, k3d, or a real cluster).
 - `kubectl` + `helm` 3.8+ installed (OCI registry support stabilized in 3.8; earlier 3.x needs `HELM_EXPERIMENTAL_OCI=1`).
-- The three DeerFlow images — either the published ones (see "Install the
+- The three SynapseAI images — either the published ones (see "Install the
   published chart" below) or built locally (see step 1).
 - An Ingress controller (e.g. ingress-nginx) if you enable `ingress`.
 
@@ -23,9 +23,9 @@ The chart and all three images are published to GHCR on every `v*` release tag
 and install directly:
 
 ```bash
-helm install deer-flow oci://ghcr.io/<owner>/charts/deer-flow \
+helm install synapse-ai oci://ghcr.io/<owner>/charts/synapse-ai \
   --version <version> \
-  -n deer-flow --create-namespace \
+  -n synapse-ai --create-namespace \
   -f my-values.yaml
 ```
 
@@ -34,23 +34,23 @@ matches the release tag without the leading `v` (tag `v0.1.0` → `--version
 0.1.0`).
 
 > **Note:** the helm chart is new in 2.1.0 - no chart was published before it.
-> It publishes to `oci://ghcr.io/<owner>/charts/deer-flow` (the `charts/` prefix
-> keeps it distinct from the `deer-flow-{backend,frontend,provisioner}` image
+> It publishes to `oci://ghcr.io/<owner>/charts/synapse-ai` (the `charts/` prefix
+> keeps it distinct from the `synapse-ai-{backend,frontend,provisioner}` image
 > packages).
 
 Point the chart at the published images:
 
 ```yaml
 image:
-  registry: ghcr.io/<owner>     # owner prefix; images are <owner>/deer-flow-<name>
+  registry: ghcr.io/<owner>     # owner prefix; images are <owner>/synapse-ai-<name>
   tag: "<version>"              # match the release tag (sans leading `v`)
   pullSecrets:
     - { name: regcred }         # only if the GHCR package is private
 ```
 
 The chart's `gatewayImage` / `frontendImage` / `provisionerImage` defaults
-already match the published image names (`deer-flow-backend`,
-`deer-flow-frontend`, `deer-flow-provisioner`), so only `registry` and `tag`
+already match the published image names (`synapse-ai-backend`,
+`synapse-ai-frontend`, `synapse-ai-provisioner`), so only `registry` and `tag`
 are required. New GHCR packages default to **private** — flip the package to
 public in its GHCR settings page for unauthenticated pulls, otherwise create a
 pull secret (step 1) and reference it via `image.pullSecrets`.
@@ -70,15 +70,15 @@ TAG=latest
 
 # backend - build with the `postgres` extra so multi-replica deploys can use
 # shared Postgres (matches the published image)
-docker build -t $REGISTRY/deer-flow-backend:$TAG --build-arg UV_EXTRAS=postgres -f backend/Dockerfile .
+docker build -t $REGISTRY/synapse-ai-backend:$TAG --build-arg UV_EXTRAS=postgres -f backend/Dockerfile .
 # frontend
-docker build -t $REGISTRY/deer-flow-frontend:$TAG -f frontend/Dockerfile .
+docker build -t $REGISTRY/synapse-ai-frontend:$TAG -f frontend/Dockerfile .
 # provisioner
-docker build -t $REGISTRY/deer-flow-provisioner:$TAG -f docker/provisioner/Dockerfile docker/provisioner
+docker build -t $REGISTRY/synapse-ai-provisioner:$TAG -f docker/provisioner/Dockerfile docker/provisioner
 
-docker push $REGISTRY/deer-flow-backend:$TAG
-docker push $REGISTRY/deer-flow-frontend:$TAG
-docker push $REGISTRY/deer-flow-provisioner:$TAG
+docker push $REGISTRY/synapse-ai-backend:$TAG
+docker push $REGISTRY/synapse-ai-frontend:$TAG
+docker push $REGISTRY/synapse-ai-provisioner:$TAG
 ```
 
 These names match the chart's `gatewayImage` / `frontendImage` /
@@ -92,7 +92,7 @@ kubectl create secret docker-registry regcred \
   --docker-server=ghcr.io \
   --docker-username=youruser \
   --docker-password=yourtoken \
-  -n deer-flow
+  -n synapse-ai
 ```
 
 ## 2. Configure values
@@ -109,10 +109,10 @@ image:
 ingress:
   enabled: true
   className: nginx
-  host: deer-flow.example.com
+  host: synapse-ai.example.com
   tls:
     enabled: true
-    secretName: deer-flow-tls
+    secretName: synapse-ai-tls
 
 secrets:
   OPENAI_API_KEY: sk-...
@@ -132,7 +132,7 @@ config: |
       api_key: $OPENAI_API_KEY
       request_timeout: 600.0
   sandbox:
-    use: deerflow.community.aio_sandbox:AioSandboxProvider
+    use: SynapseAI.community.aio_sandbox:AioSandboxProvider
     provisioner_url: http://provisioner:8002
   database:
     backend: postgres
@@ -143,7 +143,7 @@ config: |
     type: postgres
     connection_string: $DATABASE_URL
   stream_bridge:
-    type: redis   # cross-pod SSE; URL from DEER_FLOW_STREAM_BRIDGE_REDIS_URL
+    type: redis   # cross-pod SSE; URL from SYNAPSE_STREAM_BRIDGE_REDIS_URL
   # Tools MUST be listed explicitly - the agent gets none otherwise
   # (BUILTIN_TOOLS only adds present_file + ask_clarification). The chart
   # default in values.yaml enables the sandbox tools + web tools (web_search,
@@ -158,19 +158,19 @@ config: |
   tools:
     - name: web_search
       group: web
-      use: deerflow.community.ddg_search.tools:web_search_tool
+      use: SynapseAI.community.ddg_search.tools:web_search_tool
       max_results: 5
     - name: web_fetch
       group: web
-      use: deerflow.community.jina_ai.tools:web_fetch_tool
+      use: SynapseAI.community.jina_ai.tools:web_fetch_tool
       timeout: 10
     - name: image_search
       group: web
-      use: deerflow.community.image_search.tools:image_search_tool
+      use: SynapseAI.community.image_search.tools:image_search_tool
       max_results: 5
     - name: bash
       group: bash
-      use: deerflow.sandbox.tools:bash_tool
+      use: SynapseAI.sandbox.tools:bash_tool
     # also: ls, read_file, glob, grep, write_file, str_replace (see values.yaml)
 ```
 
@@ -189,16 +189,16 @@ sections shown above.
 For a custom build or local development, install from the chart directory:
 
 ```bash
-helm install deer-flow deploy/helm/deer-flow \
-  -n deer-flow --create-namespace \
+helm install synapse-ai deploy/helm/synapse-ai \
+  -n synapse-ai --create-namespace \
   -f my-values.yaml
 ```
 
 ## 4. Verify
 
 ```bash
-kubectl -n deer-flow get pods
-kubectl -n deer-flow port-forward svc/nginx 2026:2026
+kubectl -n synapse-ai get pods
+kubectl -n synapse-ai port-forward svc/nginx 2026:2026
 curl http://localhost:2026/health          # gateway health via nginx
 ```
 
@@ -207,7 +207,7 @@ Hit the Ingress host (map it in `/etc/hosts` for local clusters) to load the UI.
 Provisioner sanity check:
 
 ```bash
-kubectl -n deer-flow exec deploy/deer-flow-provisioner -- curl -s localhost:8002/health
+kubectl -n synapse-ai exec deploy/synapse-ai-provisioner -- curl -s localhost:8002/health
 ```
 
 ## Architecture notes
@@ -225,8 +225,8 @@ kubectl -n deer-flow exec deploy/deer-flow-provisioner -- curl -s localhost:8002
     external:
       host: mydb.example.com   # or set databaseUrl / existingSecret
       port: 5432
-      database: deerflow
-      username: deerflow
+      database: SynapseAI
+      username: SynapseAI
       password: changeme
   ```
 - **Graceful shutdown & memory drain.** The gateway pod sets `terminationGracePeriodSeconds` (default 45s, overridable via `gateway.terminationGracePeriodSeconds`) plus an optional `preStop` sleep (`gateway.preStopSleepSeconds`, default 5s). The grace period MUST exceed the Gateway's graceful-shutdown work — channel stop (~5s) plus the memory-queue drain (`memory.shutdown_flush_timeout_seconds`, default 30s) plus a buffer — because the drain runs on a daemon thread and K8s SIGKILLs anything still running at the end of the grace window. K8s defaults to 30s, which SIGKILLs the drain mid-flight and silently re-introduces the memory loss the drain is fixing. **When you raise `memory.shutdown_flush_timeout_seconds`, raise `gateway.terminationGracePeriodSeconds` to match** (channel stop + drain + buffer).
@@ -236,7 +236,7 @@ kubectl -n deer-flow exec deploy/deer-flow-provisioner -- curl -s localhost:8002
   `gateway.replicas` past 1 yet.** Run control — `create_or_reject` dedup,
   `cancel`, and orphan reconciliation — is still worker-local (in-process
   `asyncio.Lock` + in-memory `record.task`), tracked by [issue
-  #3948](https://github.com/bytedance/deer-flow/issues/3948). With >1 replica a
+  #3948](https://github.com/bytedance/synapse-ai/issues/3948). With >1 replica a
   double-submit can create two runs on one thread (checkpoint corruption), a
   cancel can land on a non-owner pod (409), and a crashed pod's runs stay
   `pending`/`running` forever. Stay on 1 replica until that work lands.
@@ -255,13 +255,13 @@ kubectl -n deer-flow exec deploy/deer-flow-provisioner -- curl -s localhost:8002
   Redis Streams (PR #3191) so a client connected to any gateway pod receives
   live events and reconnect resumes from `Last-Event-ID`. The URL is
   auto-generated into a Secret (key `redis-url`) and injected as
-  `DEER_FLOW_STREAM_BRIDGE_REDIS_URL`; `config.yaml` sets `stream_bridge.type:
+  `SYNAPSE_STREAM_BRIDGE_REDIS_URL`; `config.yaml` sets `stream_bridge.type:
   redis` by default. No-auth by default (ClusterIP isolation, matching compose);
   set `redis.auth.password` to enable AUTH. For a managed Redis, disable the
   bundled instance and point at it via `redis.external`.
-- **Persistence.** A PVC (`<release>-home`) backs `/app/backend/.deer-flow`
+- **Persistence.** A PVC (`<release>-home`) backs `/app/backend/.synapse-ai`
   (sqlite DB, memory, custom agents, per-thread user-data). The gateway mounts
-  it with `subPath: deer-flow` so the layout matches the provisioner's PVC
+  it with `subPath: synapse-ai` so the layout matches the provisioner's PVC
   user-data mode. Default `ReadWriteOnce`; use `ReadWriteMany` (NFS) on
   multi-node clusters so sandbox Pods on other nodes can mount it.
 - **Provisioner RBAC.** The provisioner gets a ServiceAccount with a namespaced
@@ -282,7 +282,7 @@ container escalates privileges or runs as uid 0.
 
 | workload | runAsUser | fsGroup | writable-path handling |
 |---|---|---|---|
-| gateway | 1000 | 1000 | `.deer-flow` PVC group-writable via fsGroup; `PYTHONDONTWRITEBYTECODE=1` suppresses `.pyc` writes; `UV_CACHE_DIR=/tmp` |
+| gateway | 1000 | 1000 | `.synapse-ai` PVC group-writable via fsGroup; `PYTHONDONTWRITEBYTECODE=1` suppresses `.pyc` writes; `UV_CACHE_DIR=/tmp` |
 | frontend | 1000 (`node`) | 1000 | `emptyDir` at `/app/frontend/.next/cache` (root-owned in the image) |
 | nginx | 101 (`nginx`) | 101 | command writes the rendered config to `/tmp/nginx.conf` and loads `nginx -c /tmp/nginx.conf` (since `/etc/nginx` is root-owned); `emptyDir` at `/var/cache/nginx` |
 | provisioner | 1000 | — | no PVC; `PYTHONDONTWRITEBYTECODE=1` |
@@ -359,26 +359,26 @@ To fix an existing root-written PVC, run a one-shot root pod that chowns the
 volume to the gateway uid (1000), then restart the gateway:
 
 ```bash
-cat <<'EOF' | kubectl apply -n deer-flow -f -
+cat <<'EOF' | kubectl apply -n synapse-ai -f -
 apiVersion: v1
 kind: Pod
-metadata: { name: fix-home-perms, namespace: deer-flow }
+metadata: { name: fix-home-perms, namespace: synapse-ai }
 spec:
   restartPolicy: Never
   containers:
     - name: chown
       image: busybox:1.36
       command: ["sh", "-c"]
-      args: ["chown -R 1000:1000 /home-pvc/deer-flow && chmod -R g+rwX /home-pvc/deer-flow"]
+      args: ["chown -R 1000:1000 /home-pvc/synapse-ai && chmod -R g+rwX /home-pvc/synapse-ai"]
       volumeMounts:
         - { name: home, mountPath: /home-pvc }
   volumes:
     - name: home
-      persistentVolumeClaim: { claimName: deer-flow-deer-flow-home }
+      persistentVolumeClaim: { claimName: synapse-ai-synapse-ai-home }
 EOF
-kubectl -n deer-flow wait --for=condition=Ready pod/fix-home-perms --timeout=30s
-kubectl -n deer-flow delete pod fix-home-perms
-kubectl -n deer-flow rollout restart deploy/deer-flow-deer-flow-gateway
+kubectl -n synapse-ai wait --for=condition=Ready pod/fix-home-perms --timeout=30s
+kubectl -n synapse-ai delete pod fix-home-perms
+kubectl -n synapse-ai rollout restart deploy/synapse-ai-synapse-ai-gateway
 ```
 
 (On a single-node cluster the fix pod can mount the RWO PVC concurrently with the
@@ -427,15 +427,15 @@ sandbox Pod can be scheduled on a node other than the gateway's).
 ## Lint / dry-run
 
 ```bash
-helm lint deploy/helm/deer-flow
-helm template deer-flow deploy/helm/deer-flow -n deer-flow -f my-values.yaml | \
+helm lint deploy/helm/synapse-ai
+helm template synapse-ai deploy/helm/synapse-ai -n synapse-ai -f my-values.yaml | \
   kubectl apply --dry-run=client -f -
 ```
 
 ## Uninstall
 
 ```bash
-helm uninstall deer-flow -n deer-flow
+helm uninstall synapse-ai -n synapse-ai
 # the PVC is NOT deleted by default — remove it manually if desired:
-kubectl -n deer-flow delete pvc -l app.kubernetes.io/instance=deer-flow
+kubectl -n synapse-ai delete pvc -l app.kubernetes.io/instance=synapse-ai
 ```

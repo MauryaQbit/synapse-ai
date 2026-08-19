@@ -17,14 +17,14 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
-from deerflow.runtime.secret_context import SKILL_TOOL_POLICY_DECISION_CONTEXT_KEY, read_slash_skill_source_path
-from deerflow.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
-from deerflow.skills.tool_policy import ALWAYS_AVAILABLE_BUILTIN_TOOL_NAMES, allowed_tool_names_for_skills
-from deerflow.skills.types import Skill
+from SynapseAI.runtime.secret_context import SKILL_TOOL_POLICY_DECISION_CONTEXT_KEY, read_slash_skill_source_path
+from SynapseAI.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
+from SynapseAI.skills.tool_policy import ALWAYS_AVAILABLE_BUILTIN_TOOL_NAMES, allowed_tool_names_for_skills
+from SynapseAI.skills.types import Skill
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
-    from deerflow.skills.storage.skill_storage import SkillStorage
+    from SynapseAI.config.app_config import AppConfig
+    from SynapseAI.skills.storage.skill_storage import SkillStorage
 
 logger = logging.getLogger(__name__)
 

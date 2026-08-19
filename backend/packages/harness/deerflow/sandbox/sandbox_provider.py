@@ -2,9 +2,9 @@ import asyncio
 import threading
 from abc import ABC, abstractmethod
 
-from deerflow.config import get_app_config
-from deerflow.reflection import resolve_class
-from deerflow.sandbox.sandbox import Sandbox
+from SynapseAI.config import get_app_config
+from SynapseAI.reflection import resolve_class
+from SynapseAI.sandbox.sandbox import Sandbox
 
 
 class SandboxProvider(ABC):

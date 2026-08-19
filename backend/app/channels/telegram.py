@@ -20,7 +20,7 @@ from app.channels.message_bus import (
     OutboundMessage,
     ResolvedAttachment,
 )
-from deerflow.uploads.manager import is_upload_staging_file, normalize_filename
+from SynapseAI.uploads.manager import is_upload_staging_file, normalize_filename
 
 logger = logging.getLogger(__name__)
 
@@ -750,8 +750,8 @@ class TelegramChannel(Channel):
             },
             status="connected",
         )
-        logger.info("[Telegram] bound chat=%s user=%s to DeerFlow user=%s connection=%s", chat_id, user_id, owner_user_id, connection["id"])
-        await update.message.reply_text("Telegram connected to DeerFlow.")
+        logger.info("[Telegram] bound chat=%s user=%s to SynapseAI user=%s connection=%s", chat_id, user_id, owner_user_id, connection["id"])
+        await update.message.reply_text("Telegram connected to SynapseAI.")
         return True
 
     async def _attach_connection_identity(self, inbound: InboundMessage) -> InboundMessage:
@@ -800,7 +800,7 @@ class TelegramChannel(Channel):
                 return
         if not self._check_user(update.effective_user.id):
             return
-        await update.message.reply_text("Welcome to DeerFlow! Send me a message to start a conversation.\nType /help for available commands.")
+        await update.message.reply_text("Welcome to SynapseAI! Send me a message to start a conversation.\nType /help for available commands.")
 
     async def _process_incoming_with_reply(
         self,
@@ -897,7 +897,7 @@ class TelegramChannel(Channel):
         user_id = str(update.effective_user.id)
         msg_id = str(update.message.message_id)
 
-        # topic_id determines which DeerFlow thread the message maps to.
+        # topic_id determines which SynapseAI thread the message maps to.
         # In private chats, use None so that all messages share a single
         # thread (the store key becomes "channel:chat_id").
         # In group chats, use the reply-to message id or the current

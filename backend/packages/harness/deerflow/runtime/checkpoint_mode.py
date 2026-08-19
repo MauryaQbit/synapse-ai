@@ -13,10 +13,10 @@ from __future__ import annotations
 
 from typing import Any
 
-from deerflow.config.database_config import DEFAULT_CHECKPOINT_SNAPSHOT_FREQUENCY, CheckpointChannelMode
+from SynapseAI.config.database_config import DEFAULT_CHECKPOINT_SNAPSHOT_FREQUENCY, CheckpointChannelMode
 
-INTERNAL_CHECKPOINT_MODE_KEY = "__deerflow_checkpoint_channel_mode"
-CHECKPOINT_MODE_METADATA_KEY = "deerflow_checkpoint_channel_mode"
+INTERNAL_CHECKPOINT_MODE_KEY = "__SynapseAI_checkpoint_channel_mode"
+CHECKPOINT_MODE_METADATA_KEY = "SynapseAI_checkpoint_channel_mode"
 
 
 class CheckpointModeMismatchError(RuntimeError):

@@ -1,4 +1,4 @@
-"""Native deterministic scanning for DeerFlow skills.
+"""Native deterministic scanning for SynapseAI skills.
 
 ``scan_archive_preflight()`` and ``scan_skill_dir()`` are synchronous pure
 functions of their inputs; async callers must dispatch them off the event
@@ -22,8 +22,8 @@ from dataclasses import dataclass
 from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any
 
-from deerflow.skills.package_paths import is_eval_fixture_skill_md
-from deerflow.skills.skillscan.models import (
+from SynapseAI.skills.package_paths import is_eval_fixture_skill_md
+from SynapseAI.skills.skillscan.models import (
     FindingSeverity,
     RuleSpec,
     ScanResult,
@@ -128,7 +128,7 @@ _DESTRUCTIVE_RM_RE = (
 def skill_scan_enabled(app_config: Any | None = None) -> bool:
     if app_config is None:
         try:
-            from deerflow.config import get_app_config
+            from SynapseAI.config import get_app_config
 
             app_config = get_app_config()
         except Exception:

@@ -6,8 +6,8 @@ from typing import Any, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from deerflow.constants import MCP_TASK_REMOTE_ID_MAX_LENGTH
-from deerflow.mcp.tasks.models import (
+from SynapseAI.constants import MCP_TASK_REMOTE_ID_MAX_LENGTH
+from SynapseAI.mcp.tasks.models import (
     TaskReference,
     TaskSnapshot,
     TaskStatus,

@@ -4,9 +4,9 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.scheduler.service import ScheduledTaskService
-from deerflow.runtime import ConflictError, RunStatus
-from deerflow.runtime.runs.manager import RunRecord
-from deerflow.runtime.runs.schemas import DisconnectMode
+from SynapseAI.runtime import ConflictError, RunStatus
+from SynapseAI.runtime.runs.manager import RunRecord
+from SynapseAI.runtime.runs.schemas import DisconnectMode
 
 
 class DummyTaskRepo:

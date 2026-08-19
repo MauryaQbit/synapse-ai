@@ -3,7 +3,7 @@ import logging
 
 from langchain.tools import tool
 
-from deerflow.config import get_app_config
+from SynapseAI.config import get_app_config
 
 from .searxng_client import SearxngClient
 

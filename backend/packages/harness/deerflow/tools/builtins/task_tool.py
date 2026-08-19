@@ -12,31 +12,31 @@ from langchain_core.messages import ToolMessage
 from langgraph.config import get_stream_writer
 from langgraph.types import Command
 
-from deerflow.authz.principal import normalize_authz_attributes
-from deerflow.config import get_app_config
-from deerflow.extensions import resolve_run_extensions
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE, is_host_bash_allowed
-from deerflow.subagents import SubagentExecutor, get_available_subagent_names, get_subagent_config
-from deerflow.subagents.config import resolve_subagent_model_name
-from deerflow.subagents.executor import (
+from SynapseAI.authz.principal import normalize_authz_attributes
+from SynapseAI.config import get_app_config
+from SynapseAI.extensions import resolve_run_extensions
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.sandbox.security import LOCAL_BASH_SUBAGENT_DISABLED_MESSAGE, is_host_bash_allowed
+from SynapseAI.subagents import SubagentExecutor, get_available_subagent_names, get_subagent_config
+from SynapseAI.subagents.config import resolve_subagent_model_name
+from SynapseAI.subagents.executor import (
     SubagentStatus,
     cleanup_background_task,
     get_background_task_result,
     request_cancel_background_task,
 )
-from deerflow.subagents.status_contract import (
+from SynapseAI.subagents.status_contract import (
     SubagentStatusValue,
     SubagentStopReasonValue,
     format_subagent_result_message,
     make_subagent_additional_kwargs,
 )
-from deerflow.tools.types import Runtime
-from deerflow.trace_context import DEERFLOW_TRACE_METADATA_KEY, get_current_trace_id, normalize_trace_id
-from deerflow.utils.custom_events import aemit_custom_event
+from SynapseAI.tools.types import Runtime
+from SynapseAI.trace_context import SynapseAI_TRACE_METADATA_KEY, get_current_trace_id, normalize_trace_id
+from SynapseAI.utils.custom_events import aemit_custom_event
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
+    from SynapseAI.config.app_config import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -297,7 +297,7 @@ async def task_tool(
     parent_model = None
     trace_id = None
     user_id = None
-    deerflow_trace_id = None
+    SynapseAI_trace_id = None
     metadata: dict = {}
 
     if runtime is not None:
@@ -342,7 +342,7 @@ async def task_tool(
     # None outside that path (embedded client, standalone LangGraph Server), where
     # the executor keeps its process-singleton fallback.
     run_extensions = resolve_run_extensions(parent_context)
-    deerflow_trace_id = normalize_trace_id(parent_context.get(DEERFLOW_TRACE_METADATA_KEY)) or normalize_trace_id(metadata.get(DEERFLOW_TRACE_METADATA_KEY)) or get_current_trace_id()
+    SynapseAI_trace_id = normalize_trace_id(parent_context.get(SynapseAI_TRACE_METADATA_KEY)) or normalize_trace_id(metadata.get(SynapseAI_TRACE_METADATA_KEY)) or get_current_trace_id()
 
     parent_available_skills = metadata.get("available_skills")
     if parent_available_skills is not None:
@@ -353,7 +353,7 @@ async def task_tool(
 
     # Get available tools (excluding task tool to prevent nesting)
     # Lazy import to avoid circular dependency
-    from deerflow.tools import get_available_tools
+    from SynapseAI.tools import get_available_tools
 
     # Inherit parent agent's tool_groups so subagents respect the same restrictions
     parent_tool_groups = metadata.get("tool_groups")
@@ -393,7 +393,7 @@ async def task_tool(
         "channel_user_id": channel_user_id,
         "is_internal": is_internal,
         "authz_attributes": authz_attributes,
-        "deerflow_trace_id": deerflow_trace_id,
+        "SynapseAI_trace_id": SynapseAI_trace_id,
     }
     if resolved_app_config is not None:
         executor_kwargs["app_config"] = resolved_app_config

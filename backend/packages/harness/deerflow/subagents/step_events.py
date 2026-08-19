@@ -23,12 +23,12 @@ from typing import Any
 
 from langchain_core.messages import AIMessage, BaseMessage, ToolMessage
 
-from deerflow.runtime.events.catalog import (
+from SynapseAI.runtime.events.catalog import (
     SUBAGENT_END_EVENT,
     SUBAGENT_START_EVENT,
     SUBAGENT_STEP_EVENT,
 )
-from deerflow.utils.messages import message_content_to_text
+from SynapseAI.utils.messages import message_content_to_text
 
 from .status_contract import normalize_token_usage
 
@@ -104,7 +104,7 @@ def capture_new_step_messages(
     dedup makes an unchanged re-yield a no-op. Returns the new cursor.
 
     When the history *contracted* (``total < processed_count``) — which happens
-    when ``DeerFlowSummarizationMiddleware`` rewrites the channel via
+    when ``SynapseAISummarizationMiddleware`` rewrites the channel via
     ``RemoveMessage(id=REMOVE_ALL_MESSAGES)`` (#3875 Phase 3) — reset the cursor
     to the new tail and let ``capture_step_message``'s id/content dedup prevent
     re-emitting steps captured before the compaction. Without this reset, every

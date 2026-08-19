@@ -10,14 +10,14 @@ import yaml
 from sqlalchemy import create_engine
 
 from app.gateway.deps import _validate_agent_storage
-from deerflow.config.agent_storage_config import AgentStorageConfig
-from deerflow.config.app_config import reset_app_config
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.persistence.agents import get_agent_store, make_agent_store
-from deerflow.persistence.agents.file import FileAgentStore
-from deerflow.persistence.agents.model import AgentRow
-from deerflow.persistence.agents.sql import SqlAgentStore
-from deerflow.persistence.base import Base
+from SynapseAI.config.agent_storage_config import AgentStorageConfig
+from SynapseAI.config.app_config import reset_app_config
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.persistence.agents import get_agent_store, make_agent_store
+from SynapseAI.persistence.agents.file import FileAgentStore
+from SynapseAI.persistence.agents.model import AgentRow
+from SynapseAI.persistence.agents.sql import SqlAgentStore
+from SynapseAI.persistence.base import Base
 
 
 def _cfg(agent_backend: str, db_backend: str, sqlite_dir: str = "/tmp/agent-store-test") -> SimpleNamespace:
@@ -72,9 +72,9 @@ def test_validation_warns_on_file_under_multiworker_postgres(monkeypatch, caplog
 
 @pytest.fixture()
 def file_home(tmp_path, monkeypatch):
-    """Root the file store at a temp DEER_FLOW_HOME with two seeded agents."""
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    from deerflow.config import paths as paths_module
+    """Root the file store at a temp SYNAPSE_HOME with two seeded agents."""
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
+    from SynapseAI.config import paths as paths_module
 
     monkeypatch.setattr(paths_module, "_paths", None)
     fs = FileAgentStore()
@@ -99,7 +99,7 @@ def _patch_importer(monkeypatch, cfg):
     engine.dispose()
 
     monkeypatch.setattr(importer, "get_app_config", lambda: cfg)
-    monkeypatch.setattr("deerflow.persistence.engine.init_engine_from_config", _noop_init)
+    monkeypatch.setattr("SynapseAI.persistence.engine.init_engine_from_config", _noop_init)
     return importer
 
 
@@ -145,9 +145,9 @@ def test_read_free_functions_dispatch_to_db_backend(file_home, monkeypatch):
     are visible everywhere."""
     cfg = _cfg("db", "sqlite", str(file_home / "db"))
     _patch_importer(monkeypatch, cfg)  # creates the schema
-    monkeypatch.setattr("deerflow.config.app_config.get_app_config", lambda: cfg)
+    monkeypatch.setattr("SynapseAI.config.app_config.get_app_config", lambda: cfg)
 
-    from deerflow.config.agents_config import list_custom_agents, load_agent_config, load_agent_soul
+    from SynapseAI.config.agents_config import list_custom_agents, load_agent_config, load_agent_soul
 
     # The file store seeded 'reviewer'/'planner' on disk; the db is empty, so
     # the free functions (now db-backed) do not see them.
@@ -169,10 +169,10 @@ def test_file_create_race_maps_file_exists_to_agent_exists(tmp_path, monkeypatch
     # generic 500 — matching SqlAgentStore's IntegrityError path.
     import pathlib
 
-    from deerflow.persistence.agents.base import AgentExistsError
+    from SynapseAI.persistence.agents.base import AgentExistsError
 
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
-    from deerflow.config import paths as paths_module
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
+    from SynapseAI.config import paths as paths_module
 
     monkeypatch.setattr(paths_module, "_paths", None)
 
@@ -192,7 +192,7 @@ def test_file_create_race_maps_file_exists_to_agent_exists(tmp_path, monkeypatch
 def _write_min_config(path, extra: dict) -> None:
     """Minimal but valid config.yaml (sandbox + models are the only hard requirements)."""
     doc = {
-        "sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"},
+        "sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"},
         "models": [{"name": "m", "use": "langchain_openai:ChatOpenAI", "model": "gpt-test"}],
         **extra,
     }
@@ -211,7 +211,7 @@ def test_get_agent_store_resolves_db_backend_from_on_disk_config(tmp_path, monke
     """
     cfg_path = tmp_path / "config.yaml"
     _write_min_config(cfg_path, {"agent_storage": {"backend": "db"}, "database": {"backend": "sqlite", "sqlite_dir": str(tmp_path / "db")}})
-    monkeypatch.setenv("DEER_FLOW_CONFIG_PATH", str(cfg_path))
+    monkeypatch.setenv("SYNAPSE_CONFIG_PATH", str(cfg_path))
     try:
         reset_app_config()  # force a fresh read from the on-disk file
         assert isinstance(get_agent_store(), SqlAgentStore)
@@ -223,7 +223,7 @@ def test_get_agent_store_falls_back_to_file_without_config(tmp_path, monkeypatch
     """The ``except -> file`` fallback is for genuinely unresolvable config only
     (CLI/tests); it must not fire when a config exists — that asymmetry is what
     keeps a misconfigured graph process from silently downgrading db to file."""
-    monkeypatch.setenv("DEER_FLOW_CONFIG_PATH", str(tmp_path / "does-not-exist.yaml"))
+    monkeypatch.setenv("SYNAPSE_CONFIG_PATH", str(tmp_path / "does-not-exist.yaml"))
     try:
         reset_app_config()
         assert isinstance(get_agent_store(), FileAgentStore)

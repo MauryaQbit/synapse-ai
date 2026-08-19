@@ -64,7 +64,7 @@ class WeComChannel(Channel):
         ws_manager = getattr(self._ws_client, "_ws_manager", None)
         send_reply = getattr(ws_manager, "send_reply", None)
         if not callable(send_reply):
-            raise RuntimeError("Installed wecom-aibot-python-sdk does not expose the WebSocket media upload API expected by DeerFlow. Use wecom-aibot-python-sdk==0.1.6 or update the adapter.")
+            raise RuntimeError("Installed wecom-aibot-python-sdk does not expose the WebSocket media upload API expected by SynapseAI. Use wecom-aibot-python-sdk==0.1.6 or update the adapter.")
 
         send_reply_async = cast(Callable[[str, dict[str, Any], str], Awaitable[dict[str, Any]]], send_reply)
         return await send_reply_async(req_id, body, cmd)
@@ -133,7 +133,7 @@ class WeComChannel(Channel):
         if inspect.iscoroutinefunction(async_disconnect) and callable(stop_heartbeat) and callable(clear_pending_messages):
             # wecom-aibot-python-sdk 1.0.2 makes disconnect() synchronous and
             # discards the task created for _async_disconnect(). Perform its
-            # synchronous bookkeeping here so DeerFlow can own and await the
+            # synchronous bookkeeping here so SynapseAI can own and await the
             # actual SDK shutdown operation without scheduling a duplicate.
             try:
                 if hasattr(ws_client, "_started"):
@@ -436,7 +436,7 @@ class WeComChannel(Channel):
             },
             status="connected",
         )
-        await self._send_connection_reply(frame, "WeCom connected to DeerFlow.")
+        await self._send_connection_reply(frame, "WeCom connected to SynapseAI.")
         return True
 
     async def _send_connection_reply(self, frame: dict[str, Any], text: str) -> None:

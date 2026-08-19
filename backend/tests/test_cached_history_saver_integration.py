@@ -29,10 +29,10 @@ from langgraph.checkpoint.memory import InMemorySaver
 from langgraph.graph import StateGraph
 from langgraph.types import Command, interrupt
 
-from deerflow.agents.thread_state import merge_message_writes
-from deerflow.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
-from deerflow.runtime.checkpoint_state import CheckpointStateAccessor
-from deerflow.runtime.checkpointer.cached_saver import CachedHistorySaver
+from SynapseAI.agents.thread_state import merge_message_writes
+from SynapseAI.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
+from SynapseAI.runtime.checkpoint_state import CheckpointStateAccessor
+from SynapseAI.runtime.checkpointer.cached_saver import CachedHistorySaver
 
 STEPS = 5
 SNAPSHOT_FREQUENCY = 2

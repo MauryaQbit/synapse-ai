@@ -14,8 +14,8 @@ from typing import Any, ClassVar, Literal
 
 from pydantic import PrivateAttr
 
-# ABC contract -- the ONE allowed `from deerflow` import in this backend folder.
-from deerflow.agents.memory.manager import MemoryManager, MemoryManagerError
+# ABC contract -- the ONE allowed `from SynapseAI` import in this backend folder.
+from SynapseAI.agents.memory.manager import MemoryManager, MemoryManagerError
 
 from .client import Mem0APIError, Mem0Client
 from .config import Mem0Config

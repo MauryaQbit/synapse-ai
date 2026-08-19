@@ -23,26 +23,26 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.runnables.config import var_child_runnable_config
 from langgraph.errors import GraphRecursionError
 
-from deerflow.agents.thread_state import SandboxState, ThreadDataState, ThreadState
-from deerflow.authz.principal import normalize_authz_attributes
-from deerflow.config import get_app_config
-from deerflow.config.app_config import AppConfig
-from deerflow.models import create_chat_model
-from deerflow.runtime.user_context import DEFAULT_USER_ID
-from deerflow.skills.types import Skill
-from deerflow.subagents.config import SubagentConfig, resolve_subagent_model_name
-from deerflow.subagents.step_events import capture_new_step_messages
-from deerflow.subagents.token_collector import SubagentTokenCollector
-from deerflow.trace_context import DEERFLOW_TRACE_METADATA_KEY
-from deerflow.tracing import build_tracing_callbacks, inject_langfuse_metadata
-from deerflow.utils.messages import message_content_to_text
+from SynapseAI.agents.thread_state import SandboxState, ThreadDataState, ThreadState
+from SynapseAI.authz.principal import normalize_authz_attributes
+from SynapseAI.config import get_app_config
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.models import create_chat_model
+from SynapseAI.runtime.user_context import DEFAULT_USER_ID
+from SynapseAI.skills.types import Skill
+from SynapseAI.subagents.config import SubagentConfig, resolve_subagent_model_name
+from SynapseAI.subagents.step_events import capture_new_step_messages
+from SynapseAI.subagents.token_collector import SubagentTokenCollector
+from SynapseAI.trace_context import SynapseAI_TRACE_METADATA_KEY
+from SynapseAI.tracing import build_tracing_callbacks, inject_langfuse_metadata
+from SynapseAI.utils.messages import message_content_to_text
 
 if TYPE_CHECKING:
     # Imported lazily at runtime inside _build_initial_state: importing
     # tool_search eagerly would run tools/builtins/__init__ -> task_tool ->
-    # `from deerflow.subagents import SubagentExecutor`, which re-enters this
+    # `from SynapseAI.subagents import SubagentExecutor`, which re-enters this
     # still-initializing package. Type-only here keeps the annotation precise.
-    from deerflow.tools.builtins.tool_search import DeferredToolSetup
+    from SynapseAI.tools.builtins.tool_search import DeferredToolSetup
 
 logger = logging.getLogger(__name__)
 
@@ -238,7 +238,7 @@ def _extract_llm_error_fallback(final_state: Any) -> str | None:
             continue
 
         metadata = message.additional_kwargs
-        if metadata.get("deerflow_error_fallback") is not True:
+        if metadata.get("SynapseAI_error_fallback") is not True:
             return None
 
         content = message_content_to_text(message.content).strip()
@@ -387,11 +387,11 @@ def _copy_isolated_subagent_context() -> Context:
     callbacks = inherited_config.get("callbacks")
     if isinstance(callbacks, BaseCallbackManager):
         isolated_callbacks = callbacks.copy()
-        isolated_callbacks.handlers = [handler for handler in callbacks.handlers if not getattr(handler, "deerflow_loop_bound", False)]
-        isolated_callbacks.inheritable_handlers = [handler for handler in callbacks.inheritable_handlers if not getattr(handler, "deerflow_loop_bound", False)]
+        isolated_callbacks.handlers = [handler for handler in callbacks.handlers if not getattr(handler, "SynapseAI_loop_bound", False)]
+        isolated_callbacks.inheritable_handlers = [handler for handler in callbacks.inheritable_handlers if not getattr(handler, "SynapseAI_loop_bound", False)]
     elif isinstance(callbacks, (list, tuple)):
-        isolated_callbacks = [handler for handler in callbacks if not getattr(handler, "deerflow_loop_bound", False)]
-    elif getattr(callbacks, "deerflow_loop_bound", False):
+        isolated_callbacks = [handler for handler in callbacks if not getattr(handler, "SynapseAI_loop_bound", False)]
+    elif getattr(callbacks, "SynapseAI_loop_bound", False):
         isolated_callbacks = None
     else:
         isolated_callbacks = callbacks
@@ -456,7 +456,7 @@ class SubagentExecutor:
         channel_user_id: str | None = None,
         is_internal: bool = False,
         authz_attributes: Mapping[str, Any] | None = None,
-        deerflow_trace_id: str | None = None,
+        SynapseAI_trace_id: str | None = None,
         extensions: Any | None = None,
     ):
         """Initialize the executor.
@@ -480,7 +480,7 @@ class SubagentExecutor:
             oauth_id: Subject id at the external identity provider.
             run_id: Parent run id, so delegated guardrail decisions attribute to
                 the same run as the lead agent.
-            deerflow_trace_id: DeerFlow request-level correlation id propagated
+            SynapseAI_trace_id: SynapseAI request-level correlation id propagated
                 from the parent run for Langfuse metadata correlation.
             extensions: The parent run's immutable ``LoadedExtensions`` snapshot,
                 captured at ``task_tool`` dispatch. When None (embedded client,
@@ -517,7 +517,7 @@ class SubagentExecutor:
         # subagent's GuardrailMiddleware sees the same provenance as the lead.
         self.is_internal = is_internal
         self.authz_attributes = normalize_authz_attributes(authz_attributes)
-        self.deerflow_trace_id = deerflow_trace_id
+        self.SynapseAI_trace_id = SynapseAI_trace_id
         # Parent run's extension snapshot. Binding it here (rather than reading
         # the singleton at execution time) is what keeps one run on a single
         # extension generation: a concurrent ``set_loaded_extensions()`` between
@@ -564,13 +564,13 @@ class SubagentExecutor:
             self.model_name = resolve_subagent_model_name(self.config, self.parent_model, app_config=app_config)
         model = create_chat_model(name=self.model_name, thinking_enabled=False, app_config=app_config, attach_tracing=False)
 
-        from deerflow.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
+        from SynapseAI.agents.middlewares.tool_error_handling_middleware import build_subagent_runtime_middlewares
 
         # Reuse shared middleware composition with lead agent. ``agent_name``
         # lets the builder resolve the per-agent token_budget override.
         mcp_routing_middleware = None
         if deferred_setup is not None and deferred_setup.deferred_names:
-            from deerflow.tools.builtins.tool_search import build_mcp_routing_middleware
+            from SynapseAI.tools.builtins.tool_search import build_mcp_routing_middleware
 
             mcp_routing_middleware = build_mcp_routing_middleware(
                 tools if tools is not None else self.tools,
@@ -638,7 +638,7 @@ class SubagentExecutor:
             return []
 
         try:
-            from deerflow.skills.storage import get_or_new_user_skill_storage
+            from SynapseAI.skills.storage import get_or_new_user_skill_storage
 
             storage_kwargs = {"app_config": self.app_config} if self.app_config is not None else {}
             storage = await asyncio.to_thread(
@@ -679,7 +679,7 @@ class SubagentExecutor:
         # Lazy import: see the TYPE_CHECKING note at the top of this module -
         # importing tool_search runs tools/builtins/__init__, which would
         # re-enter this package during its own initialization.
-        from deerflow.tools.builtins.tool_search import assemble_deferred_tools, get_deferred_tools_prompt_section, get_mcp_routing_hints_prompt_section
+        from SynapseAI.tools.builtins.tool_search import assemble_deferred_tools, get_deferred_tools_prompt_section, get_mcp_routing_hints_prompt_section
 
         # Skills are discoverable metadata until explicitly slash-activated or
         # loaded through read_file. Their allowed-tools declarations are applied
@@ -689,7 +689,7 @@ class SubagentExecutor:
 
         resolved_app_config = self.app_config or get_app_config()
 
-        from deerflow.skills.describe import build_skill_search_setup, get_skill_index_prompt_section
+        from SynapseAI.skills.describe import build_skill_search_setup, get_skill_index_prompt_section
 
         skill_setup = build_skill_search_setup(
             skills,
@@ -699,7 +699,7 @@ class SubagentExecutor:
 
         # Apply authorization Layer 1: filter tools before deferred assembly
         # so denied tools can never enter the DeferredToolCatalog.
-        from deerflow.authz.tool_filter import apply_tool_authorization
+        from SynapseAI.authz.tool_filter import apply_tool_authorization
 
         authz_context = {
             "user_id": self.user_id,
@@ -752,7 +752,7 @@ class SubagentExecutor:
             else:
                 # Reuse the lead agent's metadata renderer in legacy discovery
                 # mode so both agent types describe the same skill catalog.
-                from deerflow.agents.lead_agent.prompt import get_skills_prompt_section
+                from SynapseAI.agents.lead_agent.prompt import get_skills_prompt_section
 
                 skills_section = await asyncio.to_thread(
                     get_skills_prompt_section,
@@ -812,10 +812,10 @@ class SubagentExecutor:
                 status=SubagentStatus.RUNNING,
                 started_at=datetime.now(),
             )
-        from deerflow_extension_api import ExtensionData, TaskInfo
+        from SynapseAI_extension_api import ExtensionData, TaskInfo
 
-        from deerflow.extensions import get_loaded_extensions
-        from deerflow.extensions.notify import (
+        from SynapseAI.extensions import get_loaded_extensions
+        from SynapseAI.extensions.notify import (
             lead_task_id,
             notify_task_start,
             notify_task_stop,
@@ -915,8 +915,8 @@ class SubagentExecutor:
                 user_id=self.user_id,
                 assistant_id=assistant_id,
                 model_name=self.model_name,
-                environment=os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT"),
-                deerflow_trace_id=self.deerflow_trace_id,
+                environment=os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT"),
+                SynapseAI_trace_id=self.SynapseAI_trace_id,
             )
 
             context: dict[str, Any] = {}
@@ -934,7 +934,7 @@ class SubagentExecutor:
             context["oauth_id"] = self.oauth_id
             context["run_id"] = self.run_id
             if task_store is not None:
-                from deerflow_extension_api import EXTENSION_TASK_STORE_KEY
+                from SynapseAI_extension_api import EXTENSION_TASK_STORE_KEY
 
                 context[EXTENSION_TASK_STORE_KEY] = task_store
             if self.channel_user_id:
@@ -943,8 +943,8 @@ class SubagentExecutor:
             # (including False); attributes copied again on write-back.
             context["is_internal"] = self.is_internal
             context["authz_attributes"] = dict(self.authz_attributes)
-            if self.deerflow_trace_id:
-                context[DEERFLOW_TRACE_METADATA_KEY] = self.deerflow_trace_id
+            if self.SynapseAI_trace_id:
+                context[SynapseAI_TRACE_METADATA_KEY] = self.SynapseAI_trace_id
             context["is_subagent"] = True
 
             logger.info(f"[trace={self.trace_id}] Subagent {self.config.name} starting async execution with max_turns={self.config.max_turns}")

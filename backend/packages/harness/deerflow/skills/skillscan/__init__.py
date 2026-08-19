@@ -1,6 +1,6 @@
-"""Native deterministic safety scanner for DeerFlow skills."""
+"""Native deterministic safety scanner for SynapseAI skills."""
 
-from deerflow.skills.skillscan.models import (
+from SynapseAI.skills.skillscan.models import (
     FindingSeverity,
     RuleSpec,
     ScanResult,
@@ -8,7 +8,7 @@ from deerflow.skills.skillscan.models import (
     StaticScanBlockedError,
     StaticScannerError,
 )
-from deerflow.skills.skillscan.orchestrator import (
+from SynapseAI.skills.skillscan.orchestrator import (
     RULES,
     enforce_static_scan,
     format_static_findings,

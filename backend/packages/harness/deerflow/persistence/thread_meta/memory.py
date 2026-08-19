@@ -11,9 +11,9 @@ from typing import Any
 
 from langgraph.store.base import BaseStore
 
-from deerflow.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, ThreadMetaStore
-from deerflow.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
-from deerflow.utils.time import coerce_iso, now_iso
+from SynapseAI.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, ThreadMetaStore
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
+from SynapseAI.utils.time import coerce_iso, now_iso
 
 THREADS_NS: tuple[str, ...] = ("threads",)
 SEARCH_PAGE_SIZE = 500

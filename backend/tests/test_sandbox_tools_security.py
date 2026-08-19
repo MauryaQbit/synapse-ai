@@ -5,8 +5,8 @@ from unittest.mock import patch
 
 import pytest
 
-from deerflow.sandbox.exceptions import SandboxError
-from deerflow.sandbox.tools import (
+from SynapseAI.sandbox.exceptions import SandboxError
+from SynapseAI.sandbox.tools import (
     VIRTUAL_PATH_PREFIX,
     _apply_cwd_prefix,
     _compiled_mask_patterns,
@@ -31,9 +31,9 @@ from deerflow.sandbox.tools import (
 )
 
 _THREAD_DATA = {
-    "workspace_path": "/tmp/deer-flow/threads/t1/user-data/workspace",
-    "uploads_path": "/tmp/deer-flow/threads/t1/user-data/uploads",
-    "outputs_path": "/tmp/deer-flow/threads/t1/user-data/outputs",
+    "workspace_path": "/tmp/synapse-ai/threads/t1/user-data/workspace",
+    "uploads_path": "/tmp/synapse-ai/threads/t1/user-data/uploads",
+    "outputs_path": "/tmp/synapse-ai/threads/t1/user-data/outputs",
 }
 
 
@@ -41,8 +41,8 @@ _THREAD_DATA = {
 
 
 def test_replace_virtual_path_maps_virtual_root_and_subpaths() -> None:
-    assert Path(replace_virtual_path("/mnt/user-data/workspace/a.txt", _THREAD_DATA)).as_posix() == "/tmp/deer-flow/threads/t1/user-data/workspace/a.txt"
-    assert Path(replace_virtual_path("/mnt/user-data", _THREAD_DATA)).as_posix() == "/tmp/deer-flow/threads/t1/user-data"
+    assert Path(replace_virtual_path("/mnt/user-data/workspace/a.txt", _THREAD_DATA)).as_posix() == "/tmp/synapse-ai/threads/t1/user-data/workspace/a.txt"
+    assert Path(replace_virtual_path("/mnt/user-data", _THREAD_DATA)).as_posix() == "/tmp/synapse-ai/threads/t1/user-data"
 
 
 def test_replace_virtual_path_preserves_trailing_slash() -> None:
@@ -54,7 +54,7 @@ def test_replace_virtual_path_preserves_trailing_slash() -> None:
     """
     result = replace_virtual_path("/mnt/user-data/workspace/", _THREAD_DATA)
     assert result.endswith("/"), f"Expected trailing slash, got: {result!r}"
-    assert result == "/tmp/deer-flow/threads/t1/user-data/workspace/"
+    assert result == "/tmp/synapse-ai/threads/t1/user-data/workspace/"
 
 
 def test_replace_virtual_path_preserves_trailing_slash_windows_style() -> None:
@@ -64,9 +64,9 @@ def test_replace_virtual_path_preserves_trailing_slash_windows_style() -> None:
     mixed-separator path.  The separator must match the style of actual_base.
     """
     win_thread_data = {
-        "workspace_path": r"C:\deer-flow\threads\t1\user-data\workspace",
-        "uploads_path": r"C:\deer-flow\threads\t1\user-data\uploads",
-        "outputs_path": r"C:\deer-flow\threads\t1\user-data\outputs",
+        "workspace_path": r"C:\synapse-ai\threads\t1\user-data\workspace",
+        "uploads_path": r"C:\synapse-ai\threads\t1\user-data\uploads",
+        "outputs_path": r"C:\synapse-ai\threads\t1\user-data\outputs",
     }
     result = replace_virtual_path("/mnt/user-data/workspace/", win_thread_data)
     assert result.endswith("\\"), f"Expected trailing backslash for Windows path, got: {result!r}"
@@ -76,12 +76,12 @@ def test_replace_virtual_path_preserves_trailing_slash_windows_style() -> None:
 def test_replace_virtual_path_preserves_windows_style_for_nested_subdir_trailing_slash() -> None:
     """Nested Windows-style subdirectories must keep backslashes throughout."""
     win_thread_data = {
-        "workspace_path": r"C:\deer-flow\threads\t1\user-data\workspace",
-        "uploads_path": r"C:\deer-flow\threads\t1\user-data\uploads",
-        "outputs_path": r"C:\deer-flow\threads\t1\user-data\outputs",
+        "workspace_path": r"C:\synapse-ai\threads\t1\user-data\workspace",
+        "uploads_path": r"C:\synapse-ai\threads\t1\user-data\uploads",
+        "outputs_path": r"C:\synapse-ai\threads\t1\user-data\outputs",
     }
     result = replace_virtual_path("/mnt/user-data/workspace/subdir/", win_thread_data)
-    assert result == "C:\\deer-flow\\threads\\t1\\user-data\\workspace\\subdir\\"
+    assert result == "C:\\synapse-ai\\threads\\t1\\user-data\\workspace\\subdir\\"
     assert "/" not in result, f"Mixed separators in Windows path: {result!r}"
 
 
@@ -89,30 +89,30 @@ def test_replace_virtual_paths_in_command_preserves_trailing_slash() -> None:
     """Trailing slash on a virtual path inside a command must be preserved."""
     cmd = """python -c "output_dir = '/mnt/user-data/workspace/'; print(output_dir + 'some_file.txt')\""""
     result = replace_virtual_paths_in_command(cmd, _THREAD_DATA)
-    assert "/tmp/deer-flow/threads/t1/user-data/workspace/" in result, f"Trailing slash lost in: {result!r}"
+    assert "/tmp/synapse-ai/threads/t1/user-data/workspace/" in result, f"Trailing slash lost in: {result!r}"
 
 
 # ---------- mask_local_paths_in_output ----------
 
 
 def test_mask_local_paths_in_output_hides_host_paths() -> None:
-    output = "Created: /tmp/deer-flow/threads/t1/user-data/workspace/result.txt"
+    output = "Created: /tmp/synapse-ai/threads/t1/user-data/workspace/result.txt"
     masked = mask_local_paths_in_output(output, _THREAD_DATA)
 
-    assert "/tmp/deer-flow/threads/t1/user-data" not in masked
+    assert "/tmp/synapse-ai/threads/t1/user-data" not in masked
     assert "/mnt/user-data/workspace/result.txt" in masked
 
 
 def test_mask_local_paths_in_output_hides_skills_host_paths() -> None:
     """Skills host paths in bash output should be masked to virtual paths."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
-        output = "Reading: /home/user/deer-flow/skills/public/bootstrap/SKILL.md"
+        output = "Reading: /home/user/synapse-ai/skills/public/bootstrap/SKILL.md"
         masked = mask_local_paths_in_output(output, _THREAD_DATA)
 
-        assert "/home/user/deer-flow/skills" not in masked
+        assert "/home/user/synapse-ai/skills" not in masked
         assert "/mnt/skills/public/bootstrap/SKILL.md" in masked
 
 
@@ -128,10 +128,10 @@ def test_mask_local_paths_does_not_match_inside_longer_sibling(suffix: str) -> N
     ``LocalSandbox._reverse_output_patterns`` (#4035).
     """
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
-        output = f"found /home/user/deer-flow/skills{suffix}"
+        output = f"found /home/user/synapse-ai/skills{suffix}"
         masked = mask_local_paths_in_output(output, None)
 
         assert masked == output
@@ -147,8 +147,8 @@ def test_mask_local_paths_does_not_match_inside_longer_acp_sibling(suffix: str) 
     below) nothing maps its parent, so ``/mnt/acp-workspace-backup/hello.py``
     is unresolvable in both directions.
     """
-    acp_host = "/home/user/.deer-flow/acp-workspace"
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
+    acp_host = "/home/user/.synapse-ai/acp-workspace"
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
         output = f"copied {acp_host}{suffix}"
         masked = mask_local_paths_in_output(output, _THREAD_DATA)
 
@@ -169,10 +169,10 @@ def test_mask_local_paths_user_data_sibling_is_carried_by_the_virtual_root(suffi
     Green on ``main`` too: this is not a bug anchor, it guards the boundary from
     being narrowed into one that would stop translating a mapped path.
     """
-    masked = mask_local_paths_in_output(f"wrote /tmp/deer-flow/threads/t1/user-data/outputs{suffix}", _THREAD_DATA)
+    masked = mask_local_paths_in_output(f"wrote /tmp/synapse-ai/threads/t1/user-data/outputs{suffix}", _THREAD_DATA)
 
     assert masked == f"wrote /mnt/user-data/outputs{suffix}"
-    assert replace_virtual_path(f"/mnt/user-data/outputs{suffix}", _THREAD_DATA) == f"/tmp/deer-flow/threads/t1/user-data/outputs{suffix}"
+    assert replace_virtual_path(f"/mnt/user-data/outputs{suffix}", _THREAD_DATA) == f"/tmp/synapse-ai/threads/t1/user-data/outputs{suffix}"
 
 
 @pytest.mark.parametrize(
@@ -199,13 +199,13 @@ def test_mask_local_paths_still_matches_base_before_non_slash_boundaries(boundar
     three, so the lookahead would fail and the raw host path would be emitted.
     """
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
-        masked = mask_local_paths_in_output(f"root is /home/user/deer-flow/skills{boundary}", None)
+        masked = mask_local_paths_in_output(f"root is /home/user/synapse-ai/skills{boundary}", None)
 
         assert masked == f"root is {expected}"
-        assert "/home/user/deer-flow/skills" not in masked
+        assert "/home/user/synapse-ai/skills" not in masked
 
 
 @pytest.mark.parametrize("prefix", ["", "cwd: ", "see "])
@@ -216,19 +216,19 @@ def test_mask_local_paths_translates_a_bare_base_at_end_of_output(prefix: str) -
     -- the leak this function exists to prevent.
     """
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
-        masked = mask_local_paths_in_output(f"{prefix}/home/user/deer-flow/skills", None)
+        masked = mask_local_paths_in_output(f"{prefix}/home/user/synapse-ai/skills", None)
 
         assert masked == f"{prefix}/mnt/skills"
-        assert "/home/user/deer-flow/skills" not in masked
+        assert "/home/user/synapse-ai/skills" not in masked
 
 
 def test_mask_local_paths_compiled_patterns_are_cached() -> None:
     """The compiled patterns for a given source set are built once and reused
     (mask runs once per glob/grep match, so this avoids per-match recompiles)."""
-    sources = (("/tmp/deer-flow/threads/t1/user-data/workspace", "/mnt/user-data/workspace"),)
+    sources = (("/tmp/synapse-ai/threads/t1/user-data/workspace", "/mnt/user-data/workspace"),)
     first = _compiled_mask_patterns(sources)
     second = _compiled_mask_patterns(sources)
     assert first is second  # cache hit -> identical object, not rebuilt
@@ -236,10 +236,10 @@ def test_mask_local_paths_compiled_patterns_are_cached() -> None:
 
 def test_mask_local_paths_stable_across_repeated_and_batched_calls() -> None:
     """Masking is identical whether applied once or repeatedly (per-match path)."""
-    output = "a /tmp/deer-flow/threads/t1/user-data/workspace/x.txt and /tmp/deer-flow/threads/t1/user-data/outputs/y.log"
+    output = "a /tmp/synapse-ai/threads/t1/user-data/workspace/x.txt and /tmp/synapse-ai/threads/t1/user-data/outputs/y.log"
     once = mask_local_paths_in_output(output, _THREAD_DATA)
     twice = mask_local_paths_in_output(once, _THREAD_DATA)
-    assert "/tmp/deer-flow/threads/t1/user-data" not in once
+    assert "/tmp/synapse-ai/threads/t1/user-data" not in once
     assert "/mnt/user-data/workspace/x.txt" in once
     assert "/mnt/user-data/outputs/y.log" in once
     # Re-masking already-masked output leaves it unchanged (no host paths left).
@@ -251,16 +251,16 @@ def test_mask_local_paths_stable_across_repeated_and_batched_calls() -> None:
 def test_mask_local_paths_no_thread_data_still_masks_skills() -> None:
     """With thread_data=None, skills host paths are still masked (user-data skipped)."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
-        masked = mask_local_paths_in_output("Reading: /home/user/deer-flow/skills/a/b.md", None)
-        assert "/home/user/deer-flow/skills" not in masked
+        masked = mask_local_paths_in_output("Reading: /home/user/synapse-ai/skills/a/b.md", None)
+        assert "/home/user/synapse-ai/skills" not in masked
         assert "/mnt/skills/a/b.md" in masked
 
 
 def test_mask_local_paths_hides_global_integration_skill_paths(tmp_path: Path) -> None:
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = Paths(base_dir=tmp_path)
     integration_dir = tmp_path / "integrations" / "skills" / "lark-cli" / "lark-doc"
@@ -268,10 +268,10 @@ def test_mask_local_paths_hides_global_integration_skill_paths(tmp_path: Path) -
     output = f"Reading: {integration_dir / 'SKILL.md'}"
 
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
-        patch("deerflow.config.paths.get_paths", return_value=paths),
-        patch("deerflow.runtime.user_context.get_effective_user_id", return_value="alice"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
+        patch("SynapseAI.config.paths.get_paths", return_value=paths),
+        patch("SynapseAI.runtime.user_context.get_effective_user_id", return_value="alice"),
     ):
         masked = mask_local_paths_in_output(output, _THREAD_DATA)
 
@@ -318,15 +318,15 @@ def test_validate_local_tool_path_rejects_non_virtual_path_mentions_configured_m
 
 
 def test_validate_local_tool_path_prioritizes_user_data_before_custom_mounts() -> None:
-    from deerflow.config.sandbox_config import VolumeMountConfig
+    from SynapseAI.config.sandbox_config import VolumeMountConfig
 
     mounts = [
         VolumeMountConfig(host_path="/tmp/host-user-data", container_path=VIRTUAL_PATH_PREFIX, read_only=False),
     ]
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=mounts):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=mounts):
         validate_local_tool_path(f"{VIRTUAL_PATH_PREFIX}/workspace/file.txt", _THREAD_DATA, read_only=True)
 
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=mounts):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=mounts):
         with pytest.raises(PermissionError, match="path traversal"):
             validate_local_tool_path(f"{VIRTUAL_PATH_PREFIX}/workspace/../../etc/passwd", _THREAD_DATA, read_only=True)
 
@@ -357,14 +357,14 @@ def test_validate_local_tool_path_rejects_traversal_in_user_data() -> None:
 
 def test_validate_local_tool_path_rejects_traversal_in_skills() -> None:
     """Path traversal via .. in skills paths must be rejected."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         with pytest.raises(PermissionError, match="path traversal"):
             validate_local_tool_path("/mnt/skills/../../etc/passwd", _THREAD_DATA, read_only=True)
 
 
 def test_validate_local_tool_path_rejects_none_thread_data() -> None:
     """Missing thread_data should raise SandboxRuntimeError."""
-    from deerflow.sandbox.exceptions import SandboxRuntimeError
+    from SynapseAI.sandbox.exceptions import SandboxRuntimeError
 
     with pytest.raises(SandboxRuntimeError):
         validate_local_tool_path(f"{VIRTUAL_PATH_PREFIX}/workspace/file.txt", None)
@@ -376,39 +376,39 @@ def test_validate_local_tool_path_rejects_none_thread_data() -> None:
 def test_resolve_skills_path_resolves_correctly() -> None:
     """Skills virtual path should resolve to host path."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
         resolved = _resolve_skills_path("/mnt/skills/public/bootstrap/SKILL.md")
-        assert resolved == "/home/user/deer-flow/skills/public/bootstrap/SKILL.md"
+        assert resolved == "/home/user/synapse-ai/skills/public/bootstrap/SKILL.md"
 
 
 def test_resolve_skills_path_resolves_root() -> None:
     """Skills container root should resolve to host skills directory."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
         resolved = _resolve_skills_path("/mnt/skills")
-        assert resolved == "/home/user/deer-flow/skills"
+        assert resolved == "/home/user/synapse-ai/skills"
 
 
 def test_extract_skill_name_from_integration_skill_path() -> None:
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         assert _extract_skill_name_from_skills_path("/mnt/skills/integrations/lark-cli/lark-doc/SKILL.md") == "lark-doc"
         assert _extract_skill_name_from_skills_path("/mnt/skills/integrations/lark-cli") is None
 
 
 def test_resolve_skills_path_resolves_global_integration_skills(tmp_path: Path) -> None:
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = Paths(base_dir=tmp_path)
     expected = tmp_path / "integrations" / "skills" / "lark-cli" / "lark-doc" / "SKILL.md"
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
-        patch("deerflow.config.paths.get_paths", return_value=paths),
-        patch("deerflow.runtime.user_context.get_effective_user_id", return_value="alice"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
+        patch("SynapseAI.config.paths.get_paths", return_value=paths),
+        patch("SynapseAI.runtime.user_context.get_effective_user_id", return_value="alice"),
     ):
         resolved = _resolve_skills_path("/mnt/skills/integrations/lark-cli/lark-doc/SKILL.md")
 
@@ -416,14 +416,14 @@ def test_resolve_skills_path_resolves_global_integration_skills(tmp_path: Path) 
 
 
 def test_resolve_skills_path_blocks_integration_traversal(tmp_path: Path) -> None:
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = Paths(base_dir=tmp_path)
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
-        patch("deerflow.config.paths.get_paths", return_value=paths),
-        patch("deerflow.runtime.user_context.get_effective_user_id", return_value="alice"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
+        patch("SynapseAI.config.paths.get_paths", return_value=paths),
+        patch("SynapseAI.runtime.user_context.get_effective_user_id", return_value="alice"),
     ):
         with pytest.raises(PermissionError, match="path traversal detected"):
             _resolve_skills_path("/mnt/skills/integrations/../../etc/passwd")
@@ -432,8 +432,8 @@ def test_resolve_skills_path_blocks_integration_traversal(tmp_path: Path) -> Non
 def test_resolve_skills_path_raises_when_not_configured() -> None:
     """Should raise FileNotFoundError when skills directory is not available."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value=None),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value=None),
     ):
         with pytest.raises(FileNotFoundError, match="Skills directory not available"):
             _resolve_skills_path("/mnt/skills/public/bootstrap/SKILL.md")
@@ -482,21 +482,21 @@ def test_replace_virtual_paths_in_command_does_not_replace_skills_paths() -> Non
     _resolve_skills_path / _resolve_acp_workspace_path.
     """
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/deer-flow/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/synapse-ai/skills"),
     ):
         cmd = "cat /mnt/skills/public/bootstrap/SKILL.md"
         result = replace_virtual_paths_in_command(cmd, _THREAD_DATA)
         # Skills paths should remain as virtual paths (not resolved)
         assert "/mnt/skills/public/bootstrap/SKILL.md" in result
-        assert "/home/user/deer-flow/skills" not in result
+        assert "/home/user/synapse-ai/skills" not in result
 
 
 def test_replace_virtual_paths_in_command_replaces_user_data_only() -> None:
     """Only user-data paths should be replaced; skills and ACP paths stay virtual."""
     with (
-        patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
-        patch("deerflow.sandbox.tools._get_skills_host_path", return_value="/home/user/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"),
+        patch("SynapseAI.sandbox.tools._get_skills_host_path", return_value="/home/user/skills"),
     ):
         cmd = "cat /mnt/skills/public/SKILL.md > /mnt/user-data/workspace/out.txt"
         result = replace_virtual_paths_in_command(cmd, _THREAD_DATA)
@@ -505,7 +505,7 @@ def test_replace_virtual_paths_in_command_replaces_user_data_only() -> None:
         assert "/home/user/skills" not in result
         # User-data paths should still be resolved
         assert "/mnt/user-data" not in result
-        assert "/tmp/deer-flow/threads/t1/user-data/workspace/out.txt" in result
+        assert "/tmp/synapse-ai/threads/t1/user-data/workspace/out.txt" in result
 
 
 @pytest.mark.parametrize(
@@ -534,7 +534,7 @@ def test_replace_virtual_paths_in_command_does_not_rewrite_prefix_siblings(sibli
     result = replace_virtual_paths_in_command(f"cat {sibling}", _THREAD_DATA)
 
     assert result == f"cat {sibling}"
-    assert "/tmp/deer-flow/threads/t1" not in result
+    assert "/tmp/synapse-ai/threads/t1" not in result
 
 
 @pytest.mark.parametrize(
@@ -542,12 +542,12 @@ def test_replace_virtual_paths_in_command_does_not_rewrite_prefix_siblings(sibli
     [
         # The bare root, at end of string and before shell/text punctuation, must
         # keep translating — these guard the boundary from being narrowed too far.
-        ("ls /mnt/user-data", "ls /tmp/deer-flow/threads/t1/user-data"),
-        ("ls /mnt/user-data && pwd", "ls /tmp/deer-flow/threads/t1/user-data && pwd"),
-        ("PYTHONPATH=/mnt/user-data:/opt x", "PYTHONPATH=/tmp/deer-flow/threads/t1/user-data:/opt x"),
-        ("echo '/mnt/user-data, done'", "echo '/tmp/deer-flow/threads/t1/user-data, done'"),
+        ("ls /mnt/user-data", "ls /tmp/synapse-ai/threads/t1/user-data"),
+        ("ls /mnt/user-data && pwd", "ls /tmp/synapse-ai/threads/t1/user-data && pwd"),
+        ("PYTHONPATH=/mnt/user-data:/opt x", "PYTHONPATH=/tmp/synapse-ai/threads/t1/user-data:/opt x"),
+        ("echo '/mnt/user-data, done'", "echo '/tmp/synapse-ai/threads/t1/user-data, done'"),
         # Real children still translate.
-        ("cat /mnt/user-data/workspace/a.txt", "cat /tmp/deer-flow/threads/t1/user-data/workspace/a.txt"),
+        ("cat /mnt/user-data/workspace/a.txt", "cat /tmp/synapse-ai/threads/t1/user-data/workspace/a.txt"),
     ],
 )
 def test_replace_virtual_paths_in_command_still_translates_genuine_paths(command: str, expected: str) -> None:
@@ -597,7 +597,7 @@ def test_validate_local_bash_command_paths_blocks_traversal_in_user_data() -> No
 
 def test_validate_local_bash_command_paths_blocks_traversal_in_skills() -> None:
     """Bash commands with traversal in skills paths should be blocked."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         with pytest.raises(PermissionError, match="path traversal"):
             validate_local_bash_command_paths(
                 "cat /mnt/skills/../../etc/passwd",
@@ -758,10 +758,10 @@ def test_bash_tool_rejects_host_bash_when_local_sandbox_default(monkeypatch) -> 
     )
 
     monkeypatch.setattr(
-        "deerflow.sandbox.tools.ensure_sandbox_initialized",
+        "SynapseAI.sandbox.tools.ensure_sandbox_initialized",
         lambda runtime: SimpleNamespace(execute_command=lambda command: pytest.fail("host bash should not execute")),
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.is_host_bash_allowed", lambda: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_host_bash_allowed", lambda: False)
 
     result = bash_tool.func(
         runtime=runtime,
@@ -779,11 +779,11 @@ def test_bash_tool_blocks_relative_traversal_before_host_execution(monkeypatch) 
     )
 
     monkeypatch.setattr(
-        "deerflow.sandbox.tools.ensure_sandbox_initialized",
+        "SynapseAI.sandbox.tools.ensure_sandbox_initialized",
         lambda runtime: SimpleNamespace(execute_command=lambda command: pytest.fail("unsafe command should not execute")),
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_host_bash_allowed", lambda: True)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_host_bash_allowed", lambda: True)
 
     result = bash_tool.func(
         runtime=runtime,
@@ -798,7 +798,7 @@ def test_bash_tool_blocks_relative_traversal_before_host_execution(monkeypatch) 
 
 
 def test_is_skills_path_recognises_default_prefix() -> None:
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         assert _is_skills_path("/mnt/skills") is True
         assert _is_skills_path("/mnt/skills/public/bootstrap/SKILL.md") is True
         assert _is_skills_path("/mnt/skills-extra/foo") is False
@@ -807,7 +807,7 @@ def test_is_skills_path_recognises_default_prefix() -> None:
 
 def test_validate_local_tool_path_allows_skills_read_only() -> None:
     """read_file / ls should be able to access /mnt/skills paths."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         # Should not raise
         validate_local_tool_path(
             "/mnt/skills/public/bootstrap/SKILL.md",
@@ -818,7 +818,7 @@ def test_validate_local_tool_path_allows_skills_read_only() -> None:
 
 def test_validate_local_tool_path_blocks_skills_write() -> None:
     """write_file / str_replace must NOT write to skills paths."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         with pytest.raises(PermissionError, match="Write access to skills path is not allowed"):
             validate_local_tool_path(
                 "/mnt/skills/public/bootstrap/SKILL.md",
@@ -829,7 +829,7 @@ def test_validate_local_tool_path_blocks_skills_write() -> None:
 
 def test_validate_local_bash_command_paths_allows_skills_path() -> None:
     """bash commands referencing /mnt/skills should be allowed."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         validate_local_bash_command_paths(
             "cat /mnt/skills/public/bootstrap/SKILL.md",
             _THREAD_DATA,
@@ -888,14 +888,14 @@ def test_validate_local_bash_command_paths_blocks_file_urls_mixed_with_valid() -
 
 def test_validate_local_bash_command_paths_still_blocks_other_paths() -> None:
     """Paths outside virtual and system prefixes must still be blocked."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/mnt/skills"):
         with pytest.raises(PermissionError, match="Unsafe absolute paths"):
             validate_local_bash_command_paths("cat /etc/shadow", _THREAD_DATA)
 
 
 def test_validate_local_tool_path_skills_custom_container_path() -> None:
     """Skills with a custom container_path in config should also work."""
-    with patch("deerflow.sandbox.tools._get_skills_container_path", return_value="/custom/skills"):
+    with patch("SynapseAI.sandbox.tools._get_skills_container_path", return_value="/custom/skills"):
         # Should not raise
         validate_local_tool_path(
             "/custom/skills/public/my-skill/SKILL.md",
@@ -962,7 +962,7 @@ def test_resolve_acp_workspace_path_resolves_correctly(tmp_path: Path) -> None:
     """ACP workspace virtual path should resolve to host path."""
     acp_dir = tmp_path / "acp-workspace"
     acp_dir.mkdir()
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
         resolved = _resolve_acp_workspace_path("/mnt/acp-workspace/hello.py")
         assert resolved == str(acp_dir / "hello.py")
 
@@ -971,14 +971,14 @@ def test_resolve_acp_workspace_path_resolves_root(tmp_path: Path) -> None:
     """ACP workspace root should resolve to host directory."""
     acp_dir = tmp_path / "acp-workspace"
     acp_dir.mkdir()
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
         resolved = _resolve_acp_workspace_path("/mnt/acp-workspace")
         assert resolved == str(acp_dir)
 
 
 def test_resolve_acp_workspace_path_raises_when_not_available() -> None:
     """Should raise FileNotFoundError when ACP workspace does not exist."""
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=None):
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=None):
         with pytest.raises(FileNotFoundError, match="ACP workspace directory not available"):
             _resolve_acp_workspace_path("/mnt/acp-workspace/hello.py")
 
@@ -987,7 +987,7 @@ def test_resolve_acp_workspace_path_blocks_traversal(tmp_path: Path) -> None:
     """Path traversal in ACP workspace paths must be rejected."""
     acp_dir = tmp_path / "acp-workspace"
     acp_dir.mkdir()
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=str(acp_dir)):
         with pytest.raises(PermissionError, match="path traversal"):
             _resolve_acp_workspace_path("/mnt/acp-workspace/../../etc/passwd")
 
@@ -999,8 +999,8 @@ def test_replace_virtual_paths_in_command_does_not_replace_acp_workspace() -> No
     PathMapping at execution time, not pre-resolved, to ensure user_id
     consistency with the sandbox mapping.
     """
-    acp_host = "/home/user/.deer-flow/acp-workspace"
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
+    acp_host = "/home/user/.synapse-ai/acp-workspace"
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
         cmd = "cp /mnt/acp-workspace/hello.py /mnt/user-data/outputs/hello.py"
         result = replace_virtual_paths_in_command(cmd, _THREAD_DATA)
         # ACP workspace path should remain as virtual path (not resolved)
@@ -1008,13 +1008,13 @@ def test_replace_virtual_paths_in_command_does_not_replace_acp_workspace() -> No
         assert acp_host not in result
         # User-data paths should still be resolved
         assert "/mnt/user-data" not in result
-        assert "/tmp/deer-flow/threads/t1/user-data/outputs/hello.py" in result
+        assert "/tmp/synapse-ai/threads/t1/user-data/outputs/hello.py" in result
 
 
 def test_mask_local_paths_in_output_hides_acp_workspace_host_paths() -> None:
     """ACP workspace host paths in bash output should be masked to virtual paths."""
-    acp_host = "/home/user/.deer-flow/acp-workspace"
-    with patch("deerflow.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
+    acp_host = "/home/user/.synapse-ai/acp-workspace"
+    with patch("SynapseAI.sandbox.tools._get_acp_workspace_host_path", return_value=acp_host):
         output = f"Copied: {acp_host}/hello.py"
         masked = mask_local_paths_in_output(output, _THREAD_DATA)
 
@@ -1030,7 +1030,7 @@ def test_apply_cwd_prefix_prepends_workspace() -> None:
     result = _apply_cwd_prefix("ls -la", _THREAD_DATA)
     assert result.startswith("cd ")
     assert "ls -la" in result
-    assert "/tmp/deer-flow/threads/t1/user-data/workspace" in result
+    assert "/tmp/synapse-ai/threads/t1/user-data/workspace" in result
 
 
 def test_apply_cwd_prefix_no_thread_data() -> None:
@@ -1052,7 +1052,7 @@ def test_apply_cwd_prefix_quotes_path_with_spaces() -> None:
 
 def test_validate_local_bash_command_paths_allows_mcp_filesystem_paths() -> None:
     """Bash commands referencing MCP filesystem server paths should be allowed."""
-    from deerflow.config.extensions_config import ExtensionsConfig, McpServerConfig
+    from SynapseAI.config.extensions_config import ExtensionsConfig, McpServerConfig
 
     mock_config = ExtensionsConfig(
         mcp_servers={
@@ -1063,7 +1063,7 @@ def test_validate_local_bash_command_paths_allows_mcp_filesystem_paths() -> None
             )
         }
     )
-    with patch("deerflow.config.extensions_config.get_extensions_config", return_value=mock_config):
+    with patch("SynapseAI.config.extensions_config.get_extensions_config", return_value=mock_config):
         # Should not raise - MCP filesystem paths are allowed
         validate_local_bash_command_paths("ls /mnt/d/workspace", _THREAD_DATA)
         validate_local_bash_command_paths("cat /mnt/d/workspace/subdir/file.txt", _THREAD_DATA)
@@ -1082,7 +1082,7 @@ def test_validate_local_bash_command_paths_allows_mcp_filesystem_paths() -> None
                 )
             }
         )
-        with patch("deerflow.config.extensions_config.get_extensions_config", return_value=disabled_config):
+        with patch("SynapseAI.config.extensions_config.get_extensions_config", return_value=disabled_config):
             with pytest.raises(PermissionError, match="Unsafe absolute paths"):
                 validate_local_bash_command_paths("ls /mnt/d/workspace", _THREAD_DATA)
 
@@ -1092,7 +1092,7 @@ def test_validate_local_bash_command_paths_allows_mcp_filesystem_paths() -> None
 
 def _mock_custom_mounts():
     """Create mock VolumeMountConfig objects for testing."""
-    from deerflow.config.sandbox_config import VolumeMountConfig
+    from SynapseAI.config.sandbox_config import VolumeMountConfig
 
     return [
         VolumeMountConfig(host_path="/home/user/code-read", container_path="/mnt/code-read", read_only=True),
@@ -1101,7 +1101,7 @@ def _mock_custom_mounts():
 
 
 def test_is_custom_mount_path_recognises_configured_mounts() -> None:
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         assert _is_custom_mount_path("/mnt/code-read") is True
         assert _is_custom_mount_path("/mnt/code-read/src/main.py") is True
         assert _is_custom_mount_path("/mnt/data") is True
@@ -1111,13 +1111,13 @@ def test_is_custom_mount_path_recognises_configured_mounts() -> None:
 
 
 def test_get_custom_mount_for_path_returns_longest_prefix() -> None:
-    from deerflow.config.sandbox_config import VolumeMountConfig
+    from SynapseAI.config.sandbox_config import VolumeMountConfig
 
     mounts = [
         VolumeMountConfig(host_path="/var/mnt", container_path="/mnt", read_only=False),
         VolumeMountConfig(host_path="/home/user/code", container_path="/mnt/code", read_only=True),
     ]
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=mounts):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=mounts):
         mount = _get_custom_mount_for_path("/mnt/code/file.py")
         assert mount is not None
         assert mount.container_path == "/mnt/code"
@@ -1125,48 +1125,48 @@ def test_get_custom_mount_for_path_returns_longest_prefix() -> None:
 
 def test_validate_local_tool_path_allows_custom_mount_read() -> None:
     """read_file / ls should be able to access custom mount paths."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         validate_local_tool_path("/mnt/code-read/src/main.py", _THREAD_DATA, read_only=True)
         validate_local_tool_path("/mnt/data/file.txt", _THREAD_DATA, read_only=True)
 
 
 def test_validate_local_tool_path_blocks_read_only_mount_write() -> None:
     """write_file / str_replace must NOT write to read-only custom mounts."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         with pytest.raises(PermissionError, match="Write access to read-only mount is not allowed"):
             validate_local_tool_path("/mnt/code-read/src/main.py", _THREAD_DATA, read_only=False)
 
 
 def test_validate_local_tool_path_allows_writable_mount_write() -> None:
     """write_file / str_replace should succeed on writable custom mounts."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         validate_local_tool_path("/mnt/data/file.txt", _THREAD_DATA, read_only=False)
 
 
 def test_validate_local_tool_path_blocks_traversal_in_custom_mount() -> None:
     """Path traversal via .. in custom mount paths must be rejected."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         with pytest.raises(PermissionError, match="path traversal"):
             validate_local_tool_path("/mnt/code-read/../../etc/passwd", _THREAD_DATA, read_only=True)
 
 
 def test_validate_local_bash_command_paths_allows_custom_mount() -> None:
     """bash commands referencing custom mount paths should be allowed."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         validate_local_bash_command_paths("cat /mnt/code-read/src/main.py", _THREAD_DATA)
         validate_local_bash_command_paths("ls /mnt/data", _THREAD_DATA)
 
 
 def test_validate_local_bash_command_paths_blocks_traversal_in_custom_mount() -> None:
     """Bash commands with traversal in custom mount paths should be blocked."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         with pytest.raises(PermissionError, match="path traversal"):
             validate_local_bash_command_paths("cat /mnt/code-read/../../etc/passwd", _THREAD_DATA)
 
 
 def test_validate_local_bash_command_paths_still_blocks_non_mount_paths() -> None:
     """Paths not matching any custom mount should still be blocked."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         with pytest.raises(PermissionError, match="Unsafe absolute paths"):
             validate_local_bash_command_paths("cat /etc/shadow", _THREAD_DATA)
 
@@ -1183,16 +1183,16 @@ def test_get_custom_mounts_caching(monkeypatch, tmp_path) -> None:
     dir_b = tmp_path / "data"
     dir_b.mkdir()
 
-    from deerflow.config.sandbox_config import SandboxConfig, VolumeMountConfig
+    from SynapseAI.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
     mounts = [
         VolumeMountConfig(host_path=str(dir_a), container_path="/mnt/code-read", read_only=True),
         VolumeMountConfig(host_path=str(dir_b), container_path="/mnt/data", read_only=False),
     ]
-    mock_sandbox = SandboxConfig(use="deerflow.sandbox.local:LocalSandboxProvider", mounts=mounts)
+    mock_sandbox = SandboxConfig(use="SynapseAI.sandbox.local:LocalSandboxProvider", mounts=mounts)
     mock_config = SimpleNamespace(sandbox=mock_sandbox)
 
-    with patch("deerflow.config.get_app_config", return_value=mock_config):
+    with patch("SynapseAI.config.get_app_config", return_value=mock_config):
         result = _get_custom_mounts()
         assert len(result) == 2
 
@@ -1209,7 +1209,7 @@ def test_get_custom_mounts_filters_nonexistent_host_path(monkeypatch, tmp_path) 
     if hasattr(_get_custom_mounts, "_cached"):
         monkeypatch.delattr(_get_custom_mounts, "_cached")
 
-    from deerflow.config.sandbox_config import SandboxConfig, VolumeMountConfig
+    from SynapseAI.config.sandbox_config import SandboxConfig, VolumeMountConfig
 
     existing_dir = tmp_path / "existing"
     existing_dir.mkdir()
@@ -1218,10 +1218,10 @@ def test_get_custom_mounts_filters_nonexistent_host_path(monkeypatch, tmp_path) 
         VolumeMountConfig(host_path=str(existing_dir), container_path="/mnt/existing", read_only=True),
         VolumeMountConfig(host_path="/nonexistent/path/12345", container_path="/mnt/ghost", read_only=False),
     ]
-    mock_sandbox = SandboxConfig(use="deerflow.sandbox.local:LocalSandboxProvider", mounts=mounts)
+    mock_sandbox = SandboxConfig(use="SynapseAI.sandbox.local:LocalSandboxProvider", mounts=mounts)
     mock_config = SimpleNamespace(sandbox=mock_sandbox)
 
-    with patch("deerflow.config.get_app_config", return_value=mock_config):
+    with patch("SynapseAI.config.get_app_config", return_value=mock_config):
         result = _get_custom_mounts()
         assert len(result) == 1
         assert result[0].container_path == "/mnt/existing"
@@ -1232,7 +1232,7 @@ def test_get_custom_mounts_filters_nonexistent_host_path(monkeypatch, tmp_path) 
 
 def test_get_custom_mount_for_path_boundary_no_false_prefix_match() -> None:
     """_get_custom_mount_for_path must not match /mnt/code-read-extra for /mnt/code-read."""
-    with patch("deerflow.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
+    with patch("SynapseAI.sandbox.tools._get_custom_mounts", return_value=_mock_custom_mounts()):
         mount = _get_custom_mount_for_path("/mnt/code-read-extra/foo")
         assert mount is None
 
@@ -1274,9 +1274,9 @@ def test_str_replace_parallel_updates_should_preserve_both_edits(monkeypatch) ->
     ]
     failures: list[BaseException] = []
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     def worker(runtime: SimpleNamespace, old_str: str, new_str: str) -> None:
         try:
@@ -1356,11 +1356,11 @@ def test_str_replace_parallel_updates_in_isolated_sandboxes_should_not_share_pat
     failures: list[BaseException] = []
 
     monkeypatch.setattr(
-        "deerflow.sandbox.tools.ensure_sandbox_initialized",
+        "SynapseAI.sandbox.tools.ensure_sandbox_initialized",
         lambda runtime: sandboxes[runtime.context["sandbox_key"]],
     )
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     def worker(runtime: SimpleNamespace, old_str: str, new_str: str) -> None:
         try:
@@ -1427,9 +1427,9 @@ def test_str_replace_and_append_on_same_path_should_preserve_both_updates(monkey
     ]
     failures: list[BaseException] = []
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     def replace_worker() -> None:
         try:
@@ -1481,13 +1481,13 @@ def test_write_file_tool_bounds_large_oserror_and_masks_local_paths(monkeypatch)
     runtime = SimpleNamespace(state={}, context={"thread_id": "thread-1"}, config={})
     sandbox = FailingSandbox()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: True)
-    monkeypatch.setattr("deerflow.sandbox.tools.get_thread_data", lambda runtime: _THREAD_DATA)
-    monkeypatch.setattr("deerflow.sandbox.tools.validate_local_tool_path", lambda path, thread_data: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: True)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.get_thread_data", lambda runtime: _THREAD_DATA)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.validate_local_tool_path", lambda path, thread_data: None)
     monkeypatch.setattr(
-        "deerflow.sandbox.tools._resolve_and_validate_user_data_path",
+        "SynapseAI.sandbox.tools._resolve_and_validate_user_data_path",
         lambda path, thread_data: f"{_THREAD_DATA['workspace_path']}/output.txt",
     )
 
@@ -1500,7 +1500,7 @@ def test_write_file_tool_bounds_large_oserror_and_masks_local_paths(monkeypatch)
 
     assert len(result) <= 2000
     assert "Error: Failed to write file '/mnt/user-data/workspace/output.txt':" in result
-    assert "/tmp/deer-flow/threads/t1/user-data/workspace" not in result
+    assert "/tmp/synapse-ai/threads/t1/user-data/workspace" not in result
     assert "/mnt/user-data/workspace/nested/output.txt" in result
     assert "remote tail marker" in result
     assert "[write_file error truncated:" in result
@@ -1516,9 +1516,9 @@ def test_write_file_tool_preserves_short_oserror_without_truncation(monkeypatch)
     runtime = SimpleNamespace(state={}, context={"thread_id": "thread-1"}, config={})
     sandbox = FailingSandbox()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     result = write_file_tool.func(
         runtime=runtime,
@@ -1541,9 +1541,9 @@ def test_write_file_tool_bounds_large_sandbox_error(monkeypatch) -> None:
     runtime = SimpleNamespace(state={}, context={"thread_id": "thread-1"}, config={})
     sandbox = FailingSandbox()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     result = write_file_tool.func(
         runtime=runtime,
@@ -1593,9 +1593,9 @@ def test_write_file_tool_formats_all_other_failure_branches(
     runtime = SimpleNamespace(state={}, context={"thread_id": "thread-1"}, config={})
     sandbox = FailingSandbox()
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: sandbox)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     result = write_file_tool.func(
         runtime=runtime,
@@ -1619,8 +1619,8 @@ def test_write_file_tool_handles_sandbox_init_failure(monkeypatch) -> None:
         raise SandboxError("sandbox missing")
 
     runtime = SimpleNamespace(state={}, context={"thread_id": "thread-1"}, config={})
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", raise_sandbox_error)
-    monkeypatch.setattr("deerflow.sandbox.tools.is_local_sandbox", lambda runtime: False)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", raise_sandbox_error)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.is_local_sandbox", lambda runtime: False)
 
     result = write_file_tool.func(
         runtime=runtime,
@@ -1642,12 +1642,12 @@ def test_file_operation_lock_memory_cleanup() -> None:
     """
     import gc
 
-    from deerflow.sandbox.file_operation_lock import _FILE_OPERATION_LOCKS, get_file_operation_lock
+    from SynapseAI.sandbox.file_operation_lock import _FILE_OPERATION_LOCKS, get_file_operation_lock
 
     class MockSandbox:
         id = "test_cleanup_sandbox"
 
-    test_path = "/tmp/deer-flow/memory_leak_test_file.txt"
+    test_path = "/tmp/synapse-ai/memory_leak_test_file.txt"
     lock_key = (MockSandbox.id, test_path)
 
     # 确保测试开始前 key 不存在

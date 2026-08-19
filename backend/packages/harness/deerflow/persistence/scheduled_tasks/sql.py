@@ -7,11 +7,11 @@ from typing import Any
 from sqlalchemy import and_, exists, func, or_, select, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from deerflow.persistence.run import RunRepository
-from deerflow.persistence.run.model import RunRow
-from deerflow.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
-from deerflow.persistence.scheduled_tasks.model import ScheduledTaskRow
-from deerflow.utils.time import coerce_iso
+from SynapseAI.persistence.run import RunRepository
+from SynapseAI.persistence.run.model import RunRow
+from SynapseAI.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
+from SynapseAI.persistence.scheduled_tasks.model import ScheduledTaskRow
+from SynapseAI.utils.time import coerce_iso
 
 logger = logging.getLogger(__name__)
 

@@ -9,8 +9,8 @@ persisting in long-term memory:
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-from deerflow.agents.memory.backends.deermem.deermem.core.message_processing import detect_correction, detect_reinforcement, filter_messages_for_memory
-from deerflow.agents.memory.backends.deermem.deermem.core.updater import _strip_upload_mentions_from_memory
+from SynapseAI.agents.memory.backends.deermem.deermem.core.message_processing import detect_correction, detect_reinforcement, filter_messages_for_memory
+from SynapseAI.agents.memory.backends.deermem.deermem.core.updater import _strip_upload_mentions_from_memory
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -66,7 +66,7 @@ class TestFilterMessagesForMemory:
         combined = _UPLOAD_BLOCK + "\n\nWhat does this file contain?"
         msgs = [
             _human(combined),
-            _ai("The file contains: Hello DeerFlow."),
+            _ai("The file contains: Hello SynapseAI."),
         ]
         result = filter_messages_for_memory(msgs)
 
@@ -74,7 +74,7 @@ class TestFilterMessagesForMemory:
         human_result = result[0]
         assert "<uploaded_files>" not in human_result.content
         assert "What does this file contain?" in human_result.content
-        assert result[1].content == "The file contains: Hello DeerFlow."
+        assert result[1].content == "The file contains: Hello SynapseAI."
 
     def test_upload_with_question_preserves_question_current_uploads(self):
         """Same as above but with <current_uploads> — the tag actually emitted
@@ -369,10 +369,10 @@ class TestStripUploadMentionsFromMemory:
 
     def test_uploading_a_test_file_removed(self):
         """'uploading a test file' (with intervening words) must be caught."""
-        mem = self._make_memory("User conducted a hands-on test by uploading a test file titled 'test_deerflow_memory_bug.txt'. User is also learning Python.")
+        mem = self._make_memory("User conducted a hands-on test by uploading a test file titled 'test_SynapseAI_memory_bug.txt'. User is also learning Python.")
         result = _strip_upload_mentions_from_memory(mem)
         summary = result["user"]["topOfMind"]["summary"]
-        assert "test_deerflow_memory_bug.txt" not in summary
+        assert "test_SynapseAI_memory_bug.txt" not in summary
         assert "uploading a test file" not in summary
 
     # --- facts ---

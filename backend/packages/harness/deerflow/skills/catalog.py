@@ -16,7 +16,7 @@ import re
 from dataclasses import dataclass
 from functools import cached_property
 
-from deerflow.skills.types import Skill
+from SynapseAI.skills.types import Skill
 
 logger = logging.getLogger(__name__)
 

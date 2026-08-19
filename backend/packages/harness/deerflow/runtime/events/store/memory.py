@@ -9,8 +9,8 @@ from __future__ import annotations
 import bisect
 from datetime import UTC, datetime
 
-from deerflow.runtime.events.store.base import RunEventStore
-from deerflow.runtime.user_context import AUTO, _AutoSentinel
+from SynapseAI.runtime.events.store.base import RunEventStore
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel
 
 
 class MemoryRunEventStore(RunEventStore):

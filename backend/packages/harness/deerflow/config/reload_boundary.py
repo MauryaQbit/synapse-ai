@@ -1,6 +1,6 @@
 """Single source of truth for the config hot-reload boundary.
 
-Bytedance/deer-flow issue #3144: gateway request dependencies resolve
+Bytedance/synapse-ai issue #3144: gateway request dependencies resolve
 ``AppConfig`` through ``get_app_config()`` on every request, so per-run
 fields take effect on the next message without restarting the gateway.
 The fields listed in this module are the **infrastructure** subset that
@@ -51,12 +51,12 @@ STARTUP_ONLY_FIELDS: dict[str, str] = {
     "stream_bridge": ("make_stream_bridge() constructs the stream-bridge singleton once during startup."),
     "sandbox": ("get_sandbox_provider() caches the provider singleton (``_default_sandbox_provider``); a different ``sandbox.use`` class path only takes effect on next process start."),
     "log_level": (
-        "apply_logging_level() runs only during app.py startup; it sets the deerflow/app logger levels and may lower root handler thresholds so configured messages can propagate. A freshly reloaded AppConfig does not retrigger it."
+        "apply_logging_level() runs only during app.py startup; it sets the SynapseAI/app logger levels and may lower root handler thresholds so configured messages can propagate. A freshly reloaded AppConfig does not retrigger it."
     ),
     "logging": (
         "configure_logging() runs only during app.py startup; it installs/removes the trace-context filter and the enhanced formatter on root handlers, "
         "and TraceMiddleware captures logging.enhance.enabled once at startup so response X-Trace-Id headers, log trace_id fields, and Langfuse "
-        "deerflow_trace_id stay coherent. A freshly reloaded AppConfig does not retrigger any of this."
+        "SynapseAI_trace_id stay coherent. A freshly reloaded AppConfig does not retrigger any of this."
     ),
     # Not part of the AppConfig Pydantic schema — channel credentials are
     # consumed directly by ``start_channel_service()`` once at lifespan

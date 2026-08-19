@@ -9,10 +9,10 @@ from typing import Any, Literal
 
 from fastapi import HTTPException
 
-from deerflow.persistence.scheduled_task_runs import ActiveScheduledRunConflict
-from deerflow.runtime import ConflictError, RunRecord
-from deerflow.scheduler.schedules import next_run_at
-from deerflow.utils.thread_id import validate_thread_id
+from SynapseAI.persistence.scheduled_task_runs import ActiveScheduledRunConflict
+from SynapseAI.runtime import ConflictError, RunRecord
+from SynapseAI.scheduler.schedules import next_run_at
+from SynapseAI.utils.thread_id import validate_thread_id
 
 logger = logging.getLogger(__name__)
 

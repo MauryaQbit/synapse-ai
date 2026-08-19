@@ -6,7 +6,7 @@ import os
 
 from pydantic import BaseModel, Field, field_validator
 
-from deerflow.constants import TOOL_RESULTS_DIRNAME
+from SynapseAI.constants import TOOL_RESULTS_DIRNAME
 
 
 class ToolOutputConfig(BaseModel):

@@ -12,25 +12,25 @@ from langgraph.errors import GraphBubbleUp
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.skill_context import (
+from SynapseAI.agents.middlewares.skill_context import (
     SKILL_CONTEXT_ENTRY_KEY,
     _tool_call_path,
     build_skill_entry_metadata_from_read,
 )
-from deerflow.agents.middlewares.tool_result_meta import (
+from SynapseAI.agents.middlewares.tool_result_meta import (
     normalize_tool_result,
     stamp_exception_meta,
 )
-from deerflow.config.app_config import AppConfig
-from deerflow.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.subagents.status_contract import (
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.summarization_config import DEFAULT_SKILL_FILE_READ_TOOL_NAMES
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.subagents.status_contract import (
     format_subagent_result_message,
     make_subagent_additional_kwargs,
 )
 
 if TYPE_CHECKING:
-    from deerflow.tools.builtins.tool_search import DeferredToolSetup
+    from SynapseAI.tools.builtins.tool_search import DeferredToolSetup
 
 logger = logging.getLogger(__name__)
 
@@ -162,12 +162,12 @@ def _build_runtime_middlewares(
     authorization_infrastructure_tool_names: frozenset[str] = frozenset(),
 ) -> list[AgentMiddleware]:
     """Build shared base middlewares for agent execution."""
-    from deerflow.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
-    from deerflow.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
-    from deerflow.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
-    from deerflow.agents.middlewares.tool_output_budget_middleware import ToolOutputBudgetMiddleware
-    from deerflow.agents.middlewares.tool_result_sanitization_middleware import ToolResultSanitizationMiddleware
-    from deerflow.sandbox.middleware import SandboxMiddleware
+    from SynapseAI.agents.middlewares.input_sanitization_middleware import InputSanitizationMiddleware
+    from SynapseAI.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
+    from SynapseAI.agents.middlewares.thread_data_middleware import ThreadDataMiddleware
+    from SynapseAI.agents.middlewares.tool_output_budget_middleware import ToolOutputBudgetMiddleware
+    from SynapseAI.agents.middlewares.tool_result_sanitization_middleware import ToolResultSanitizationMiddleware
+    from SynapseAI.sandbox.middleware import SandboxMiddleware
 
     # Layer 1 — outermost wrap_model_call wrappers (listed outer→inner).
     # InputSanitizationMiddleware is first so it becomes the outermost
@@ -189,7 +189,7 @@ def _build_runtime_middlewares(
         ThreadDataMiddleware(lazy_init=lazy_init),
     ]
     if include_uploads:
-        from deerflow.agents.middlewares.uploads_middleware import UploadsMiddleware
+        from SynapseAI.agents.middlewares.uploads_middleware import UploadsMiddleware
 
         thread_hooks.append(UploadsMiddleware())
     thread_hooks.append(SandboxMiddleware(lazy_init=lazy_init))
@@ -197,7 +197,7 @@ def _build_runtime_middlewares(
     # Layer 3 — post-processing append-only middlewares.
     tail: list[AgentMiddleware] = []
     if include_dangling_tool_call_patch:
-        from deerflow.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
+        from SynapseAI.agents.middlewares.dangling_tool_call_middleware import DanglingToolCallMiddleware
 
         tail.append(DanglingToolCallMiddleware())
     tail.append(LLMErrorHandlingMiddleware(app_config=app_config))
@@ -210,12 +210,12 @@ def _build_runtime_middlewares(
     authorization_config = app_config.authorization
     if authorization_config.enabled is True:
         if authorization_provider is None:
-            from deerflow.authz.runtime import resolve_authorization_provider
+            from SynapseAI.authz.runtime import resolve_authorization_provider
 
             authorization_provider = resolve_authorization_provider(authorization_config)
         if authorization_provider is not None:
-            from deerflow.authz.adapter import GuardrailAuthorizationAdapter
-            from deerflow.guardrails.middleware import GuardrailMiddleware
+            from SynapseAI.authz.adapter import GuardrailAuthorizationAdapter
+            from SynapseAI.guardrails.middleware import GuardrailMiddleware
 
             tail.append(
                 GuardrailMiddleware(
@@ -233,8 +233,8 @@ def _build_runtime_middlewares(
     if guardrails_config.enabled and guardrails_config.provider:
         import inspect
 
-        from deerflow.guardrails.middleware import GuardrailMiddleware
-        from deerflow.reflection import resolve_variable
+        from SynapseAI.guardrails.middleware import GuardrailMiddleware
+        from SynapseAI.reflection import resolve_variable
 
         provider_cls = resolve_variable(guardrails_config.provider.use)
         provider_kwargs = dict(guardrails_config.provider.config) if guardrails_config.provider.config else {}
@@ -245,33 +245,33 @@ def _build_runtime_middlewares(
             try:
                 sig = inspect.signature(provider_cls.__init__)
                 if "framework" in sig.parameters or any(p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()):
-                    provider_kwargs["framework"] = "deerflow"
+                    provider_kwargs["framework"] = "SynapseAI"
             except (ValueError, TypeError):
                 pass
         provider = provider_cls(**provider_kwargs)
         tail.append(GuardrailMiddleware(provider, fail_closed=guardrails_config.fail_closed, passport=guardrails_config.passport))
 
-    from deerflow.agents.middlewares.sandbox_audit_middleware import SandboxAuditMiddleware
+    from SynapseAI.agents.middlewares.sandbox_audit_middleware import SandboxAuditMiddleware
 
     tail.append(SandboxAuditMiddleware())
 
     # ReadBeforeWriteMiddleware is the outermost write gate: it blocks writes to files
     # the model hasn't read in their current version.  It must sit outside ToolProgress
     # and ToolErrorHandling so that a blocked write returns immediately without consuming
-    # a ToolProgress slot.  The middleware stamps deerflow_tool_meta on the blocked
+    # a ToolProgress slot.  The middleware stamps SynapseAI_tool_meta on the blocked
     # ToolMessage itself so downstream callers receive a well-formed result.
     if app_config.read_before_write.enabled:
-        from deerflow.agents.middlewares.read_before_write_middleware import ReadBeforeWriteMiddleware
+        from SynapseAI.agents.middlewares.read_before_write_middleware import ReadBeforeWriteMiddleware
 
         tail.append(ReadBeforeWriteMiddleware())
 
     # ToolProgressMiddleware must be outer (lower index) so its wrap_tool_call handler
-    # chain includes ToolErrorHandlingMiddleware (inner), which stamps deerflow_tool_meta
+    # chain includes ToolErrorHandlingMiddleware (inner), which stamps SynapseAI_tool_meta
     # on every result before ToolProgressMiddleware reads it in _update_state_from_result.
     # Framework rule: first in list = outermost (types.py: "compose with first in list as outermost layer").
     tool_progress_config = app_config.tool_progress
     if tool_progress_config.enabled:
-        from deerflow.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
+        from SynapseAI.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
 
         tail.append(ToolProgressMiddleware.from_config(tool_progress_config))
 
@@ -279,7 +279,7 @@ def _build_runtime_middlewares(
 
     middlewares = [*outer_wrappers, *thread_hooks, *tail]
 
-    # Ordering invariants are declared in deerflow.extensions.ordering and
+    # Ordering invariants are declared in SynapseAI.extensions.ordering and
     # validated once at the end of the composing builder, after extension
     # contributions are merged in — otherwise a contribution could silently
     # reverse an invariant this builder had already checked.
@@ -319,11 +319,11 @@ def build_subagent_runtime_middlewares(
 ) -> list[AgentMiddleware]:
     """Middlewares shared by subagent runtime before subagent-only middlewares."""
     if app_config is None:
-        from deerflow.config import get_app_config
+        from SynapseAI.config import get_app_config
 
         app_config = get_app_config()
 
-    from deerflow.extensions import get_agent_build_extensions
+    from SynapseAI.extensions import get_agent_build_extensions
 
     resolved_extensions = extensions if extensions is not None else get_agent_build_extensions()
 
@@ -340,8 +340,8 @@ def build_subagent_runtime_middlewares(
     # active authority. Mirror the lead agent's activation + policy pair so a
     # subagent keeps its ordinary tool set until a slash command or a completed
     # SKILL.md read activates the corresponding allowed-tools declaration.
-    from deerflow.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
-    from deerflow.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
+    from SynapseAI.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
+    from SynapseAI.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
 
     slash_source_owner_token = secrets.token_urlsafe(24)
     middlewares.append(
@@ -366,7 +366,7 @@ def build_subagent_runtime_middlewares(
 
     model_config = app_config.get_model_config(model_name) if model_name else None
     if model_config is not None and model_config.supports_vision:
-        from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
+        from SynapseAI.agents.middlewares.view_image_middleware import ViewImageMiddleware
 
         middlewares.append(ViewImageMiddleware())
 
@@ -379,10 +379,10 @@ def build_subagent_runtime_middlewares(
     # tool-policy filtering); promotion is read from graph state. Empty/None
     # setup (deferral disabled or no MCP tool survived) is a pure no-op.
     if deferred_setup is not None and deferred_setup.deferred_names:
-        from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+        from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
 
         middlewares.append(DeferredToolFilterMiddleware(deferred_setup.deferred_names, deferred_setup.catalog_hash))
-        from deerflow.agents.middlewares.mcp_routing_middleware import assert_mcp_routing_before_deferred_filter
+        from SynapseAI.agents.middlewares.mcp_routing_middleware import assert_mcp_routing_before_deferred_filter
 
         assert_mcp_routing_before_deferred_filter(middlewares)
 
@@ -402,7 +402,7 @@ def build_subagent_runtime_middlewares(
     # turn/token budget with lead-visible stop reason is Phase 2.
     loop_detection_config = app_config.loop_detection
     if loop_detection_config.enabled:
-        from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+        from SynapseAI.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
 
         middlewares.append(LoopDetectionMiddleware.from_config(loop_detection_config))
 
@@ -430,11 +430,11 @@ def build_subagent_runtime_middlewares(
     else:
         token_budget_config = app_config.subagents.token_budget
     if token_budget_config.enabled:
-        from deerflow.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
+        from SynapseAI.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
 
         middlewares.append(TokenBudgetMiddleware.from_config(token_budget_config))
 
-    from deerflow.agents.middlewares.configured_extensions import load_configured_extension_middlewares
+    from SynapseAI.agents.middlewares.configured_extensions import load_configured_extension_middlewares
 
     middlewares.extend(load_configured_extension_middlewares(app_config))
 
@@ -444,7 +444,7 @@ def build_subagent_runtime_middlewares(
     # propagate back to the lead agent via the task tool result.
     safety_config = app_config.safety_finish_reason
     if safety_config.enabled:
-        from deerflow.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
+        from SynapseAI.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
 
         middlewares.append(SafetyFinishReasonMiddleware.from_config(safety_config))
 
@@ -455,7 +455,7 @@ def build_subagent_runtime_middlewares(
     # leave an assistant tool-call + tool-result tail with no leading user
     # context, which strict providers reject. The same middleware also keeps
     # skill references durable when their original read results are compacted.
-    from deerflow.agents.middlewares.durable_context_middleware import DurableContextMiddleware
+    from SynapseAI.agents.middlewares.durable_context_middleware import DurableContextMiddleware
 
     middlewares.append(
         DurableContextMiddleware(
@@ -464,7 +464,7 @@ def build_subagent_runtime_middlewares(
         )
     )
 
-    # DeerFlowSummarizationMiddleware — subagents inherit none of the lead's
+    # SynapseAISummarizationMiddleware — subagents inherit none of the lead's
     # context compaction today (#3875 Phase 3): a deep-research subagent
     # (``max_turns`` up to 150) can accumulate >1M cumulative input before
     # max_turns/timeout/token_budget engage, even though Phase 2's budget now
@@ -496,7 +496,7 @@ def build_subagent_runtime_middlewares(
     # ``step_events.py``) or it drops steps captured after the compaction
     # point. It does not implement ``consume_stop_reason``, so it does not
     # interfere with the Phase 2 guard-cap stop-reason channel.
-    from deerflow.agents.middlewares.summarization_middleware import create_summarization_middleware
+    from SynapseAI.agents.middlewares.summarization_middleware import create_summarization_middleware
 
     summarization_middleware = create_summarization_middleware(
         app_config=app_config,
@@ -517,7 +517,7 @@ def build_subagent_runtime_middlewares(
     # persisted ID swap, and handles midnight updates; none belongs in a one-shot
     # subagent execution. This date-only reminder intentionally has no AppConfig
     # or memory dependency.
-    from deerflow.agents.middlewares.dynamic_context_middleware import SubagentDateContextMiddleware
+    from SynapseAI.agents.middlewares.dynamic_context_middleware import SubagentDateContextMiddleware
 
     middlewares.append(SubagentDateContextMiddleware())
 
@@ -530,20 +530,20 @@ def build_subagent_runtime_middlewares(
     # outgoing request. It only rewrites the per-request payload (no
     # ``after_model``/``consume_stop_reason``), so it is inert to the Phase 2
     # guard-cap channel and observes both durable authority and date context.
-    from deerflow.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
+    from SynapseAI.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
 
     middlewares.append(SystemMessageCoalescingMiddleware())
 
-    from deerflow_extension_api import AgentScope
+    from SynapseAI_extension_api import AgentScope
 
-    from deerflow.extensions.stack import compose_with_extensions
+    from SynapseAI.extensions.stack import compose_with_extensions
 
     if not resolved_extensions.has_middleware_contributors:
         return compose_with_extensions(middlewares, AgentScope.SUBAGENT, None, resolved_extensions)
 
-    from deerflow_extension_api import AgentBuildContext
+    from SynapseAI_extension_api import AgentBuildContext
 
-    from deerflow.extensions.policy import project_host_policy
+    from SynapseAI.extensions.policy import project_host_policy
 
     return compose_with_extensions(
         middlewares,

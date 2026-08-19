@@ -17,9 +17,9 @@ from pathlib import Path
 import pytest
 import yaml
 
-from deerflow.extensions.cli import find_project_root
-from deerflow.extensions.loader import ExtensionSpec
-from deerflow.extensions.manager import (
+from SynapseAI.extensions.cli import find_project_root
+from SynapseAI.extensions.loader import ExtensionSpec
+from SynapseAI.extensions.manager import (
     ExtensionManager,
     _controlled_uv_environment,
     _detect_extra_flags,
@@ -27,14 +27,14 @@ from deerflow.extensions.manager import (
     _validate_locked_local_sources,
     _validate_remote_source,
 )
-from deerflow.tui.cli import main as deerflow_main
+from SynapseAI.tui.cli import main as SynapseAI_main
 
 
 def _write_local_extension(
     source: Path,
     *,
     with_entry_point: bool = True,
-    distribution: str = "deerflow-extension-demo",
+    distribution: str = "SynapseAI-extension-demo",
     entry_target: str = "demo_extension:install",
 ) -> None:
     package = source / "demo_extension"
@@ -45,7 +45,7 @@ def _write_local_extension(
     )
     entry_point = (
         f"""\
-[project.entry-points."deerflow.extensions"]
+[project.entry-points."SynapseAI.extensions"]
 demo = "{entry_target}"
 """
         if with_entry_point
@@ -157,7 +157,7 @@ def _assert_demo_entry_point_loads(backend: Path) -> None:
         [
             str(backend / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")),
             "-c",
-            "from importlib.metadata import entry_points; eps=entry_points(group='deerflow.extensions'); assert [(e.name, e.value) for e in eps] == [('demo', 'demo_extension:install')]; assert callable(next(iter(eps)).load())",
+            "from importlib.metadata import entry_points; eps=entry_points(group='SynapseAI.extensions'); assert [(e.name, e.value) for e in eps] == [('demo', 'demo_extension:install')]; assert callable(next(iter(eps)).load())",
         ],
         check=False,
         capture_output=True,
@@ -168,13 +168,13 @@ def _assert_demo_entry_point_loads(backend: Path) -> None:
 
 def _write_demo_wheel(directory: Path) -> Path:
     directory.mkdir()
-    wheel = directory / "deerflow_extension_demo-1.0.0-py3-none-any.whl"
-    dist_info = "deerflow_extension_demo-1.0.0.dist-info"
+    wheel = directory / "SynapseAI_extension_demo-1.0.0-py3-none-any.whl"
+    dist_info = "SynapseAI_extension_demo-1.0.0.dist-info"
     records = {
         "demo_extension/__init__.py": "def install(registry, config):\n    return None\n",
-        f"{dist_info}/METADATA": ("Metadata-Version: 2.1\nName: deerflow-extension-demo\nVersion: 1.0.0\nRequires-Python: >=3.12\n"),
-        f"{dist_info}/WHEEL": ("Wheel-Version: 1.0\nGenerator: deerflow-extension-test\nRoot-Is-Purelib: true\nTag: py3-none-any\n"),
-        f"{dist_info}/entry_points.txt": ("[deerflow.extensions]\ndemo = demo_extension:install\n"),
+        f"{dist_info}/METADATA": ("Metadata-Version: 2.1\nName: SynapseAI-extension-demo\nVersion: 1.0.0\nRequires-Python: >=3.12\n"),
+        f"{dist_info}/WHEEL": ("Wheel-Version: 1.0\nGenerator: SynapseAI-extension-test\nRoot-Is-Purelib: true\nTag: py3-none-any\n"),
+        f"{dist_info}/entry_points.txt": ("[SynapseAI.extensions]\ndemo = demo_extension:install\n"),
     }
     records[f"{dist_info}/RECORD"] = "".join(f"{name},,\n" for name in (*records, f"{dist_info}/RECORD"))
     with zipfile.ZipFile(wheel, "w") as archive:
@@ -184,7 +184,7 @@ def _write_demo_wheel(directory: Path) -> Path:
 
 
 def test_install_local_directory_makes_it_deployable_and_enabled(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -194,21 +194,21 @@ def test_install_local_directory_makes_it_deployable_and_enabled(tmp_path: Path)
     result = ExtensionManager(root).install(str(source), yes=True)
 
     assert result.name == "demo"
-    assert result.distribution == "deerflow-extension-demo"
+    assert result.distribution == "SynapseAI-extension-demo"
     assert result.use == "demo_extension:install"
 
-    managed_source = root / "backend" / "extensions" / "sources" / "deerflow-extension-demo"
+    managed_source = root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo"
     assert (managed_source / "demo_extension" / "__init__.py").is_file()
     project = tomllib.loads((root / "backend" / "pyproject.toml").read_text(encoding="utf-8"))
-    assert project["dependency-groups"]["extensions"] == ["deerflow-extension-demo"]
-    assert project["tool"]["uv"]["sources"]["deerflow-extension-demo"] == {"path": "extensions/sources/deerflow-extension-demo"}
+    assert project["dependency-groups"]["extensions"] == ["SynapseAI-extension-demo"]
+    assert project["tool"]["uv"]["sources"]["SynapseAI-extension-demo"] == {"path": "extensions/sources/SynapseAI-extension-demo"}
     assert "workspace" not in project["tool"]["uv"]
 
     config = yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))
     assert config["plugins"] == [
         {
             "name": "demo",
-            "package": "deerflow-extension-demo",
+            "package": "SynapseAI-extension-demo",
             "use": "demo_extension:install",
             "enabled": True,
             "required": False,
@@ -223,7 +223,7 @@ def test_install_defaults_to_a_fail_open_plugin_record(tmp_path: Path) -> None:
     """A managed install must not silently choose the fail-closed side: with
     `required: true`, a later broken extension aborts Gateway startup entirely,
     and recovery needs shell access to run `extensions disable`."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -237,7 +237,7 @@ def test_install_defaults_to_a_fail_open_plugin_record(tmp_path: Path) -> None:
 
 
 def test_install_records_required_when_the_operator_opts_in(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -251,15 +251,15 @@ def test_install_records_required_when_the_operator_opts_in(tmp_path: Path) -> N
 
 
 def test_cli_install_exposes_the_required_opt_in(tmp_path: Path, monkeypatch, capsys) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
     _write_host_project(root)
     _write_local_extension(source)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    assert deerflow_main(["extensions", "install", str(source), "--yes", "--required"]) == 0
+    assert SynapseAI_main(["extensions", "install", str(source), "--yes", "--required"]) == 0
 
     capsys.readouterr()
     config = yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))
@@ -286,7 +286,7 @@ def test_contended_lock_waits_instead_of_failing() -> None:
 
 
 def test_mutating_operations_are_serialized_for_one_checkout(tmp_path: Path, monkeypatch) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     first_entered = threading.Event()
     release_first = threading.Event()
@@ -316,20 +316,20 @@ def test_mutating_operations_are_serialized_for_one_checkout(tmp_path: Path, mon
     assert second_entered.is_set()
 
 
-def test_deerflow_extensions_install_exposes_the_local_install_flow(
+def test_SynapseAI_extensions_install_exposes_the_local_install_flow(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
     _write_host_project(root)
     _write_local_extension(source)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "install", str(source), "--yes"])
+    exit_code = SynapseAI_main(["extensions", "install", str(source), "--yes"])
 
     assert exit_code == 0
     assert "Installed and enabled demo" in capsys.readouterr().out
@@ -341,21 +341,21 @@ def test_hidden_source_env_option_reads_the_install_source_outside_the_shell_rec
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
     _write_host_project(root)
     _write_local_extension(source)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
-    monkeypatch.setenv("DEER_FLOW_EXTENSION_SOURCE", str(source))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_EXTENSION_SOURCE", str(source))
 
-    exit_code = deerflow_main(
+    exit_code = SynapseAI_main(
         [
             "extensions",
             "install",
             "--source-env",
-            "__deerflow_extension_source__",
+            "__SynapseAI_extension_source__",
             "--yes",
         ]
     )
@@ -369,15 +369,15 @@ def test_explicit_invalid_project_root_does_not_fall_back_to_current_checkout(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(tmp_path / "not-a-checkout"))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(tmp_path / "not-a-checkout"))
     monkeypatch.chdir(Path(__file__).resolve().parents[2])
 
-    with pytest.raises(FileNotFoundError, match="DEER_FLOW_PROJECT_ROOT"):
+    with pytest.raises(FileNotFoundError, match="SYNAPSE_PROJECT_ROOT"):
         find_project_root()
 
 
 def test_install_git_source_discovers_and_enables_its_packaging_entry_point(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-git-source"
     root.mkdir()
     source.mkdir()
@@ -397,10 +397,10 @@ def test_install_git_source_discovers_and_enables_its_packaging_entry_point(tmp_
 
     assert result == result.__class__(
         name="demo",
-        distribution="deerflow-extension-demo",
+        distribution="SynapseAI-extension-demo",
         use="demo_extension:install",
     )
-    assert not (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").exists()
+    assert not (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
     assert revision in (root / "backend" / "uv.lock").read_text(encoding="utf-8")
     config = yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))
     assert config["plugins"][0]["name"] == "demo"
@@ -410,7 +410,7 @@ def test_install_rejects_a_pypi_requirement_resolved_from_an_external_local_whee
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     wheels = tmp_path / "wheels"
     root.mkdir()
     _write_host_project(root)
@@ -422,7 +422,7 @@ def test_install_rejects_a_pypi_requirement_resolved_from_an_external_local_whee
     before = (pyproject_path.read_bytes(), config_path.read_bytes())
 
     with pytest.raises(ValueError, match="build context"):
-        ExtensionManager(root).install("deerflow-extension-demo==1.0.0", yes=True)
+        ExtensionManager(root).install("SynapseAI-extension-demo==1.0.0", yes=True)
 
     assert (pyproject_path.read_bytes(), config_path.read_bytes()) == before
     assert not (root / "backend" / "uv.lock").exists()
@@ -434,7 +434,7 @@ def test_install_rejects_a_local_wheel_directory_ignored_by_the_docker_context(
     monkeypatch,
     relative_wheels: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     wheels = root / "backend" / relative_wheels
@@ -447,7 +447,7 @@ def test_install_rejects_a_local_wheel_directory_ignored_by_the_docker_context(
     before = (pyproject_path.read_bytes(), config_path.read_bytes())
 
     with pytest.raises(ValueError, match="build context"):
-        ExtensionManager(root).install("deerflow-extension-demo==1.0.0", yes=True)
+        ExtensionManager(root).install("SynapseAI-extension-demo==1.0.0", yes=True)
 
     assert (pyproject_path.read_bytes(), config_path.read_bytes()) == before
     assert not (root / "backend" / "uv.lock").exists()
@@ -457,7 +457,7 @@ def test_install_rejects_a_relative_find_links_wheelhouse_outside_the_build_cont
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     _write_demo_wheel(root / "backend" / "wheelhouse")
@@ -471,7 +471,7 @@ def test_install_rejects_a_relative_find_links_wheelhouse_outside_the_build_cont
     before = (pyproject_path.read_bytes(), config_path.read_bytes())
 
     with pytest.raises(ValueError, match="build context"):
-        ExtensionManager(root).install("deerflow-extension-demo==1.0.0", yes=True)
+        ExtensionManager(root).install("SynapseAI-extension-demo==1.0.0", yes=True)
 
     assert (pyproject_path.read_bytes(), config_path.read_bytes()) == before
     assert not (root / "backend" / "uv.lock").exists()
@@ -480,7 +480,7 @@ def test_install_rejects_a_relative_find_links_wheelhouse_outside_the_build_cont
 def _write_audit_host(backend: Path) -> None:
     (backend / "packages" / "harness").mkdir(parents=True)
     (backend / "packages" / "extension-api").mkdir(parents=True)
-    (backend / "extensions" / "sources" / "deerflow-extension-demo").mkdir(parents=True)
+    (backend / "extensions" / "sources" / "SynapseAI-extension-demo").mkdir(parents=True)
     (backend / "pyproject.toml").write_text(
         '[tool.uv.workspace]\nmembers = ["packages/harness", "packages/extension-api"]\n',
         encoding="utf-8",
@@ -503,22 +503,22 @@ version = "0.0.0"
 source = { virtual = "." }
 
 [package.metadata.requires-dev]
-extensions = [{ name = "deerflow-extension-demo", directory = "extensions/sources/deerflow-extension-demo" }]
+extensions = [{ name = "SynapseAI-extension-demo", directory = "extensions/sources/SynapseAI-extension-demo" }]
 
 [[package]]
-name = "deerflow-harness"
+name = "SynapseAI-harness"
 version = "0.0.0"
 source = { editable = "packages/harness" }
 
 [[package]]
-name = "deerflow-extension-api"
+name = "SynapseAI-extension-api"
 version = "0.0.0"
 source = { editable = "packages/extension-api" }
 
 [[package]]
-name = "deerflow-extension-demo"
+name = "SynapseAI-extension-demo"
 version = "1.0.0"
-source = { directory = "extensions/sources/deerflow-extension-demo" }
+source = { directory = "extensions/sources/SynapseAI-extension-demo" }
 
 [[package]]
 name = "git-extension"
@@ -640,7 +640,7 @@ version = "1.0.0"
         encoding="utf-8",
     )
 
-    with caplog.at_level("WARNING", logger="deerflow.extensions.manager"):
+    with caplog.at_level("WARNING", logger="SynapseAI.extensions.manager"):
         _validate_locked_local_sources(lock_path, backend)
 
     assert "loopback" in caplog.text
@@ -674,7 +674,7 @@ wheels = [
         encoding="utf-8",
     )
 
-    with caplog.at_level("WARNING", logger="deerflow.extensions.manager"):
+    with caplog.at_level("WARNING", logger="SynapseAI.extensions.manager"):
         _validate_locked_local_sources(lock_path, backend)
 
     assert caplog.text == ""
@@ -697,7 +697,7 @@ version = "0.0.0"
 source = {{ virtual = "." }}
 
 [[package]]
-name = "deerflow-harness"
+name = "SynapseAI-harness"
 version = "0.0.0"
 source = {{ editable = "{workspace_member.as_posix()}" }}
 """,
@@ -709,7 +709,7 @@ source = {{ editable = "{workspace_member.as_posix()}" }}
 
 
 def test_file_urls_are_rejected_because_they_cannot_enter_the_docker_build_context(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
 
@@ -718,7 +718,7 @@ def test_file_urls_are_rejected_because_they_cannot_enter_the_docker_build_conte
 
 
 def test_install_rolls_back_when_the_declared_entry_point_cannot_be_imported(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -732,23 +732,23 @@ def test_install_rolls_back_when_the_declared_entry_point_cannot_be_imported(tmp
 
     assert pyproject.read_bytes() == original
     assert not (root / "backend" / "uv.lock").exists()
-    assert not (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").exists()
+    assert not (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
     assert yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8")).get("plugins") is None
 
 
 @pytest.mark.parametrize(
     "source",
     [
-        "deerflow-extension-demo @ ../outside",
-        "../outside/deerflow-extension-demo",
-        "deerflow-extension-demo @ /outside/demo.whl",
+        "SynapseAI-extension-demo @ ../outside",
+        "../outside/SynapseAI-extension-demo",
+        "SynapseAI-extension-demo @ /outside/demo.whl",
     ],
 )
 def test_relative_or_absolute_direct_paths_must_use_the_managed_directory_snapshot(
     tmp_path: Path,
     source: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     pyproject = root / "backend" / "pyproject.toml"
@@ -762,7 +762,7 @@ def test_relative_or_absolute_direct_paths_must_use_the_managed_directory_snapsh
 
 
 def test_install_preserves_unrelated_config_comments_and_layout(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -795,7 +795,7 @@ database:
 
 
 def test_toggle_preserves_the_next_section_header_and_crlf_style(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -803,7 +803,7 @@ def test_toggle_preserves_the_next_section_header_and_crlf_style(tmp_path: Path)
         b"config_version: 1\r\n"
         b"plugins:\r\n"
         b"  - name: demo\r\n"
-        b"    package: deerflow-extension-demo\r\n"
+        b"    package: SynapseAI-extension-demo\r\n"
         b"    use: demo_extension:install\r\n"
         b"    enabled: true\r\n"
         b"    config:\r\n"
@@ -825,12 +825,12 @@ def test_toggle_preserves_the_next_section_header_and_crlf_style(tmp_path: Path)
     assert parsed["plugins"][0]["enabled"] is False
 
 
-def test_deerflow_extensions_disable_keeps_the_plugin_configuration(
+def test_SynapseAI_extensions_disable_keeps_the_plugin_configuration(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -840,7 +840,7 @@ def test_deerflow_extensions_disable_keeps_the_plugin_configuration(
 config_version: 1
 plugins:
   - name: demo
-    package: deerflow-extension-demo
+    package: SynapseAI-extension-demo
     use: demo_extension:install
     enabled: true
     required: true
@@ -849,9 +849,9 @@ plugins:
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "disable", "demo"])
+    exit_code = SynapseAI_main(["extensions", "disable", "demo"])
 
     assert exit_code == 0
     assert "Disabled demo" in capsys.readouterr().out
@@ -859,7 +859,7 @@ plugins:
     assert updated["plugins"] == [
         {
             "name": "demo",
-            "package": "deerflow-extension-demo",
+            "package": "SynapseAI-extension-demo",
             "use": "demo_extension:install",
             "enabled": False,
             "required": True,
@@ -873,23 +873,23 @@ def test_hidden_name_env_option_reads_the_extension_name_outside_the_shell_recip
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
     config_path.write_text(
-        "plugins:\n  - name: demo\n    package: deerflow-extension-demo\n    use: demo_extension:install\n    enabled: true\n",
+        "plugins:\n  - name: demo\n    package: SynapseAI-extension-demo\n    use: demo_extension:install\n    enabled: true\n",
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
-    monkeypatch.setenv("DEER_FLOW_EXTENSION_NAME", "demo")
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_EXTENSION_NAME", "demo")
 
-    exit_code = deerflow_main(
+    exit_code = SynapseAI_main(
         [
             "extensions",
             "disable",
             "--name-env",
-            "__deerflow_extension_name__",
+            "__SynapseAI_extension_name__",
         ]
     )
 
@@ -897,12 +897,12 @@ def test_hidden_name_env_option_reads_the_extension_name_outside_the_shell_recip
     assert yaml.safe_load(config_path.read_text(encoding="utf-8"))["plugins"][0]["enabled"] is False
 
 
-def test_deerflow_extensions_enable_reactivates_a_configured_plugin(
+def test_SynapseAI_extensions_enable_reactivates_a_configured_plugin(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -911,7 +911,7 @@ def test_deerflow_extensions_enable_reactivates_a_configured_plugin(
 config_version: 1
 plugins:
   - name: demo
-    package: deerflow-extension-demo
+    package: SynapseAI-extension-demo
     use: demo_extension:install
     enabled: false
     required: true
@@ -919,9 +919,9 @@ plugins:
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "enable", "demo"])
+    exit_code = SynapseAI_main(["extensions", "enable", "demo"])
 
     assert exit_code == 0
     assert "Enabled demo" in capsys.readouterr().out
@@ -930,26 +930,26 @@ plugins:
 
 
 def test_distribution_identifier_uses_pep_503_normalization(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
     config_path.write_text(
-        "plugins:\n  - name: demo\n    package: DeerFlow_Extension.Demo\n    use: demo_extension:install\n    enabled: true\n",
+        "plugins:\n  - name: demo\n    package: SynapseAI_Extension.Demo\n    use: demo_extension:install\n    enabled: true\n",
         encoding="utf-8",
     )
 
-    ExtensionManager(root).set_enabled("deerflow-extension-demo", enabled=False)
+    ExtensionManager(root).set_enabled("SynapseAI-extension-demo", enabled=False)
 
     assert yaml.safe_load(config_path.read_text(encoding="utf-8"))["plugins"][0]["enabled"] is False
 
 
-def test_deerflow_extensions_list_reports_activation_and_package(
+def test_SynapseAI_extensions_list_reports_activation_and_package(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").write_text(
@@ -957,7 +957,7 @@ def test_deerflow_extensions_list_reports_activation_and_package(
 config_version: 1
 plugins:
   - name: demo
-    package: deerflow-extension-demo
+    package: SynapseAI-extension-demo
     use: demo_extension:install
     enabled: true
     required: true
@@ -965,15 +965,15 @@ plugins:
 """,
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "list"])
+    exit_code = SynapseAI_main(["extensions", "list"])
 
     assert exit_code == 0
     output = capsys.readouterr().out
     assert "demo" in output
     assert "enabled" in output
-    assert "deerflow-extension-demo" in output
+    assert "SynapseAI-extension-demo" in output
     assert "demo_extension:install" in output
 
 
@@ -982,17 +982,17 @@ def test_cli_reports_invalid_config_without_a_traceback(
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").write_text("plugins: [\n", encoding="utf-8")
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "list"])
+    exit_code = SynapseAI_main(["extensions", "list"])
 
     captured = capsys.readouterr()
     assert exit_code == 1
-    assert "invalid DeerFlow config YAML" in captured.err
+    assert "invalid SynapseAI config YAML" in captured.err
     assert "Traceback" not in captured.err
 
 
@@ -1001,22 +1001,22 @@ def test_cli_reports_invalid_config_without_a_traceback(
     [42, {"name": "missing-use"}],
     ids=["non-mapping", "missing-use"],
 )
-def test_deerflow_extensions_list_rejects_entries_the_runtime_schema_rejects(
+def test_SynapseAI_extensions_list_rejects_entries_the_runtime_schema_rejects(
     tmp_path: Path,
     monkeypatch,
     capsys,
     malformed_plugin: object,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").write_text(
         yaml.safe_dump({"config_version": 1, "plugins": [malformed_plugin]}, sort_keys=False),
         encoding="utf-8",
     )
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "list"])
+    exit_code = SynapseAI_main(["extensions", "list"])
 
     captured = capsys.readouterr()
     assert exit_code == 1
@@ -1025,37 +1025,37 @@ def test_deerflow_extensions_list_rejects_entries_the_runtime_schema_rejects(
     assert "Traceback" not in captured.err
 
 
-def test_deerflow_extensions_remove_uninstalls_dependency_source_and_activation(
+def test_SynapseAI_extensions_remove_uninstalls_dependency_source_and_activation(
     tmp_path: Path,
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
     _write_host_project(root)
     _write_local_extension(source)
     ExtensionManager(root).install(str(source), yes=True)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "remove", "demo"])
+    exit_code = SynapseAI_main(["extensions", "remove", "demo"])
 
     assert exit_code == 0
     output = capsys.readouterr().out
     assert "Removed demo" in output
-    assert "Restart DeerFlow" in output
+    assert "Restart SynapseAI" in output
     config = yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))
     assert config["plugins"] == []
-    assert not (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").exists()
+    assert not (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
     pyproject = (root / "backend" / "pyproject.toml").read_text(encoding="utf-8")
-    assert "deerflow-extension-demo" not in pyproject
+    assert "SynapseAI-extension-demo" not in pyproject
 
 
 def test_remove_one_configured_instance_keeps_its_shared_distribution_runnable(
     tmp_path: Path,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1069,7 +1069,7 @@ def test_remove_one_configured_instance_keeps_its_shared_distribution_runnable(
     second = {
         **installed,
         "name": "second",
-        "package": "DeerFlow_Extension.Demo",
+        "package": "SynapseAI_Extension.Demo",
         "config": {"instance": 2},
     }
     config_path.write_text(
@@ -1085,7 +1085,7 @@ def test_remove_one_configured_instance_keeps_its_shared_distribution_runnable(
     assert removed == "first"
     assert yaml.safe_load(config_path.read_text(encoding="utf-8"))["plugins"] == [second]
     assert (pyproject_path.read_bytes(), lock_path.read_bytes()) == dependency_files_before
-    assert (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").is_dir()
+    assert (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").is_dir()
     _assert_demo_entry_point_loads(root / "backend")
 
 
@@ -1094,23 +1094,23 @@ def test_install_prompts_for_trust_when_yes_is_not_supplied(
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
     _write_host_project(root)
     _write_local_extension(source)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
     monkeypatch.setattr("builtins.input", lambda _prompt: "yes")
 
-    exit_code = deerflow_main(["extensions", "install", str(source)])
+    exit_code = SynapseAI_main(["extensions", "install", str(source)])
 
     assert exit_code == 0
     assert "executes code with Gateway privileges" in capsys.readouterr().out
 
 
 def test_failed_entry_point_discovery_rolls_back_dependency_and_lock(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "broken-git-source"
     root.mkdir()
     source.mkdir()
@@ -1136,7 +1136,7 @@ def test_failed_entry_point_discovery_rolls_back_dependency_and_lock(tmp_path: P
         [
             str(root / "backend" / ".venv" / "bin" / "python"),
             "-c",
-            "from importlib.metadata import PackageNotFoundError, version; \ntry: version('deerflow-extension-demo')\nexcept PackageNotFoundError: raise SystemExit(0)\nraise SystemExit(1)",
+            "from importlib.metadata import PackageNotFoundError, version; \ntry: version('SynapseAI-extension-demo')\nexcept PackageNotFoundError: raise SystemExit(0)\nraise SystemExit(1)",
         ],
         check=False,
     )
@@ -1147,7 +1147,7 @@ def test_failed_install_does_not_overwrite_a_concurrent_operator_config_edit(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1155,7 +1155,7 @@ def test_failed_install_does_not_overwrite_a_concurrent_operator_config_edit(
     _write_local_extension(source)
     config_path = root / "config.yaml"
     operator_edit = "config_version: 1\nlog_level: debug # edited during install\n"
-    from deerflow.extensions import manager as manager_module
+    from SynapseAI.extensions import manager as manager_module
 
     original_sync = manager_module._sync_environment
     calls = 0
@@ -1168,7 +1168,7 @@ def test_failed_install_does_not_overwrite_a_concurrent_operator_config_edit(
             raise RuntimeError("simulated dependency sync failure")
         return original_sync(*args, **kwargs)
 
-    monkeypatch.setattr("deerflow.extensions.manager._sync_environment", _fail_after_operator_edit)
+    monkeypatch.setattr("SynapseAI.extensions.manager._sync_environment", _fail_after_operator_edit)
 
     with pytest.raises(RuntimeError, match="sync failure"):
         ExtensionManager(root).install(str(source), yes=True)
@@ -1180,7 +1180,7 @@ def test_failed_install_preserves_a_concurrent_dependency_file_edit(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1195,20 +1195,20 @@ def test_failed_install_preserves_a_concurrent_dependency_file_edit(
         )
         raise RuntimeError("simulated dependency sync failure")
 
-    monkeypatch.setattr("deerflow.extensions.manager._sync_environment", _fail_after_operator_edit)
+    monkeypatch.setattr("SynapseAI.extensions.manager._sync_environment", _fail_after_operator_edit)
 
     with pytest.raises(RuntimeError, match="recovery.*dependency"):
         ExtensionManager(root).install(str(source), yes=True)
 
     assert "# operator edit during install" in pyproject_path.read_text(encoding="utf-8")
-    assert (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").is_dir()
+    assert (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").is_dir()
 
 
 def test_uv_add_partial_writes_are_rolled_back_when_the_command_fails(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1230,19 +1230,19 @@ def test_uv_add_partial_writes_are_rolled_back_when_the_command_fails(
             lock_path.write_text("partial uv lock write\n", encoding="utf-8")
             raise subprocess.CalledProcessError(1, command)
 
-    monkeypatch.setattr("deerflow.extensions.manager._run_uv", _partially_write_then_fail)
+    monkeypatch.setattr("SynapseAI.extensions.manager._run_uv", _partially_write_then_fail)
 
     with pytest.raises(subprocess.CalledProcessError):
         ExtensionManager(root).install(str(source), yes=True)
 
     assert (pyproject_path.read_bytes(), config_path.read_bytes()) == before
     assert not lock_path.exists()
-    assert not (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").exists()
+    assert not (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
     assert uv_commands == ["add", "sync"]
 
 
 def test_local_install_rejects_symlinks_before_copying_or_resolving(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1262,7 +1262,7 @@ def test_local_install_rejects_symlinks_before_copying_or_resolving(tmp_path: Pa
 
 @pytest.mark.skipif(os.name == "nt", reason="named pipes are POSIX-specific")
 def test_local_install_rejects_special_files_before_snapshotting(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1284,7 +1284,7 @@ def test_local_install_rejects_likely_secret_files(
     tmp_path: Path,
     secret_name: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1303,7 +1303,7 @@ def test_local_install_rejects_distribution_names_that_escape_the_managed_root(
     tmp_path: Path,
     distribution: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1317,7 +1317,7 @@ def test_local_install_rejects_distribution_names_that_escape_the_managed_root(
 
 
 def test_install_adopts_an_existing_manual_plugin_instead_of_loading_it_twice(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1345,7 +1345,7 @@ plugins:
             "required": False,
             "config": {"label": "keep-this"},
             "name": "demo",
-            "package": "deerflow-extension-demo",
+            "package": "SynapseAI-extension-demo",
             "enabled": True,
         }
     ]
@@ -1360,12 +1360,12 @@ plugins:
             "config": {"keep": True},
         },
         {
-            "package": "deerflow-extension-demo",
+            "package": "SynapseAI-extension-demo",
             "use": "other_extension:install",
             "config": {"keep": True},
         },
         {
-            "package": "deerflow_extension.demo",
+            "package": "SynapseAI_extension.demo",
             "use": "other_extension:install",
             "config": {"keep": True},
         },
@@ -1375,7 +1375,7 @@ def test_install_rejects_identity_collisions_with_a_different_entry_point(
     tmp_path: Path,
     configured_plugin: dict[str, object],
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1392,12 +1392,12 @@ def test_install_rejects_identity_collisions_with_a_different_entry_point(
         ExtensionManager(root).install(str(source), yes=True)
 
     assert config_path.read_text(encoding="utf-8") == original
-    assert not (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").exists()
-    assert "deerflow-extension-demo" not in (root / "backend" / "pyproject.toml").read_text(encoding="utf-8")
+    assert not (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
+    assert "SynapseAI-extension-demo" not in (root / "backend" / "pyproject.toml").read_text(encoding="utf-8")
 
 
 def test_install_replaces_inline_empty_plugins_with_one_schema_valid_block(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1417,7 +1417,7 @@ def test_install_replaces_inline_empty_plugins_with_one_schema_valid_block(tmp_p
     assert config["log_level"] == "info"
     parsed = ExtensionSpec.model_validate(config["plugins"][0])
     assert parsed.name == "demo"
-    assert parsed.package == "deerflow-extension-demo"
+    assert parsed.package == "SynapseAI-extension-demo"
     assert parsed.enabled is True
 
 
@@ -1429,12 +1429,12 @@ def test_disable_replaces_nonempty_flow_style_plugins_without_duplicate_key(
     tmp_path: Path,
     plugins_key: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
     config_path.write_text(
-        f'{plugins_key}: [{{name: demo, package: deerflow-extension-demo, use: "demo_extension:install", enabled: true}}]\nlog_level: info\n',
+        f'{plugins_key}: [{{name: demo, package: SynapseAI-extension-demo, use: "demo_extension:install", enabled: true}}]\nlog_level: info\n',
         encoding="utf-8",
     )
 
@@ -1450,7 +1450,7 @@ def test_disable_replaces_nonempty_flow_style_plugins_without_duplicate_key(
 def test_toggle_rejects_duplicate_top_level_plugins_keys_without_mutating_config(
     tmp_path: Path,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -1459,7 +1459,7 @@ plugins: []
 log_level: info
 "plugins":
   - name: demo
-    package: deerflow-extension-demo
+    package: SynapseAI-extension-demo
     use: demo_extension:install
     enabled: true
 """
@@ -1476,7 +1476,7 @@ def test_plugins_rewrite_preserves_the_next_quoted_or_plain_top_level_section(
     tmp_path: Path,
     next_key: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -1499,7 +1499,7 @@ def test_plugins_rewrite_preserves_a_following_section_with_an_unconventional_ke
 ) -> None:
     """`AppConfig` allows extra top-level keys, so the managed rewrite must not
     assume the next section is named like a Python identifier."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -1518,7 +1518,7 @@ def test_plugins_rewrite_preserves_a_following_section_with_an_unconventional_ke
 def test_plugins_rewrite_preserves_trailing_content_below_a_final_plugins_block(tmp_path: Path) -> None:
     """The manager appends `plugins:` at end of file, so the steady-state shape
     has no following key; trailing operator notes still must survive a toggle."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -1537,7 +1537,7 @@ def test_plugins_rewrite_preserves_trailing_content_below_a_final_plugins_block(
 
 
 def test_null_plugins_is_treated_as_the_runtime_default_and_can_be_managed(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     config_path = root / "config.yaml"
@@ -1548,19 +1548,19 @@ def test_null_plugins_is_treated_as_the_runtime_default_and_can_be_managed(tmp_p
 
 
 def test_list_uses_the_same_boolean_coercion_as_the_runtime_loader(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").write_text(
         """\
 plugins:
   - name: numeric
-    package: deerflow-extension-numeric
+    package: SynapseAI-extension-numeric
     use: numeric_extension:install
     enabled: 0
     required: 1
   - name: yaml-booleans
-    package: deerflow-extension-yaml-booleans
+    package: SynapseAI-extension-yaml-booleans
     use: yaml_boolean_extension:install
     enabled: yes
     required: no
@@ -1580,7 +1580,7 @@ def test_cli_install_updates_the_runtime_selected_config_file(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     runtime_config = tmp_path / "deployment.yaml"
     root.mkdir()
@@ -1590,10 +1590,10 @@ def test_cli_install_updates_the_runtime_selected_config_file(
     root_config = root / "config.yaml"
     original_root_config = root_config.read_bytes()
     runtime_config.write_text("config_version: 1\n", encoding="utf-8")
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
-    monkeypatch.setenv("DEER_FLOW_CONFIG_PATH", str(runtime_config))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_CONFIG_PATH", str(runtime_config))
 
-    assert deerflow_main(["extensions", "install", str(source), "--yes"]) == 0
+    assert SynapseAI_main(["extensions", "install", str(source), "--yes"]) == 0
 
     assert root_config.read_bytes() == original_root_config
     runtime = yaml.safe_load(runtime_config.read_text(encoding="utf-8"))
@@ -1601,7 +1601,7 @@ def test_cli_install_updates_the_runtime_selected_config_file(
 
 
 def test_manager_falls_back_to_the_legacy_backend_config_path(tmp_path: Path) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").unlink()
@@ -1615,7 +1615,7 @@ def test_remove_rolls_back_package_lock_config_source_and_environment_when_confi
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1626,7 +1626,7 @@ def test_remove_rolls_back_package_lock_config_source_and_environment_when_confi
     pyproject_path = root / "backend" / "pyproject.toml"
     lock_path = root / "backend" / "uv.lock"
     config_path = root / "config.yaml"
-    managed_source = root / "backend" / "extensions" / "sources" / "deerflow-extension-demo"
+    managed_source = root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo"
     before = (
         pyproject_path.read_bytes(),
         lock_path.read_bytes(),
@@ -1636,7 +1636,7 @@ def test_remove_rolls_back_package_lock_config_source_and_environment_when_confi
     def _fail_replace(_source, _target):
         raise OSError("simulated config replacement failure")
 
-    monkeypatch.setattr("deerflow.extensions.manager.os.replace", _fail_replace)
+    monkeypatch.setattr("SynapseAI.extensions.manager.os.replace", _fail_replace)
 
     with pytest.raises(OSError, match="replacement failure"):
         manager.remove("demo")
@@ -1647,7 +1647,7 @@ def test_remove_rolls_back_package_lock_config_source_and_environment_when_confi
         [
             str(root / "backend" / ".venv" / "bin" / "python"),
             "-c",
-            "from importlib.metadata import version; assert version('deerflow-extension-demo') == '1.0.0'",
+            "from importlib.metadata import version; assert version('SynapseAI-extension-demo') == '1.0.0'",
         ],
         check=False,
     )
@@ -1658,7 +1658,7 @@ def test_failed_remove_preserves_a_concurrent_operator_config_edit(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1668,7 +1668,7 @@ def test_failed_remove_preserves_a_concurrent_operator_config_edit(
     manager.install(str(source), yes=True)
     config_path = root / "config.yaml"
     operator_edit = "config_version: 1\nplugins: []\nlog_level: debug # edited during remove\n"
-    from deerflow.extensions import manager as manager_module
+    from SynapseAI.extensions import manager as manager_module
 
     original_sync = manager_module._sync_environment
     calls = 0
@@ -1681,7 +1681,7 @@ def test_failed_remove_preserves_a_concurrent_operator_config_edit(
             raise RuntimeError("simulated dependency sync failure")
         return original_sync(*args, **kwargs)
 
-    monkeypatch.setattr("deerflow.extensions.manager._sync_environment", _fail_after_operator_edit)
+    monkeypatch.setattr("SynapseAI.extensions.manager._sync_environment", _fail_after_operator_edit)
 
     with pytest.raises(
         RuntimeError,
@@ -1690,14 +1690,14 @@ def test_failed_remove_preserves_a_concurrent_operator_config_edit(
         manager.remove("demo")
 
     assert config_path.read_text(encoding="utf-8") == operator_edit
-    assert (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").is_dir()
+    assert (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").is_dir()
 
 
 def test_failed_remove_preserves_a_concurrent_dependency_file_edit(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1714,13 +1714,13 @@ def test_failed_remove_preserves_a_concurrent_dependency_file_edit(
         )
         raise RuntimeError("simulated dependency sync failure")
 
-    monkeypatch.setattr("deerflow.extensions.manager._sync_environment", _fail_after_operator_edit)
+    monkeypatch.setattr("SynapseAI.extensions.manager._sync_environment", _fail_after_operator_edit)
 
     with pytest.raises(RuntimeError, match="recovery.*dependency"):
         manager.remove("demo")
 
     assert "# operator edit during remove" in pyproject_path.read_text(encoding="utf-8")
-    assert (root / "backend" / "extensions" / "sources" / "deerflow-extension-demo").is_dir()
+    assert (root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo").is_dir()
     assert yaml.safe_load((root / "config.yaml").read_text(encoding="utf-8"))["plugins"] == []
 
 
@@ -1728,7 +1728,7 @@ def test_uv_remove_partial_writes_are_rolled_back_when_the_command_fails(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -1739,7 +1739,7 @@ def test_uv_remove_partial_writes_are_rolled_back_when_the_command_fails(
     pyproject_path = root / "backend" / "pyproject.toml"
     lock_path = root / "backend" / "uv.lock"
     config_path = root / "config.yaml"
-    managed_source = root / "backend" / "extensions" / "sources" / "deerflow-extension-demo"
+    managed_source = root / "backend" / "extensions" / "sources" / "SynapseAI-extension-demo"
     before = (pyproject_path.read_bytes(), lock_path.read_bytes(), config_path.read_bytes())
     uv_commands: list[str] = []
 
@@ -1756,7 +1756,7 @@ def test_uv_remove_partial_writes_are_rolled_back_when_the_command_fails(
             )
             raise subprocess.CalledProcessError(1, command)
 
-    monkeypatch.setattr("deerflow.extensions.manager._run_uv", _partially_write_then_fail)
+    monkeypatch.setattr("SynapseAI.extensions.manager._run_uv", _partially_write_then_fail)
 
     with pytest.raises(subprocess.CalledProcessError):
         manager.remove("demo")
@@ -1771,15 +1771,15 @@ def test_cli_reports_uv_install_failure_without_traceback_or_partial_state(
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     pyproject_path = root / "backend" / "pyproject.toml"
     config_path = root / "config.yaml"
     original = (pyproject_path.read_bytes(), config_path.read_bytes())
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(["extensions", "install", "not a valid @ requirement @@", "--yes"])
+    exit_code = SynapseAI_main(["extensions", "install", "not a valid @ requirement @@", "--yes"])
 
     captured = capsys.readouterr()
     assert exit_code == 1
@@ -1793,14 +1793,14 @@ def test_cli_reports_uv_install_failure_without_traceback_or_partial_state(
     [
         "git+https://token@example.com/acme/demo.git@0123456789012345678901234567890123456789",
         "https://user:password@example.com/demo.whl",
-        "deerflow-extension-demo @ https://user:password@example.com/demo.whl",
+        "SynapseAI-extension-demo @ https://user:password@example.com/demo.whl",
     ],
 )
 def test_remote_sources_with_embedded_credentials_are_rejected_before_uv(
     tmp_path: Path,
     source: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     original = (root / "backend" / "pyproject.toml").read_bytes()
@@ -1864,16 +1864,16 @@ def test_benign_query_parameters_remain_installable(source: str) -> None:
 @pytest.mark.parametrize(
     "source",
     [
-        "git+ssh://git@github.com/acme/deerflow-extension-demo.git@main",
-        "deerflow-extension-demo @ git+ssh://git@github.com/acme/deerflow-extension-demo.git@main",
-        "ssh://git@github.com/acme/deerflow-extension-demo.git@main",
+        "git+ssh://git@github.com/acme/SynapseAI-extension-demo.git@main",
+        "SynapseAI-extension-demo @ git+ssh://git@github.com/acme/SynapseAI-extension-demo.git@main",
+        "ssh://git@github.com/acme/SynapseAI-extension-demo.git@main",
     ],
 )
 def test_remote_git_ssh_sources_are_rejected_before_uv(
     tmp_path: Path,
     source: str,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     pyproject_path = root / "backend" / "pyproject.toml"
@@ -1889,10 +1889,10 @@ def test_remote_git_ssh_sources_are_rejected_before_uv(
 @pytest.mark.parametrize(
     "source",
     [
-        "git@github.com:acme/deerflow-extension-demo.git",
-        "git+git@github.com:acme/deerflow-extension-demo.git",
-        "deerflow-extension-demo @ git+git@github.com:acme/deerflow-extension-demo.git",
-        "deploy@internal.example:acme/deerflow-extension-demo.git",
+        "git@github.com:acme/SynapseAI-extension-demo.git",
+        "git+git@github.com:acme/SynapseAI-extension-demo.git",
+        "SynapseAI-extension-demo @ git+git@github.com:acme/SynapseAI-extension-demo.git",
+        "deploy@internal.example:acme/SynapseAI-extension-demo.git",
     ],
 )
 def test_git_ssh_shorthand_points_at_the_https_correction(source: str) -> None:
@@ -1912,18 +1912,18 @@ def test_cli_rejects_git_ssh_without_traceback_or_partial_state(
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     pyproject_path = root / "backend" / "pyproject.toml"
     original = pyproject_path.read_bytes()
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
 
-    exit_code = deerflow_main(
+    exit_code = SynapseAI_main(
         [
             "extensions",
             "install",
-            "git+ssh://git@github.com/acme/deerflow-extension-demo.git@main",
+            "git+ssh://git@github.com/acme/SynapseAI-extension-demo.git@main",
             "--yes",
         ]
     )
@@ -1939,8 +1939,8 @@ def test_cli_rejects_git_ssh_without_traceback_or_partial_state(
 @pytest.mark.parametrize(
     "source",
     [
-        "git+https://github.com/acme/deerflow-extension-demo.git@0123456789012345678901234567890123456789",
-        "deerflow-extension-demo @ git+https://github.com/acme/deerflow-extension-demo.git@0123456789012345678901234567890123456789",
+        "git+https://github.com/acme/SynapseAI-extension-demo.git@0123456789012345678901234567890123456789",
+        "SynapseAI-extension-demo @ git+https://github.com/acme/SynapseAI-extension-demo.git@0123456789012345678901234567890123456789",
     ],
 )
 def test_public_git_https_sources_remain_allowed(source: str) -> None:
@@ -1951,7 +1951,7 @@ def test_public_git_https_sources_remain_allowed(source: str) -> None:
     "source",
     [
         "http://packages.example/demo.whl",
-        "git+git://github.com/acme/deerflow-extension-demo.git@main",
+        "git+git://github.com/acme/SynapseAI-extension-demo.git@main",
         "ftp://packages.example/demo.whl",
     ],
 )
@@ -1965,13 +1965,13 @@ def test_cli_never_echoes_rejected_source_credentials(
     monkeypatch,
     capsys,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
-    monkeypatch.setenv("DEER_FLOW_PROJECT_ROOT", str(root))
+    monkeypatch.setenv("SYNAPSE_PROJECT_ROOT", str(root))
     source = "https://operator:super-secret@example.com/extension.whl"
 
-    assert deerflow_main(["extensions", "install", source, "--yes"]) == 1
+    assert SynapseAI_main(["extensions", "install", source, "--yes"]) == 1
 
     output = capsys.readouterr()
     assert "super-secret" not in output.out
@@ -1983,7 +1983,7 @@ def test_install_uses_one_controlled_uv_project_and_deferred_sync(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2005,7 +2005,7 @@ def test_install_uses_one_controlled_uv_project_and_deferred_sync(
             return subprocess.CompletedProcess(command, 0)
         return subprocess.CompletedProcess(command, 0, stdout='[["demo", "demo_extension:install"]]\n')
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _record_run)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _record_run)
 
     ExtensionManager(root).install(str(source), yes=True)
 
@@ -2015,7 +2015,7 @@ def test_install_uses_one_controlled_uv_project_and_deferred_sync(
     assert ["--project", backend] == add[add.index("--project") : add.index("--project") + 2]
     assert "--no-sync" in add
     assert "--no-workspace" in add
-    assert add[-2:] == ["--", "extensions/sources/deerflow-extension-demo"]
+    assert add[-2:] == ["--", "extensions/sources/SynapseAI-extension-demo"]
     assert ["--project", backend] == sync[sync.index("--project") : sync.index("--project") + 2]
     assert "--locked" in sync
     assert "--no-sync" not in sync
@@ -2070,7 +2070,7 @@ def test_install_validates_the_config_before_running_third_party_build_hooks(
     """`uv add`/`uv sync` execute the package's build backend, so a config the
     manager can never write to must be rejected before that code runs — not
     after it, via rollback."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2087,7 +2087,7 @@ def test_install_validates_the_config_before_running_third_party_build_hooks(
         commands.append(list(command))
         return subprocess.CompletedProcess(command, 0, stdout="uv 0.11.1\n")
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _record)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _record)
 
     with pytest.raises(expected_error, match=message):
         ExtensionManager(root).install(str(source), yes=True)
@@ -2103,7 +2103,7 @@ def test_failed_recovery_sync_still_restores_the_dependency_files(
     """The recovery `uv sync` runs without `--locked` when the checkout had no
     lock, so uv writes one while resolving. If that sync then fails, the
     operator must not be left holding a lock file they never had."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2121,7 +2121,7 @@ def test_failed_recovery_sync_still_restores_the_dependency_files(
             return subprocess.CompletedProcess(command, 0, stdout='[["demo", "demo_extension:install"]]\n')
         if command[1] == "add":
             pyproject_path.write_text(
-                original_pyproject.replace("extensions = []", 'extensions = ["deerflow-extension-demo"]'),
+                original_pyproject.replace("extensions = []", 'extensions = ["SynapseAI-extension-demo"]'),
                 encoding="utf-8",
             )
             lock_path.write_text('version = 1\nrequires-python = ">=3.12"\n', encoding="utf-8")
@@ -2130,7 +2130,7 @@ def test_failed_recovery_sync_still_restores_the_dependency_files(
             lock_path.write_text("version = 1\n# written by the recovery resolve\n", encoding="utf-8")
         raise subprocess.CalledProcessError(1, command)
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _run)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _run)
 
     with pytest.raises(RuntimeError, match="original failure"):
         ExtensionManager(root).install(str(source), yes=True)
@@ -2146,7 +2146,7 @@ def test_interrupt_during_install_restores_files_without_a_recovery_resolve(
     """Ctrl-C must not be answered by blocking on a full dependency resolve: a
     second interrupt during that sync would escape the handler and strand the
     checkout mid-transaction."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2165,7 +2165,7 @@ def test_interrupt_during_install_restores_files_without_a_recovery_resolve(
             return subprocess.CompletedProcess(command, 0, stdout='[["demo", "demo_extension:install"]]\n')
         if command[1] == "add":
             pyproject_path.write_text(
-                original_pyproject.replace("extensions = []", 'extensions = ["deerflow-extension-demo"]'),
+                original_pyproject.replace("extensions = []", 'extensions = ["SynapseAI-extension-demo"]'),
                 encoding="utf-8",
             )
             lock_path.write_text('version = 1\nrequires-python = ">=3.12"\n', encoding="utf-8")
@@ -2173,7 +2173,7 @@ def test_interrupt_during_install_restores_files_without_a_recovery_resolve(
         syncs.append(list(command))
         raise KeyboardInterrupt
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _run)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _run)
 
     with pytest.raises(KeyboardInterrupt):
         ExtensionManager(root).install(str(source), yes=True)
@@ -2181,7 +2181,7 @@ def test_interrupt_during_install_restores_files_without_a_recovery_resolve(
     assert len(syncs) == 1
     assert not lock_path.exists()
     assert pyproject_path.read_text(encoding="utf-8") == original_pyproject
-    assert not (backend / "extensions" / "sources" / "deerflow-extension-demo").exists()
+    assert not (backend / "extensions" / "sources" / "SynapseAI-extension-demo").exists()
 
 
 def test_entry_point_discovery_tolerates_interpreter_startup_output(
@@ -2190,7 +2190,7 @@ def test_entry_point_discovery_tolerates_interpreter_startup_output(
 ) -> None:
     """A `sitecustomize`/`.pth` banner on the child interpreter's stdout must
     not roll back an otherwise-successful install with a JSON parse error."""
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2210,7 +2210,7 @@ def test_entry_point_discovery_tolerates_interpreter_startup_output(
             stdout='vendor sitecustomize loaded\n[["demo", "demo_extension:install"]]\n',
         )
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _run)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _run)
 
     result = ExtensionManager(root).install(str(source), yes=True)
 
@@ -2221,7 +2221,7 @@ def test_install_rejects_uv_versions_without_no_workspace_support(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     source = tmp_path / "demo-source"
     root.mkdir()
     source.mkdir()
@@ -2235,7 +2235,7 @@ def test_install_rejects_uv_versions_without_no_workspace_support(
             return subprocess.CompletedProcess(command, 0, stdout="uv 0.7.20\n")
         return subprocess.CompletedProcess(command, 0)
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _old_uv)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _old_uv)
 
     with pytest.raises(RuntimeError, match="uv 0.8.0 or newer"):
         ExtensionManager(root).install(str(source), yes=True)
@@ -2248,7 +2248,7 @@ def test_remove_uses_deferred_uv_mutation_then_the_same_controlled_sync(
     tmp_path: Path,
     monkeypatch,
 ) -> None:
-    root = tmp_path / "deer-flow"
+    root = tmp_path / "synapse-ai"
     root.mkdir()
     _write_host_project(root)
     (root / "config.yaml").write_text(
@@ -2256,7 +2256,7 @@ def test_remove_uses_deferred_uv_mutation_then_the_same_controlled_sync(
 config_version: 1
 plugins:
   - name: demo
-    package: deerflow-extension-demo
+    package: SynapseAI-extension-demo
     use: demo_extension:install
     enabled: true
     required: true
@@ -2277,7 +2277,7 @@ plugins:
                 (root / "backend" / "uv.lock").write_text('version = 1\nrequires-python = ">=3.12"\n', encoding="utf-8")
         return subprocess.CompletedProcess(command, 0)
 
-    monkeypatch.setattr("deerflow.extensions.manager.subprocess.run", _record_run)
+    monkeypatch.setattr("SynapseAI.extensions.manager.subprocess.run", _record_run)
 
     ExtensionManager(root).remove("demo")
 
@@ -2286,7 +2286,7 @@ plugins:
     remove, sync = (uv_calls[0][0], uv_calls[1][0])
     assert ["--project", backend] == remove[remove.index("--project") : remove.index("--project") + 2]
     assert "--no-sync" in remove
-    assert remove[-2:] == ["--", "deerflow-extension-demo"]
+    assert remove[-2:] == ["--", "SynapseAI-extension-demo"]
     assert ["--project", backend] == sync[sync.index("--project") : sync.index("--project") + 2]
     assert "--locked" in sync
     assert "--no-sync" not in sync
@@ -2315,8 +2315,8 @@ def test_dependency_sync_uses_the_same_configured_optional_extras_as_startup(
         encoding="utf-8",
     )
     monkeypatch.delenv("UV_EXTRAS", raising=False)
-    monkeypatch.delenv("DEER_FLOW_STREAM_BRIDGE_REDIS_URL", raising=False)
-    monkeypatch.delenv("DEER_FLOW_SANDBOX_OWNERSHIP_REDIS_URL", raising=False)
+    monkeypatch.delenv("SYNAPSE_STREAM_BRIDGE_REDIS_URL", raising=False)
+    monkeypatch.delenv("SYNAPSE_SANDBOX_OWNERSHIP_REDIS_URL", raising=False)
 
     assert _detect_extra_flags(repository_root, config_path) == [
         "--extra",

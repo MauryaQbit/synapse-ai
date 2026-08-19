@@ -4,7 +4,7 @@
 missing, except ``get_store`` which returns ``None``.
 
 ``AppConfig`` is intentionally *not* cached on ``app.state``. Routers and the
-run path resolve it through :func:`deerflow.config.app_config.get_app_config`,
+run path resolve it through :func:`SynapseAI.config.app_config.get_app_config`,
 which performs mtime-based hot reload, so edits to ``config.yaml`` take
 effect on the next request without a process restart. The engines created in
 :func:`langgraph_runtime` (stream bridge, persistence, checkpointer, store,
@@ -27,12 +27,12 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 from fastapi import FastAPI, HTTPException, Request
 from langgraph.types import Checkpointer
 
-from deerflow.community.browser_automation.session import browser_multi_worker_error
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.persistence.feedback import FeedbackRepository
-from deerflow.runtime import ORPHAN_RECOVERY_STOP_REASON, STARTUP_ORPHAN_RECOVERY_ERROR, RunContext, RunManager, StreamBridge
-from deerflow.runtime.events.store.base import RunEventStore
-from deerflow.runtime.runs.store.base import RunStore
+from SynapseAI.community.browser_automation.session import browser_multi_worker_error
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.persistence.feedback import FeedbackRepository
+from SynapseAI.runtime import ORPHAN_RECOVERY_STOP_REASON, STARTUP_ORPHAN_RECOVERY_ERROR, RunContext, RunManager, StreamBridge
+from SynapseAI.runtime.events.store.base import RunEventStore
+from SynapseAI.runtime.runs.store.base import RunStore
 
 logger = logging.getLogger(__name__)
 
@@ -272,8 +272,8 @@ async def _flush_recovered_stream_cleanups(
 if TYPE_CHECKING:
     from app.gateway.auth.local_provider import LocalAuthProvider
     from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
-    from deerflow.persistence.thread_meta.base import ThreadMetaStore
-    from deerflow.runtime import RunRecord
+    from SynapseAI.persistence.thread_meta.base import ThreadMetaStore
+    from SynapseAI.runtime import RunRecord
 
 
 T = TypeVar("T")
@@ -329,21 +329,21 @@ async def _terminalize_recovered_runs(
 def get_config() -> AppConfig:
     """Return the freshest ``AppConfig`` for the current request.
 
-    Routes through :func:`deerflow.config.app_config.get_app_config`, which
+    Routes through :func:`SynapseAI.config.app_config.get_app_config`, which
     honours runtime ``ContextVar`` overrides and reloads ``config.yaml`` from
     disk when its mtime changes. ``AppConfig`` is not cached on ``app.state``
     at all — the only startup-time snapshot lives as a local
     ``startup_config`` variable inside ``lifespan()`` and is passed
     explicitly into :func:`langgraph_runtime` for the engines that are
     restart-required by design. Routing every request through
-    :func:`get_app_config` closes the bytedance/deer-flow issue #3107 BUG-001
+    :func:`get_app_config` closes the bytedance/synapse-ai issue #3107 BUG-001
     split-brain where the worker / lead-agent thread saw a stale startup
     snapshot.
 
     Hot-reload boundary: fields backed by startup-time singletons
     (engines, sandbox provider, IM channels, logging handler) require a
     process restart to change at runtime. The authoritative list lives in
-    :mod:`deerflow.config.reload_boundary` and is mirrored by the
+    :mod:`SynapseAI.config.reload_boundary` and is mirrored by the
     standardised ``"startup-only:"`` prefix on the matching
     ``Field(description=...)`` in :class:`AppConfig` — IDE hover on those
     fields will surface the boundary inline. See
@@ -387,11 +387,11 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         async with langgraph_runtime(app, startup_config):
             yield
     """
-    from deerflow.persistence.engine import close_engine, get_session_factory, init_engine_from_config
-    from deerflow.runtime import make_store, make_stream_bridge
-    from deerflow.runtime.checkpoint_mode import freeze_checkpoint_channel_mode, freeze_checkpoint_snapshot_frequency
-    from deerflow.runtime.checkpointer.async_provider import make_checkpointer
-    from deerflow.runtime.events.store import make_run_event_store
+    from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine_from_config
+    from SynapseAI.runtime import make_store, make_stream_bridge
+    from SynapseAI.runtime.checkpoint_mode import freeze_checkpoint_channel_mode, freeze_checkpoint_snapshot_frequency
+    from SynapseAI.runtime.checkpointer.async_provider import make_checkpointer
+    from SynapseAI.runtime.events.store import make_run_event_store
 
     # ------------------------------------------------------------------
     # Multi-worker safety gate: reject SQLite when GATEWAY_WORKERS > 1.
@@ -409,7 +409,7 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         # stack. Registering the callback synchronously here also covers every
         # startup-failure and cancellation path below.
         try:
-            from deerflow.extensions.notify import (
+            from SynapseAI.extensions.notify import (
                 reset_extension_notify_loop,
                 set_extension_notify_loop,
             )
@@ -449,13 +449,13 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         # Initialize repositories — one get_session_factory() call for all.
         sf = get_session_factory()
         if sf is not None:
-            from deerflow.persistence.feedback import FeedbackRepository
-            from deerflow.persistence.run import RunRepository
+            from SynapseAI.persistence.feedback import FeedbackRepository
+            from SynapseAI.persistence.run import RunRepository
 
             app.state.run_store = RunRepository(sf)
             app.state.feedback_repo = FeedbackRepository(sf)
         else:
-            from deerflow.runtime.runs.store.memory import MemoryRunStore
+            from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
             app.state.run_store = MemoryRunStore()
             app.state.feedback_repo = None
@@ -463,8 +463,8 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         # Services are app-scoped. Capture this app's immutable extension set
         # once and close over the same object for teardown; the process-wide
         # singleton may be replaced by another app/test before shutdown.
-        from deerflow.extensions import EMPTY_EXTENSIONS, record_runtime_diagnostics
-        from deerflow.extensions.gateway import start_services, stop_services
+        from SynapseAI.extensions import EMPTY_EXTENSIONS, record_runtime_diagnostics
+        from SynapseAI.extensions.gateway import start_services, stop_services
 
         extensions = getattr(app.state, "extensions", EMPTY_EXTENSIONS)
         attempted_services: list[tuple[str, Any]] = []
@@ -489,15 +489,15 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
             )
         )
 
-        from deerflow.persistence.thread_meta import make_thread_store
+        from SynapseAI.persistence.thread_meta import make_thread_store
 
         app.state.thread_store = make_thread_store(sf, app.state.store)
         if sf is not None:
-            from deerflow.persistence.mcp_tasks import McpTaskRepository
-            from deerflow.persistence.scheduled_task_runs import (
+            from SynapseAI.persistence.mcp_tasks import McpTaskRepository
+            from SynapseAI.persistence.scheduled_task_runs import (
                 ScheduledTaskRunRepository,
             )
-            from deerflow.persistence.scheduled_tasks import ScheduledTaskRepository
+            from SynapseAI.persistence.scheduled_tasks import ScheduledTaskRepository
 
             app.state.scheduled_task_repo = ScheduledTaskRepository(
                 sf,
@@ -553,7 +553,7 @@ async def langgraph_runtime(app: FastAPI, startup_config: AppConfig) -> AsyncGen
         # all inflight rows are reclaimed (unchanged behaviour). In multi-worker
         # mode (Postgres), only runs with an expired lease are reclaimed; runs
         # owned by another live worker are skipped.
-        from deerflow.utils.time import now_iso
+        from SynapseAI.utils.time import now_iso
 
         recovered_runs = await app.state.run_manager.reconcile_orphaned_inflight_runs(
             error=STARTUP_ORPHAN_RECOVERY_ERROR,
@@ -718,7 +718,7 @@ def get_local_provider() -> LocalAuthProvider:
     global _cached_local_provider, _cached_repo
     if _cached_repo is None:
         from app.gateway.auth.repositories.sqlite import SQLiteUserRepository
-        from deerflow.persistence.engine import get_session_factory
+        from SynapseAI.persistence.engine import get_session_factory
 
         sf = get_session_factory()
         if sf is None:

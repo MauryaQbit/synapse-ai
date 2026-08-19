@@ -13,11 +13,11 @@ from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, Literal
 
-from deerflow_extension_api import API_VERSION
+from SynapseAI_extension_api import API_VERSION
 from pydantic import BaseModel, ConfigDict, Field
 
-from deerflow.extensions.registry import ExtensionRegistry, LoadedExtensions
-from deerflow.reflection import resolve_variable
+from SynapseAI.extensions.registry import ExtensionRegistry, LoadedExtensions
+from SynapseAI.reflection import resolve_variable
 
 logger = logging.getLogger(__name__)
 
@@ -164,7 +164,7 @@ def load_extensions(specs: Sequence[ExtensionSpec]) -> tuple[LoadedExtensions, l
             continue
 
         try:
-            declared = getattr(install, "__deerflow_api__", None)
+            declared = getattr(install, "__SynapseAI_api__", None)
         except Exception as exc:
             message = f"could not inspect extension-api version marker: {type(exc).__name__}"
             diagnostics.append(Diagnostic.error(spec.use, message))
@@ -186,7 +186,7 @@ def load_extensions(specs: Sequence[ExtensionSpec]) -> tuple[LoadedExtensions, l
             # implementation before compatibility checks and rendering.
             declared = str.__str__(declared)
         if declared is not None and not _compatible(declared, API_VERSION):
-            message = f"extension requires extension-api {declared}, host provides {API_VERSION}. Install a matching version: pip install 'deerflow-extension-api{_range_for(declared)}'"
+            message = f"extension requires extension-api {declared}, host provides {API_VERSION}. Install a matching version: pip install 'SynapseAI-extension-api{_range_for(declared)}'"
             diagnostics.append(Diagnostic.error(spec.use, message))
             logger.error("Extension %s: %s", spec.use, message)
             if spec.required:

@@ -24,12 +24,12 @@ from langchain_core.messages import ToolMessage
 from langgraph.prebuilt.tool_node import ToolCallRequest
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.tool_output_synopsis import render_tool_output_preview
-from deerflow.config.tool_output_config import ToolOutputConfig
-from deerflow.sandbox.sandbox_provider import get_sandbox_provider
+from SynapseAI.agents.middlewares.tool_output_synopsis import render_tool_output_preview
+from SynapseAI.config.tool_output_config import ToolOutputConfig
+from SynapseAI.sandbox.sandbox_provider import get_sandbox_provider
 
 if TYPE_CHECKING:
-    from deerflow.sandbox.sandbox import Sandbox
+    from SynapseAI.sandbox.sandbox import Sandbox
 
 logger = logging.getLogger(__name__)
 

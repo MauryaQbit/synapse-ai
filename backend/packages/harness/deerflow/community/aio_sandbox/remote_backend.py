@@ -21,8 +21,8 @@ import logging
 
 import requests
 
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.skills.storage import user_should_see_legacy_skills
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.skills.storage import user_should_see_legacy_skills
 
 from .backend import SandboxBackend
 from .sandbox_info import SandboxInfo
@@ -97,7 +97,7 @@ class RemoteSandboxBackend(SandboxBackend):
     Typical config.yaml::
 
         sandbox:
-          use: deerflow.community.aio_sandbox:AioSandboxProvider
+          use: SynapseAI.community.aio_sandbox:AioSandboxProvider
           provisioner_url: http://provisioner:8002
           provisioner_api_key: $PROVISIONER_API_KEY
     """

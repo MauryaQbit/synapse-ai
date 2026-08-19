@@ -6,14 +6,14 @@ from fastapi import HTTPException
 from app.gateway.auth.models import User
 from app.gateway.auth.oidc import OIDCError, OIDCIdentity, OIDCMetadata, OIDCService, OIDCValidationError
 from app.gateway.auth.user_provisioning import get_or_provision_oidc_user
-from deerflow.config.auth_config import OIDCProviderConfig
+from SynapseAI.config.auth_config import OIDCProviderConfig
 
 
 def _provider_config(**overrides):
     return OIDCProviderConfig(
         display_name="Test SSO",
         issuer="https://issuer.example.com",
-        client_id="deer-flow",
+        client_id="synapse-ai",
         **overrides,
     )
 
@@ -128,10 +128,10 @@ async def test_oidc_validate_id_token_refreshes_jwks_once_on_kid_miss(monkeypatc
     monkeypatch.setattr("app.gateway.auth.oidc.jwt.get_unverified_header", lambda token: {"kid": "new-kid", "alg": "RS256"})
     monkeypatch.setattr(
         "app.gateway.auth.oidc.jwt.decode",
-        lambda *args, **kwargs: {"iss": metadata.issuer, "sub": "subject", "aud": "deer-flow", "exp": 9999999999},
+        lambda *args, **kwargs: {"iss": metadata.issuer, "sub": "subject", "aud": "synapse-ai", "exp": 9999999999},
     )
 
-    claims = await service.validate_id_token(metadata, "deer-flow", "id-token")
+    claims = await service.validate_id_token(metadata, "synapse-ai", "id-token")
 
     assert claims["sub"] == "subject"
     assert load_calls == [False, True]
@@ -165,7 +165,7 @@ async def test_oidc_validate_id_token_rejects_hmac_algorithms(monkeypatch):
     monkeypatch.setattr("app.gateway.auth.oidc.jwt.decode", decode)
 
     with pytest.raises(OIDCValidationError, match="unsupported algorithm"):
-        await service.validate_id_token(metadata, "deer-flow", "id-token")
+        await service.validate_id_token(metadata, "synapse-ai", "id-token")
 
     await service.close()
 
@@ -254,7 +254,7 @@ async def test_oidc_authenticate_callback_treats_string_false_email_verified_as_
     identity = await service.authenticate_callback(
         provider_id="keycloak",
         metadata=metadata,
-        client_id="deer-flow",
+        client_id="synapse-ai",
         client_secret=None,
         code="code",
         redirect_uri="https://app.example.com/callback",

@@ -1,4 +1,4 @@
-"""``E2BSandboxProvider`` — DeerFlow :class:`SandboxProvider` for e2b cloud.
+"""``E2BSandboxProvider`` — SynapseAI :class:`SandboxProvider` for e2b cloud.
 
 Configuration is read from :class:`SandboxConfig`. E2B reports unknown
 provider fields during startup.
@@ -6,7 +6,7 @@ provider fields during startup.
 .. code-block:: yaml
 
     sandbox:
-      use: deerflow.community.e2b_sandbox:E2BSandboxProvider
+      use: SynapseAI.community.e2b_sandbox:E2BSandboxProvider
       api_key: $E2B_API_KEY            # required (or via E2B_API_KEY env var)
       template: code-interpreter-v1     # default: e2b code-interpreter template
       domain: e2b.dev                  # optional; for self-hosted e2b
@@ -56,11 +56,11 @@ from typing import Any
 from e2b import SandboxQuery
 from e2b_code_interpreter import Sandbox as E2BClientSandbox
 
-from deerflow.config import get_app_config
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.sandbox.exceptions import SandboxCapacityExceededError
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import SandboxProvider
+from SynapseAI.config import get_app_config
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.sandbox.exceptions import SandboxCapacityExceededError
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider
 
 from ..aio_sandbox.ownership import (
     OwnershipBackendError,
@@ -187,7 +187,7 @@ class E2BSandboxProvider(SandboxProvider):
 
     def __init__(self) -> None:
         self._lock = threading.Lock()
-        # Active sandboxes, keyed by DeerFlow-side sandbox id (== e2b id).
+        # Active sandboxes, keyed by SynapseAI-side sandbox id (== e2b id).
         self._sandboxes: dict[str, E2BSandbox] = {}
         # (user_id, thread_id) -> sandbox id for fast in-process lookup.
         self._thread_sandboxes: dict[tuple[str, str], str] = {}
@@ -1133,7 +1133,7 @@ class E2BSandboxProvider(SandboxProvider):
             self._complete_reserved_remote_op(sandbox_id, remote_destroyed=remote_destroyed)
             raise
 
-        # Materialise DeerFlow's virtual path layout (/mnt/user-data/...) inside
+        # Materialise SynapseAI's virtual path layout (/mnt/user-data/...) inside
         # the e2b VM. Without this step shell commands the agent emits — which
         # use the same /mnt/user-data prefix as LocalSandbox / AioSandbox — fail
         # with PermissionError because /mnt is owned by root in the e2b
@@ -1709,7 +1709,7 @@ class E2BSandboxProvider(SandboxProvider):
         return None, True
 
     def _bootstrap_sandbox_paths(self, client: E2BClientSandbox) -> None:
-        """Materialise DeerFlow's virtual path layout inside the e2b VM.
+        """Materialise SynapseAI's virtual path layout inside the e2b VM.
 
         The local / docker sandboxes expose ``/mnt/user-data/{workspace,uploads,
         outputs}`` and ``/mnt/acp-workspace`` as writable directories, and the
@@ -1781,8 +1781,8 @@ class E2BSandboxProvider(SandboxProvider):
         no mounts applied at all). Swallowing here keeps the two mount
         sources independent, matching the other two providers.
         """
-        from deerflow.skills.projection import ensure_skill_projections
-        from deerflow.skills.storage import get_or_new_user_skill_storage
+        from SynapseAI.skills.projection import ensure_skill_projections
+        from SynapseAI.skills.storage import get_or_new_user_skill_storage
 
         try:
             config = get_app_config()
@@ -1935,7 +1935,7 @@ class E2BSandboxProvider(SandboxProvider):
     ) -> None:
         """Mirror agent artifacts from the e2b VM back to host thread dirs.
 
-        DeerFlow's ``/api/threads/{tid}/artifacts/...`` endpoint resolves
+        SynapseAI's ``/api/threads/{tid}/artifacts/...`` endpoint resolves
         files against the host-side per-thread ``user-data/`` tree (see
         :meth:`Paths.sandbox_outputs_dir`). LocalSandbox writes there
         directly via path mappings, so the endpoint just works for the
@@ -1955,7 +1955,7 @@ class E2BSandboxProvider(SandboxProvider):
         download is non-critical for sandbox lifecycle, and we already log
         the underlying e2b SDK errors elsewhere.
         """
-        from deerflow.config.paths import get_paths  # lazy import to avoid cycles
+        from SynapseAI.config.paths import get_paths  # lazy import to avoid cycles
 
         client = sandbox.client
         if client is None:

@@ -1,8 +1,8 @@
-"""Tests for ``deerflow.utils.llm_text``."""
+"""Tests for ``SynapseAI.utils.llm_text``."""
 
 from __future__ import annotations
 
-from deerflow.utils.llm_text import (
+from SynapseAI.utils.llm_text import (
     extract_response_text,
     strip_markdown_code_fence,
     strip_think_blocks,

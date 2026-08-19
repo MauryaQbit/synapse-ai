@@ -8,7 +8,7 @@ import time
 from collections.abc import Awaitable, Callable, Coroutine, Mapping
 from typing import Any
 
-from deerflow_extension_api import (
+from SynapseAI_extension_api import (
     EXTENSION_TASK_STORE_KEY,
     ExtensionData,
     SystemModelRequest,
@@ -18,7 +18,7 @@ from deerflow_extension_api import (
     TaskOutcome,
 )
 
-from deerflow.extensions.registry import LoadedExtensions
+from SynapseAI.extensions.registry import LoadedExtensions
 
 logger = logging.getLogger(__name__)
 

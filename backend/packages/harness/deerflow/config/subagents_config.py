@@ -4,7 +4,7 @@ import logging
 
 from pydantic import BaseModel, Field
 
-from deerflow.config.token_budget_config import TokenBudgetConfig
+from SynapseAI.config.token_budget_config import TokenBudgetConfig
 
 logger = logging.getLogger(__name__)
 

@@ -2,11 +2,11 @@
 
 The read methods are the pre-refactor bodies of ``load_agent_config`` /
 ``load_agent_soul`` / ``list_custom_agents`` (so the free functions in
-:mod:`deerflow.config.agents_config` dispatch here without changing behaviour).
+:mod:`SynapseAI.config.agents_config` dispatch here without changing behaviour).
 Writes use a staged temp-file + atomic ``os.replace`` commit — the crash-safety
 the ``update_agent`` tool already had, applied uniformly to create/update.
 
-Path/user resolution is done through the :mod:`deerflow.config.agents_config`
+Path/user resolution is done through the :mod:`SynapseAI.config.agents_config`
 module object (``_ac.get_paths`` / ``_ac.get_effective_user_id``) rather than
 direct imports, so it honours the same monkeypatch seams the existing agent
 tests target.
@@ -23,20 +23,20 @@ from typing import Any
 
 import yaml
 
-from deerflow.config import agents_config as _ac
-from deerflow.config.agents_config import (
+from SynapseAI.config import agents_config as _ac
+from SynapseAI.config.agents_config import (
     SOUL_FILENAME,
     AgentConfig,
     resolve_agent_dir,
     validate_agent_name,
 )
-from deerflow.persistence.agents.base import (
+from SynapseAI.persistence.agents.base import (
     AgentDeleteOutcome,
     AgentExistsError,
     AgentStore,
     parse_agent_config,
 )
-from deerflow.runtime.user_context import DEFAULT_USER_ID
+from SynapseAI.runtime.user_context import DEFAULT_USER_ID
 
 logger = logging.getLogger(__name__)
 

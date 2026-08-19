@@ -2,9 +2,9 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.persistence.engine import close_engine, get_session_factory, init_engine_from_config
-from deerflow.persistence.scheduled_tasks import ScheduledTaskRepository
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine_from_config
+from SynapseAI.persistence.scheduled_tasks import ScheduledTaskRepository
 
 
 @pytest.mark.asyncio

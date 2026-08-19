@@ -9,12 +9,12 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from deerflow.config import get_app_config
-from deerflow.config.app_config import AppConfig
-from deerflow.models import create_chat_model
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.skills.types import SKILL_MD_FILE
-from deerflow.tracing import inject_langfuse_metadata
+from SynapseAI.config import get_app_config
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.models import create_chat_model
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.skills.types import SKILL_MD_FILE
+from SynapseAI.tracing import inject_langfuse_metadata
 
 logger = logging.getLogger(__name__)
 
@@ -145,7 +145,7 @@ async def scan_skill_content(
                 user_id=get_effective_user_id(),
                 assistant_id="security_agent",
                 model_name=model_name,
-                environment=os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT"),
+                environment=os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT"),
             )
         response = await model.ainvoke(
             [

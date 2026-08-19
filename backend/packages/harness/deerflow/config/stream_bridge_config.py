@@ -16,7 +16,7 @@ class StreamBridgeConfig(BaseModel):
     )
     redis_url: str | None = Field(
         default=None,
-        description="Redis URL for the redis stream bridge type. If omitted, DEER_FLOW_STREAM_BRIDGE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used.",
+        description="Redis URL for the redis stream bridge type. If omitted, SYNAPSE_STREAM_BRIDGE_REDIS_URL, REDIS_URL, or redis://localhost:6379/0 is used.",
     )
     queue_maxsize: int = Field(
         default=256,

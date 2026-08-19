@@ -1,7 +1,7 @@
 import re
 from abc import ABC, abstractmethod
 
-from deerflow.sandbox.search import GrepMatch
+from SynapseAI.sandbox.search import GrepMatch
 
 # POSIX env-var name rule: letter or underscore, then letters/digits/underscores.
 # Used to validate ``env`` keys before they reach a sandbox implementation.

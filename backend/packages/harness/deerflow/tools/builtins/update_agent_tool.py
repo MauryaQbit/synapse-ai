@@ -34,12 +34,12 @@ from langchain_core.tools import tool
 from langgraph.types import Command
 from pydantic import BaseModel, BeforeValidator
 
-from deerflow.config.agents_config import load_agent_config, preserve_non_managed_fields, validate_agent_name
-from deerflow.config.app_config import get_app_config
-from deerflow.config.paths import get_paths
-from deerflow.persistence.agents import get_agent_store
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.tools.types import Runtime
+from SynapseAI.config.agents_config import load_agent_config, preserve_non_managed_fields, validate_agent_name
+from SynapseAI.config.app_config import get_app_config
+from SynapseAI.config.paths import get_paths
+from SynapseAI.persistence.agents import get_agent_store
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ _NULLISH_STRINGS = frozenset({"null", "none", "undefined"})
 # Channels whose inbound messages come from untrusted external commenters
 # (anyone on a GitHub repo, etc.). The lead-agent factory already drops
 # this tool for runs on these channels (see ``_WEBHOOK_CHANNELS`` in
-# ``deerflow.agents.lead_agent.agent``); this set is the in-tool mirror
+# ``SynapseAI.agents.lead_agent.agent``); this set is the in-tool mirror
 # so a custom factory that re-attaches ``update_agent`` cannot silently
 # expose self-mutation over a webhook.
 _UNTRUSTED_CHANNELS: frozenset[str] = frozenset({"github"})
@@ -116,7 +116,7 @@ def update_agent(
 
     # Defence in depth — the lead-agent factory already withholds this
     # tool from webhook-channel runs (see ``_WEBHOOK_CHANNELS`` in
-    # ``deerflow.agents.lead_agent.agent``). The same channel set is
+    # ``SynapseAI.agents.lead_agent.agent``). The same channel set is
     # mirrored here so a future code path that re-attaches the tool
     # without going through ``_make_lead_agent`` (custom factories,
     # tests, etc.) does not silently accept untrusted self-mutation

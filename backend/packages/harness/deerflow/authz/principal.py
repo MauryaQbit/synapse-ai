@@ -10,7 +10,7 @@ from __future__ import annotations
 from collections.abc import Mapping
 from typing import Any
 
-from deerflow.authz.provider import Principal
+from SynapseAI.authz.provider import Principal
 
 
 def normalize_authz_attributes(raw: Any) -> dict[str, Any]:
@@ -40,7 +40,7 @@ def build_principal_from_context(
 
     Args:
         context: The runtime context (``config["context"]`` or a dict assembled
-            from a :class:`~deerflow.guardrails.provider.GuardrailRequest`).
+            from a :class:`~SynapseAI.guardrails.provider.GuardrailRequest`).
         default_role: Role used when ``user_role`` is ``None`` or empty string.
             Unknown but non-empty roles are **not** replaced — only missing ones.
 

@@ -33,40 +33,40 @@ from langchain.agents import create_agent
 from langchain.agents.middleware import AgentMiddleware
 from langchain_core.runnables import RunnableConfig
 
-from deerflow.agents.lead_agent.prompt import apply_prompt_template
-from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
-from deerflow.agents.middlewares.configured_extensions import load_configured_extension_middlewares
-from deerflow.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
-from deerflow.agents.middlewares.memory_middleware import MemoryMiddleware
-from deerflow.agents.middlewares.model_length_finish_reason_middleware import ModelLengthFinishReasonMiddleware
-from deerflow.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
-from deerflow.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
-from deerflow.agents.middlewares.summarization_middleware import DeerFlowSummarizationMiddleware, create_summarization_middleware
-from deerflow.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
-from deerflow.agents.middlewares.title_middleware import TitleMiddleware
-from deerflow.agents.middlewares.todo_middleware import TodoMiddleware
-from deerflow.agents.middlewares.token_usage_middleware import TokenUsageMiddleware
-from deerflow.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
-from deerflow.agents.middlewares.view_image_middleware import ViewImageMiddleware
-from deerflow.agents.thread_state import get_thread_state_schema, normalize_middleware_state_schemas
-from deerflow.authz.principal import build_principal_from_context
-from deerflow.authz.provider import AuthzDecision, AuthzRequest
-from deerflow.authz.runtime import resolve_authorization_provider
-from deerflow.authz.tool_filter import apply_tool_authorization
-from deerflow.config.agents_config import load_agent_config, validate_agent_name
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.config.memory_config import should_use_memory_tools
-from deerflow.config.subagents_config import DEFAULT_MAX_TOTAL_SUBAGENTS_PER_RUN
-from deerflow.models import create_chat_model
-from deerflow.runtime.checkpoint_mode import (
+from SynapseAI.agents.lead_agent.prompt import apply_prompt_template
+from SynapseAI.agents.middlewares.clarification_middleware import ClarificationMiddleware
+from SynapseAI.agents.middlewares.configured_extensions import load_configured_extension_middlewares
+from SynapseAI.agents.middlewares.loop_detection_middleware import LoopDetectionMiddleware
+from SynapseAI.agents.middlewares.memory_middleware import MemoryMiddleware
+from SynapseAI.agents.middlewares.model_length_finish_reason_middleware import ModelLengthFinishReasonMiddleware
+from SynapseAI.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
+from SynapseAI.agents.middlewares.subagent_limit_middleware import SubagentLimitMiddleware
+from SynapseAI.agents.middlewares.summarization_middleware import SynapseAISummarizationMiddleware, create_summarization_middleware
+from SynapseAI.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
+from SynapseAI.agents.middlewares.title_middleware import TitleMiddleware
+from SynapseAI.agents.middlewares.todo_middleware import TodoMiddleware
+from SynapseAI.agents.middlewares.token_usage_middleware import TokenUsageMiddleware
+from SynapseAI.agents.middlewares.tool_error_handling_middleware import build_lead_runtime_middlewares
+from SynapseAI.agents.middlewares.view_image_middleware import ViewImageMiddleware
+from SynapseAI.agents.thread_state import get_thread_state_schema, normalize_middleware_state_schemas
+from SynapseAI.authz.principal import build_principal_from_context
+from SynapseAI.authz.provider import AuthzDecision, AuthzRequest
+from SynapseAI.authz.runtime import resolve_authorization_provider
+from SynapseAI.authz.tool_filter import apply_tool_authorization
+from SynapseAI.config.agents_config import load_agent_config, validate_agent_name
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.config.memory_config import should_use_memory_tools
+from SynapseAI.config.subagents_config import DEFAULT_MAX_TOTAL_SUBAGENTS_PER_RUN
+from SynapseAI.models import create_chat_model
+from SynapseAI.runtime.checkpoint_mode import (
     INTERNAL_CHECKPOINT_MODE_KEY,
     freeze_checkpoint_channel_mode,
     freeze_checkpoint_snapshot_frequency,
     frozen_checkpoint_channel_mode,
     inject_checkpoint_mode,
 )
-from deerflow.skills.types import Skill
-from deerflow.tracing import build_tracing_callbacks
+from SynapseAI.skills.types import Skill
+from SynapseAI.tracing import build_tracing_callbacks
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ def _resolve_runtime_option(cfg: dict, key: str, agent_value, default):
 
 def _append_memory_tools_without_name_conflicts(tools: list) -> None:
     """Append memory tools without dropping unrelated duplicate-named tools."""
-    from deerflow.agents.memory.tools import get_memory_tools
+    from SynapseAI.agents.memory.tools import get_memory_tools
 
     existing_names = {getattr(tool, "name", None) for tool in tools}
     for memory_tool in get_memory_tools():
@@ -240,7 +240,7 @@ def _create_summarization_middleware(
     app_config: AppConfig | None = None,
     run_model_name: str | None = None,
     extensions=None,
-) -> DeerFlowSummarizationMiddleware | None:
+) -> SynapseAISummarizationMiddleware | None:
     """Create and configure the summarization middleware from config.
 
     ``run_model_name`` is the resolved run model; it is the source of truth for
@@ -266,7 +266,7 @@ def _create_todo_list_middleware(is_plan_mode: bool) -> TodoMiddleware | None:
     if not is_plan_mode:
         return None
 
-    # Custom prompts matching DeerFlow's style
+    # Custom prompts matching SynapseAI's style
     system_prompt = """
 <todo_list_system>
 You have access to the `write_todos` tool to help you manage and track complex multi-step objectives.
@@ -396,7 +396,7 @@ def build_middlewares(
     """Build the lead-agent middleware chain based on runtime configuration.
 
     Public entry point for the lead agent's full middleware composition. Used by
-    ``make_lead_agent`` and by the embedded ``DeerFlowClient`` (a lead-agent variant
+    ``make_lead_agent`` and by the embedded ``SynapseAIClient`` (a lead-agent variant
     that needs the identical chain). Keep this name stable: it is imported across a
     module boundary, so renames/signature changes ripple into ``client.py``.
 
@@ -421,7 +421,7 @@ def build_middlewares(
         List of middleware instances.
     """
     resolved_app_config = app_config or get_app_config()
-    from deerflow.extensions import get_agent_build_extensions
+    from SynapseAI.extensions import get_agent_build_extensions
 
     resolved_extensions = extensions if extensions is not None else get_agent_build_extensions()
     runtime_middleware_kwargs = {
@@ -436,14 +436,14 @@ def build_middlewares(
 
     # Always inject current date (and optionally memory) as <system-reminder> into the
     # first HumanMessage to keep the system prompt fully static for prefix-cache reuse.
-    from deerflow.agents.middlewares.dynamic_context_middleware import DynamicContextMiddleware
+    from SynapseAI.agents.middlewares.dynamic_context_middleware import DynamicContextMiddleware
 
     middlewares.append(DynamicContextMiddleware(agent_name=agent_name, app_config=resolved_app_config))
 
     # Deterministically load a full SKILL.md when the user starts the turn with
     # /skill-name. This keeps the base system prompt metadata-only while giving
     # explicit user activation priority over model-side relevance guessing.
-    from deerflow.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
+    from SynapseAI.agents.middlewares.skill_activation_middleware import SkillActivationMiddleware
 
     slash_source_owner_token = secrets.token_urlsafe(24)
     middlewares.append(
@@ -457,7 +457,7 @@ def build_middlewares(
 
     # Enabled skills are only discoverable metadata. Apply allowed-tools at
     # runtime after explicit slash activation or an actual skill-file load.
-    from deerflow.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
+    from SynapseAI.agents.middlewares.skill_tool_policy_middleware import SkillToolPolicyMiddleware
 
     middlewares.append(
         SkillToolPolicyMiddleware(
@@ -471,7 +471,7 @@ def build_middlewares(
     # Capture completed task delegations and loaded skill files before
     # summarization can compact them, then inject durable context channels
     # (summary + ledger + skills) into model calls.
-    from deerflow.agents.middlewares.durable_context_middleware import DurableContextMiddleware
+    from SynapseAI.agents.middlewares.durable_context_middleware import DurableContextMiddleware
 
     middlewares.append(
         DurableContextMiddleware(
@@ -511,7 +511,7 @@ def build_middlewares(
     # Add MemoryMiddleware after TitleMiddleware. Tool mode normally skips it;
     # conversation-extraction backends may explicitly retain passive writes.
     if should_use_memory_tools(resolved_app_config.memory):
-        from deerflow.agents.memory.manager import backend_requires_passive_writes_in_tool_mode
+        from SynapseAI.agents.memory.manager import backend_requires_passive_writes_in_tool_mode
 
         if backend_requires_passive_writes_in_tool_mode(resolved_app_config.memory.manager_class):
             middlewares.append(MemoryMiddleware(agent_name=agent_name, memory_config=resolved_app_config.memory))
@@ -536,17 +536,17 @@ def build_middlewares(
     # catalog; SkillToolPolicyMiddleware separately filters model visibility,
     # tool_search results, and execution for the active skill at runtime.
     if deferred_setup is not None and deferred_setup.deferred_names:
-        from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+        from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
 
         middlewares.append(DeferredToolFilterMiddleware(deferred_setup.deferred_names, deferred_setup.catalog_hash))
-        from deerflow.agents.middlewares.mcp_routing_middleware import assert_mcp_routing_before_deferred_filter
+        from SynapseAI.agents.middlewares.mcp_routing_middleware import assert_mcp_routing_before_deferred_filter
 
         assert_mcp_routing_before_deferred_filter(middlewares)
 
     # Coalesce every SystemMessage into a single leading one before the request
     # reaches the provider. Strict backends (vLLM, SGLang, Qwen, Anthropic)
     # reject non-leading SystemMessages. See system_message_coalescing_middleware.py.
-    from deerflow.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
+    from SynapseAI.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
 
     middlewares.append(SystemMessageCoalescingMiddleware())
 
@@ -567,7 +567,7 @@ def build_middlewares(
     # TokenBudgetMiddleware - enforce per-run token limits
     token_budget_config = resolved_app_config.token_budget
     if token_budget_config.enabled:
-        from deerflow.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
+        from SynapseAI.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
 
         middlewares.append(TokenBudgetMiddleware.from_config(token_budget_config))
 
@@ -606,16 +606,16 @@ def build_middlewares(
     # Doing it inside build_lead_runtime_middlewares() would place
     # MODEL_PHYSICAL contributions above the lead-specific middlewares appended
     # above, changing what "the final request" means for observers.
-    from deerflow_extension_api import AgentScope
+    from SynapseAI_extension_api import AgentScope
 
-    from deerflow.extensions.stack import compose_with_extensions
+    from SynapseAI.extensions.stack import compose_with_extensions
 
     if not resolved_extensions.has_middleware_contributors:
         return compose_with_extensions(middlewares, AgentScope.LEAD, None, resolved_extensions)
 
-    from deerflow_extension_api import AgentBuildContext
+    from SynapseAI_extension_api import AgentBuildContext
 
-    from deerflow.extensions.policy import project_host_policy
+    from SynapseAI.extensions.policy import project_host_policy
 
     return compose_with_extensions(
         middlewares,
@@ -644,7 +644,7 @@ def _available_skill_names(agent_config, is_bootstrap: bool) -> set[str] | None:
 
 def _load_enabled_available_skills(available_skills: set[str] | None, *, app_config: AppConfig, user_id: str | None = None) -> list[Skill]:
     try:
-        from deerflow.agents.lead_agent.prompt import get_enabled_skills_for_config
+        from SynapseAI.agents.lead_agent.prompt import get_enabled_skills_for_config
 
         skills = get_enabled_skills_for_config(app_config, user_id=user_id)
     except Exception:
@@ -689,9 +689,9 @@ def make_lead_agent(config: RunnableConfig):
 
 def _make_lead_agent(config: RunnableConfig, *, app_config: AppConfig):
     # Lazy import to avoid circular dependency
-    from deerflow.tools import get_available_tools
-    from deerflow.tools.builtins import setup_agent, update_agent
-    from deerflow.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware, get_mcp_routing_hints_prompt_section
+    from SynapseAI.tools import get_available_tools
+    from SynapseAI.tools.builtins import setup_agent, update_agent
+    from SynapseAI.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware, get_mcp_routing_hints_prompt_section
 
     cfg = _get_runtime_config(config)
     resolved_app_config = app_config
@@ -703,7 +703,7 @@ def _make_lead_agent(config: RunnableConfig, *, app_config: AppConfig):
     # Resolve one authoritative identity for every user-scoped factory input.
     # Agent Server's reserved auth fields win over ordinary client-supplied
     # context/configurable values; the embedded Gateway path uses context.user_id.
-    from deerflow.runtime.user_context import resolve_config_user_id
+    from SynapseAI.runtime.user_context import resolve_config_user_id
 
     resolved_user_id = resolve_config_user_id(config)
 
@@ -795,7 +795,7 @@ def _make_lead_agent(config: RunnableConfig, *, app_config: AppConfig):
 
     # Build skill search setup (deferred skill discovery).
     # Controlled by skills.deferred_discovery — independent from tool_search.enabled.
-    from deerflow.skills.describe import build_skill_search_setup
+    from SynapseAI.skills.describe import build_skill_search_setup
 
     skill_search_enabled = resolved_app_config.skills.deferred_discovery
     container_base_path = resolved_app_config.skills.container_path

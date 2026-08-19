@@ -2,8 +2,8 @@
 
 import pytest
 
-from deerflow.config.extensions_config import ExtensionsConfig, McpServerConfig
-from deerflow.mcp.client import build_server_params, build_servers_config
+from SynapseAI.config.extensions_config import ExtensionsConfig, McpServerConfig
+from SynapseAI.mcp.client import build_server_params, build_servers_config
 
 
 def test_build_server_params_stdio_success():
@@ -87,7 +87,7 @@ def test_build_server_params_rejects_unsupported_transport():
 def test_mcp_server_config_accepts_transport_alias(transport: str):
     """The MCP-spec ``transport`` field should be accepted as an alias for ``type``.
 
-    Regression test for https://github.com/bytedance/deer-flow/issues/3238 — a
+    Regression test for https://github.com/bytedance/synapse-ai/issues/3238 — a
     remote MCP server configured with only ``transport: sse`` was previously
     misidentified as ``stdio`` (the default for ``type``).
     """

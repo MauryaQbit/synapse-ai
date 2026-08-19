@@ -14,7 +14,7 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from deerflow.runtime.checkpoint_cache.base import CheckpointCacheStats, thread_key_stem
+from SynapseAI.runtime.checkpoint_cache.base import CheckpointCacheStats, thread_key_stem
 
 logger = logging.getLogger(__name__)
 

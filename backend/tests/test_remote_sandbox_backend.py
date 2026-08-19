@@ -3,11 +3,11 @@ from __future__ import annotations
 import pytest
 import requests
 
-import deerflow.skills.storage as storage_mod
-from deerflow.community.aio_sandbox import remote_backend as remote_backend_mod
-from deerflow.community.aio_sandbox.remote_backend import RemoteSandboxBackend
-from deerflow.community.aio_sandbox.sandbox_info import SandboxInfo
-from deerflow.skills.types import SkillCategory
+import SynapseAI.skills.storage as storage_mod
+from SynapseAI.community.aio_sandbox import remote_backend as remote_backend_mod
+from SynapseAI.community.aio_sandbox.remote_backend import RemoteSandboxBackend
+from SynapseAI.community.aio_sandbox.sandbox_info import SandboxInfo
+from SynapseAI.skills.types import SkillCategory
 
 
 class _StubResponse:

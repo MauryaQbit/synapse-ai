@@ -11,25 +11,25 @@ from pathlib import Path
 
 from langchain.tools import tool
 
-from deerflow.agents.thread_state import ThreadDataState
-from deerflow.config import get_app_config
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.runtime.secret_context import read_active_secrets
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.sandbox.exceptions import (
+from SynapseAI.agents.thread_state import ThreadDataState
+from SynapseAI.config import get_app_config
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.runtime.secret_context import read_active_secrets
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.sandbox.exceptions import (
     SandboxError,
     SandboxNotFoundError,
     SandboxRuntimeError,
 )
-from deerflow.sandbox.file_operation_lock import get_file_operation_lock
-from deerflow.sandbox.overwrite import unwrap_sandbox
-from deerflow.sandbox.path_patterns import build_output_mask_pattern
-from deerflow.sandbox.sandbox import Sandbox
-from deerflow.sandbox.sandbox_provider import get_sandbox_provider
-from deerflow.sandbox.search import GrepMatch
-from deerflow.sandbox.security import LOCAL_HOST_BASH_DISABLED_MESSAGE, is_host_bash_allowed
-from deerflow.tools.types import Runtime
+from SynapseAI.sandbox.file_operation_lock import get_file_operation_lock
+from SynapseAI.sandbox.overwrite import unwrap_sandbox
+from SynapseAI.sandbox.path_patterns import build_output_mask_pattern
+from SynapseAI.sandbox.sandbox import Sandbox
+from SynapseAI.sandbox.sandbox_provider import get_sandbox_provider
+from SynapseAI.sandbox.search import GrepMatch
+from SynapseAI.sandbox.security import LOCAL_HOST_BASH_DISABLED_MESSAGE, is_host_bash_allowed
+from SynapseAI.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 
@@ -65,10 +65,10 @@ _DEFAULT_WRITE_FILE_ERROR_MAX_CHARS = 2000
 # because the tool-call JSON payload (which the model must emit as one
 # continuous stream) grows past the safe window. 80 KB ≈ 20K tokens, a
 # comfortable headroom under the factory-default 240s stream_chunk_timeout.
-# Deployments can override via env var DEERFLOW_WRITE_FILE_MAX_BYTES; set to
+# Deployments can override via env var SynapseAI_WRITE_FILE_MAX_BYTES; set to
 # 0 (or negative) to disable the guard entirely.
 _WRITE_FILE_CONTENT_MAX_BYTES = 80 * 1024
-_WRITE_FILE_MAX_BYTES_ENV = "DEERFLOW_WRITE_FILE_MAX_BYTES"
+_WRITE_FILE_MAX_BYTES_ENV = "SynapseAI_WRITE_FILE_MAX_BYTES"
 _LOCAL_BASH_CWD_COMMANDS = {"cd", "pushd"}
 _LOCAL_BASH_COMMAND_WRAPPERS = {"command", "builtin"}
 _LOCAL_BASH_COMMAND_PREFIX_KEYWORDS = {"!", "{", "case", "do", "elif", "else", "for", "if", "select", "then", "time", "until", "while"}
@@ -118,7 +118,7 @@ def _get_skills_container_path() -> str:
     if cached is not None:
         return cached
     try:
-        from deerflow.config import get_app_config
+        from SynapseAI.config import get_app_config
 
         value = get_app_config().skills.container_path
         _get_skills_container_path._cached = value  # type: ignore[attr-defined]
@@ -139,7 +139,7 @@ def _get_skills_host_path() -> str | None:
     if cached is not None:
         return cached
     try:
-        from deerflow.config import get_app_config
+        from SynapseAI.config import get_app_config
 
         config = get_app_config()
         skills_path = config.skills.get_skills_path()
@@ -211,8 +211,8 @@ def _is_disabled_skill_path(path: str, *, user_id: str | None = None) -> bool:
     if skill_name is None:
         return False
     try:
-        from deerflow.runtime.user_context import get_effective_user_id
-        from deerflow.skills.storage import get_or_new_user_skill_storage
+        from SynapseAI.runtime.user_context import get_effective_user_id
+        from SynapseAI.skills.storage import get_or_new_user_skill_storage
 
         # Determine the category from the path
         skills_prefix = _get_skills_container_path()
@@ -236,7 +236,7 @@ def _is_disabled_skill_path(path: str, *, user_id: str | None = None) -> bool:
             category = matching.category.value
 
         if category == "public":
-            from deerflow.config.extensions_config import ExtensionsConfig
+            from SynapseAI.config.extensions_config import ExtensionsConfig
 
             ext_config = ExtensionsConfig.from_file()
             return not ext_config.is_skill_enabled(skill_name, category)
@@ -326,8 +326,8 @@ def _resolve_skills_path(path: str) -> str:
     # ``skills/custom/`` — an entirely different directory that may be
     # empty or contain legacy skills only.
     if relative == "custom" or relative.startswith("custom/"):
-        from deerflow.config.paths import get_paths
-        from deerflow.runtime.user_context import get_effective_user_id
+        from SynapseAI.config.paths import get_paths
+        from SynapseAI.runtime.user_context import get_effective_user_id
 
         user_id = get_effective_user_id()
         paths = get_paths()
@@ -338,7 +338,7 @@ def _resolve_skills_path(path: str) -> str:
         return str(user_custom_dir)
 
     if relative == "integrations" or relative.startswith("integrations/"):
-        from deerflow.config.paths import get_paths
+        from SynapseAI.config.paths import get_paths
 
         paths = get_paths()
         integrations_dir = paths.integration_skills_dir()
@@ -374,7 +374,7 @@ def _get_custom_mounts():
     try:
         from pathlib import Path
 
-        from deerflow.config import get_app_config
+        from SynapseAI.config import get_app_config
 
         config = get_app_config()
         mounts = []
@@ -441,8 +441,8 @@ def _get_acp_workspace_host_path(thread_id: str | None = None) -> str | None:
     """
     if thread_id is not None:
         try:
-            from deerflow.config.paths import get_paths
-            from deerflow.runtime.user_context import get_effective_user_id
+            from SynapseAI.config.paths import get_paths
+            from SynapseAI.runtime.user_context import get_effective_user_id
 
             host_path = get_paths().acp_workspace_dir(thread_id, user_id=get_effective_user_id())
             if host_path.exists():
@@ -455,7 +455,7 @@ def _get_acp_workspace_host_path(thread_id: str | None = None) -> str | None:
     if cached is not None:
         return cached
     try:
-        from deerflow.config.paths import get_paths
+        from SynapseAI.config.paths import get_paths
 
         host_path = get_paths().base_dir / "acp-workspace"
         if host_path.exists():
@@ -517,7 +517,7 @@ def _get_mcp_allowed_paths() -> list[str]:
     """Get the list of allowed paths from MCP config for file system server."""
     allowed_paths = []
     try:
-        from deerflow.config.extensions_config import get_extensions_config
+        from SynapseAI.config.extensions_config import get_extensions_config
 
         extensions_config = get_extensions_config()
 
@@ -754,7 +754,7 @@ def _compiled_mask_patterns(sources: tuple[tuple[str, str], ...]) -> tuple[tuple
     """
     # The segment boundary and path tail are shared with
     # ``LocalSandbox._reverse_output_patterns`` — see
-    # ``deerflow.sandbox.path_patterns``, which owns that rule so the two copies
+    # ``SynapseAI.sandbox.path_patterns``, which owns that rule so the two copies
     # cannot drift again (#4035 fixed one and missed the other; #4053 fixed the
     # other).
     #
@@ -801,8 +801,8 @@ def mask_local_paths_in_output(output: str, thread_data: ThreadDataState | None)
     # mask_local_paths_in_output serves as a safety net for edge cases
     # where host paths appear in output that bypassed sandbox resolution.
     try:
-        from deerflow.config.paths import get_paths
-        from deerflow.runtime.user_context import get_effective_user_id
+        from SynapseAI.config.paths import get_paths
+        from SynapseAI.runtime.user_context import get_effective_user_id
 
         user_id = get_effective_user_id()
         user_custom_dir = get_paths().user_custom_skills_dir(user_id)
@@ -1643,7 +1643,7 @@ def _truncate_ls_output(output: str, max_chars: int) -> str:
 # Fixed env var exposing the IM-channel platform user id (Feishu open_id,
 # Slack Uxxx, ...) to sandbox commands, so skills can act on the current end
 # user's channel identity (#3914). An identifier, not a secret.
-CHANNEL_USER_ID_ENV = "DEERFLOW_CHANNEL_USER_ID"
+CHANNEL_USER_ID_ENV = "SynapseAI_CHANNEL_USER_ID"
 
 _CHANNEL_USER_ID_CONTEXT_KEY = "channel_user_id"
 
@@ -1740,7 +1740,7 @@ _LARK_CLI_COMMAND_RE = re.compile(r"(?<![A-Za-z0-9_.-])lark-cli(?![A-Za-z0-9_.-]
 def _lark_cli_env_from_runtime(runtime: Runtime, command: str, *, sandbox_paths: bool) -> dict[str, str] | None:
     """Expose Settings-page Lark auth to sandbox ``lark-cli`` commands.
 
-    Settings authorizes ``lark-cli`` under DeerFlow's per-user integration
+    Settings authorizes ``lark-cli`` under SynapseAI's per-user integration
     config/data directories. Agent conversations invoke ``lark-cli`` through the
     sandbox, so lark commands must receive those same directories or they see an
     unrelated unauthenticated profile. Keep this scoped to commands that
@@ -1754,7 +1754,7 @@ def _lark_cli_env_from_runtime(runtime: Runtime, command: str, *, sandbox_paths:
     if not _LARK_CLI_COMMAND_RE.search(command):
         return None
     try:
-        from deerflow.integrations.lark_cli import lark_cli_env_overlay, sandbox_lark_broker_active
+        from SynapseAI.integrations.lark_cli import lark_cli_env_overlay, sandbox_lark_broker_active
 
         broker = sandbox_paths and sandbox_lark_broker_active()
         return lark_cli_env_overlay(resolve_runtime_user_id(runtime), sandbox_paths=sandbox_paths, broker=broker)
@@ -1807,7 +1807,7 @@ def bash_tool(runtime: Runtime, description: str, command: str) -> str:
             if identity_prefix and not _is_windows():
                 command = identity_prefix + command
             try:
-                from deerflow.config.app_config import get_app_config
+                from SynapseAI.config.app_config import get_app_config
 
                 sandbox_cfg = get_app_config().sandbox
                 max_chars = sandbox_cfg.bash_output_max_chars if sandbox_cfg else 20000
@@ -1825,7 +1825,7 @@ def bash_tool(runtime: Runtime, description: str, command: str) -> str:
         if identity_prefix:
             command = identity_prefix + command
         try:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             sandbox_cfg = get_app_config().sandbox
             max_chars = sandbox_cfg.bash_output_max_chars if sandbox_cfg else 20000
@@ -1891,7 +1891,7 @@ def ls_tool(runtime: Runtime, description: str, path: str) -> str:
             return "(empty)"
         output = "\n".join(entries)
         try:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             sandbox_cfg = get_app_config().sandbox
             max_chars = sandbox_cfg.ls_output_max_chars if sandbox_cfg else 20000
@@ -2168,7 +2168,7 @@ def read_file_tool(
                 return "(start_line exceeds file length)"
             return "(empty)"
         try:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             sandbox_cfg = get_app_config().sandbox
             max_chars = sandbox_cfg.read_file_output_max_chars if sandbox_cfg else 50000
@@ -2209,7 +2209,7 @@ read_file_tool.coroutine = _read_file_tool_async
 def _effective_write_file_max_bytes() -> int:
     """Return the active size cap for non-append write_file calls.
 
-    Reads ``DEERFLOW_WRITE_FILE_MAX_BYTES`` at call time (not import time)
+    Reads ``SynapseAI_WRITE_FILE_MAX_BYTES`` at call time (not import time)
     so tests and runtime tweaks take effect without restart. Falls back to
     the default on missing/malformed values. A non-positive value disables
     the guard.
@@ -2256,7 +2256,7 @@ def write_file_tool(
          create the file; subsequent calls use append=True. The 80 KB cap does
          NOT apply to append=True calls.
 
-    Operators can override the cap via env var `DEERFLOW_WRITE_FILE_MAX_BYTES`
+    Operators can override the cap via env var `SynapseAI_WRITE_FILE_MAX_BYTES`
     (0 disables the guard entirely). Raising it risks streaming timeouts.
 
     Args:

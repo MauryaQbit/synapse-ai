@@ -8,12 +8,12 @@ from langchain_core.language_models.fake_chat_models import GenericFakeChatModel
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from langchain_core.tools import tool as as_tool
 
-from deerflow.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
-from deerflow.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware, assert_mcp_routing_before_deferred_filter
-from deerflow.agents.thread_state import ThreadState, merge_promoted
-from deerflow.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware
-from deerflow.tools.mcp_metadata import tag_mcp_routing, tag_mcp_tool
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from SynapseAI.agents.middlewares.deferred_tool_filter_middleware import DeferredToolFilterMiddleware
+from SynapseAI.agents.middlewares.mcp_routing_middleware import McpRoutingMiddleware, assert_mcp_routing_before_deferred_filter
+from SynapseAI.agents.thread_state import ThreadState, merge_promoted
+from SynapseAI.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware
+from SynapseAI.tools.mcp_metadata import tag_mcp_routing, tag_mcp_tool
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
 
 @as_tool

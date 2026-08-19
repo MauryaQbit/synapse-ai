@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from deerflow.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaStore
-from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-from deerflow.persistence.thread_meta.model import ThreadMetaRow
-from deerflow.persistence.thread_meta.sql import ThreadMetaRepository
+from SynapseAI.persistence.thread_meta.base import THREAD_PINNED_METADATA_KEY, InvalidMetadataFilterError, ThreadMetaStore
+from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+from SynapseAI.persistence.thread_meta.model import ThreadMetaRow
+from SynapseAI.persistence.thread_meta.sql import ThreadMetaRepository
 
 if TYPE_CHECKING:
     from langgraph.store.base import BaseStore

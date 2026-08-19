@@ -58,7 +58,7 @@ def test_detect_mode_local_provider():
     """Local sandbox provider should map to local mode."""
     config = """
 sandbox:
-  use: deerflow.sandbox.local:LocalSandboxProvider
+  use: SynapseAI.sandbox.local:LocalSandboxProvider
 """.strip()
 
     assert _detect_mode_with_config(config) == "local"
@@ -68,7 +68,7 @@ def test_detect_mode_aio_without_provisioner_url():
     """AIO sandbox without provisioner_url should map to aio mode."""
     config = """
 sandbox:
-  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  use: SynapseAI.community.aio_sandbox:AioSandboxProvider
 """.strip()
 
     assert _detect_mode_with_config(config) == "aio"
@@ -78,7 +78,7 @@ def test_detect_mode_provisioner_with_url():
     """AIO sandbox with provisioner_url should map to provisioner mode."""
     config = """
 sandbox:
-  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  use: SynapseAI.community.aio_sandbox:AioSandboxProvider
   provisioner_url: http://provisioner:8002
 """.strip()
 
@@ -89,7 +89,7 @@ def test_detect_mode_ignores_commented_provisioner_url():
     """Commented provisioner_url should not activate provisioner mode."""
     config = """
 sandbox:
-  use: deerflow.community.aio_sandbox:AioSandboxProvider
+  use: SynapseAI.community.aio_sandbox:AioSandboxProvider
   # provisioner_url: http://provisioner:8002
 """.strip()
 
@@ -115,8 +115,8 @@ source '{SCRIPT_PATH}'
 PROJECT_ROOT='{tmpdir}'
 DOCKER_DIR='{tmpdir}'
 COMPOSE_CMD=capture_compose
-capture_compose() {{ test "${{DEER_FLOW_ROOT:-}}" = "$PROJECT_ROOT"; }}
-unset DEER_FLOW_ROOT
+capture_compose() {{ test "${{SYNAPSE_ROOT:-}}" = "$PROJECT_ROOT"; }}
+unset SYNAPSE_ROOT
 {docker_command}
 """
         subprocess.check_call([BASH_EXECUTABLE, "-lc", command])

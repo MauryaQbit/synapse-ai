@@ -14,11 +14,11 @@ from contextlib import nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 
-from deerflow.config.runtime_paths import resolve_path
-from deerflow.constants import DEFAULT_SKILLS_CONTAINER_PATH
-from deerflow.skills.permissions import make_skill_written_path_sandbox_readable
-from deerflow.skills.storage.skill_storage import SKILL_MD_FILE, SkillStorage
-from deerflow.skills.types import SkillCategory
+from SynapseAI.config.runtime_paths import resolve_path
+from SynapseAI.constants import DEFAULT_SKILLS_CONTAINER_PATH
+from SynapseAI.skills.permissions import make_skill_written_path_sandbox_readable
+from SynapseAI.skills.storage.skill_storage import SKILL_MD_FILE, SkillStorage
+from SynapseAI.skills.types import SkillCategory
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class LocalSkillStorage(SkillStorage):
     ) -> None:
         super().__init__(container_path=container_path)
         if host_path is None:
-            from deerflow.config import get_app_config
+            from SynapseAI.config import get_app_config
 
             config = app_config or get_app_config()
             self._app_config = config
@@ -122,7 +122,7 @@ class LocalSkillStorage(SkillStorage):
             return super().remove_custom_skill_file(name, relative_path)
 
     async def ainstall_skill_from_archive(self, archive_path: str | Path) -> dict:
-        from deerflow.skills.installer import _scan_skill_archive_contents_or_raise
+        from SynapseAI.skills.installer import _scan_skill_archive_contents_or_raise
 
         logger.info("Installing skill from %s", archive_path)
         path = Path(archive_path)
@@ -165,13 +165,13 @@ class LocalSkillStorage(SkillStorage):
         """Extract and validate the archive (blocking; runs off the event loop)."""
         import zipfile
 
-        from deerflow.skills.installer import (
+        from SynapseAI.skills.installer import (
             SkillAlreadyExistsError,
             resolve_skill_dir_from_archive,
             safe_extract_skill_archive,
             scan_archive_preflight_or_raise,
         )
-        from deerflow.skills.validation import _validate_skill_frontmatter
+        from SynapseAI.skills.validation import _validate_skill_frontmatter
 
         if not path.is_file():
             if not path.exists():
@@ -209,7 +209,7 @@ class LocalSkillStorage(SkillStorage):
 
     def _commit_skill_install(self, skill_dir: Path, skill_name: str, custom_dir: Path, target: Path) -> None:
         """Stage and move the validated skill into place (blocking; runs off the event loop)."""
-        from deerflow.skills.installer import _move_staged_skill_into_reserved_target
+        from SynapseAI.skills.installer import _move_staged_skill_into_reserved_target
 
         with self._skill_projection_mutation():
             with tempfile.TemporaryDirectory(prefix=f".installing-{skill_name}-", dir=custom_dir) as staging_root:
@@ -247,7 +247,7 @@ class LocalSkillStorage(SkillStorage):
     ):
         if getattr(self, "user_id", None) is None:
             return nullcontext()
-        from deerflow.skills.projection import skill_projection_mutation
+        from SynapseAI.skills.projection import skill_projection_mutation
 
         return skill_projection_mutation(self, "user", remove=remove, remove_names=remove_names)
 

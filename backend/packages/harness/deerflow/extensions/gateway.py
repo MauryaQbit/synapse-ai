@@ -8,11 +8,11 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-from deerflow_extension_api import ExtensionRuntimeDeps
+from SynapseAI_extension_api import ExtensionRuntimeDeps
 
-from deerflow.extensions.loader import Diagnostic
-from deerflow.extensions.policy import project_host_policy
-from deerflow.extensions.registry import LoadedExtensions
+from SynapseAI.extensions.loader import Diagnostic
+from SynapseAI.extensions.policy import project_host_policy
+from SynapseAI.extensions.registry import LoadedExtensions
 
 logger = logging.getLogger(__name__)
 

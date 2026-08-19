@@ -88,7 +88,7 @@ def _dedupe_active_runs_per_thread() -> None:
 
 
 def upgrade() -> None:
-    from deerflow.persistence.migrations._helpers import safe_add_column
+    from SynapseAI.persistence.migrations._helpers import safe_add_column
 
     safe_add_column("runs", sa.Column("owner_worker_id", sa.String(length=128), nullable=True))
     safe_add_column("runs", sa.Column("lease_expires_at", sa.DateTime(timezone=True), nullable=True))
@@ -128,7 +128,7 @@ def downgrade() -> None:
         with op.batch_alter_table("runs", schema=None) as batch_op:
             batch_op.drop_index("ix_runs_lease")
 
-    from deerflow.persistence.migrations._helpers import safe_drop_column
+    from SynapseAI.persistence.migrations._helpers import safe_drop_column
 
     safe_drop_column("runs", "lease_expires_at")
     safe_drop_column("runs", "owner_worker_id")

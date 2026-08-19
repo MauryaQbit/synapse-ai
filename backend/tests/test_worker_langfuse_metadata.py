@@ -11,11 +11,11 @@ import asyncio
 
 import pytest
 
-from deerflow.runtime.runs.manager import RunRecord, RunStartOutcome
-from deerflow.runtime.runs.schemas import DisconnectMode, RunStatus
-from deerflow.runtime.runs.worker import RunContext, run_agent
-from deerflow.trace_context import (
-    DEERFLOW_TRACE_METADATA_KEY,
+from SynapseAI.runtime.runs.manager import RunRecord, RunStartOutcome
+from SynapseAI.runtime.runs.schemas import DisconnectMode, RunStatus
+from SynapseAI.runtime.runs.worker import RunContext, run_agent
+from SynapseAI.trace_context import (
+    SynapseAI_TRACE_METADATA_KEY,
     mark_trace_id_from_request_header,
     request_trace_context,
     reset_trace_id_from_request_header,
@@ -84,7 +84,7 @@ class _FakeBridge:
 
 @pytest.fixture(autouse=True)
 def _clear_tracing_env(monkeypatch):
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     for name in ("LANGFUSE_TRACING", "LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_BASE_URL"):
         monkeypatch.delenv(name, raising=False)
@@ -98,7 +98,7 @@ async def test_run_agent_injects_langfuse_metadata(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
 
@@ -137,8 +137,8 @@ async def test_run_agent_injects_langfuse_metadata(monkeypatch):
     user_id = metadata.get("langfuse_user_id")
     assert user_id == "test-user-autouse", f"expected test-user-autouse, got {user_id}"
     assert metadata.get("langfuse_trace_name") == "lead-agent"
-    assert metadata.get(DEERFLOW_TRACE_METADATA_KEY) == "gateway-trace-1"
-    assert fake_agent.captured_config.get("context", {}).get(DEERFLOW_TRACE_METADATA_KEY) == "gateway-trace-1"
+    assert metadata.get(SynapseAI_TRACE_METADATA_KEY) == "gateway-trace-1"
+    assert fake_agent.captured_config.get("context", {}).get(SynapseAI_TRACE_METADATA_KEY) == "gateway-trace-1"
     tags = metadata.get("langfuse_tags") or []
     assert "model:gpt-4o" in tags
 
@@ -156,7 +156,7 @@ async def test_run_agent_uses_context_user_id_over_contextvar(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
 
@@ -211,9 +211,9 @@ async def test_run_agent_falls_back_to_default_user_when_unset(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
-    from deerflow.runtime import user_context as user_context_module
-    from deerflow.runtime.user_context import DEFAULT_USER_ID
+    from SynapseAI.config.tracing_config import reset_tracing_config
+    from SynapseAI.runtime import user_context as user_context_module
+    from SynapseAI.runtime.user_context import DEFAULT_USER_ID
 
     reset_tracing_config()
     monkeypatch.setattr(user_context_module, "get_effective_user_id", lambda: DEFAULT_USER_ID)
@@ -253,7 +253,7 @@ async def test_run_agent_preserves_caller_metadata_overrides(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
 
@@ -282,7 +282,7 @@ async def test_run_agent_preserves_caller_metadata_overrides(monkeypatch):
         config={
             "configurable": {"thread_id": "thread-default"},
             "metadata": {
-                DEERFLOW_TRACE_METADATA_KEY: "explicit-deerflow-trace",
+                SynapseAI_TRACE_METADATA_KEY: "explicit-SynapseAI-trace",
                 "langfuse_session_id": "custom-session-id",
                 "langfuse_user_id": "explicit-user",
             },
@@ -293,19 +293,19 @@ async def test_run_agent_preserves_caller_metadata_overrides(monkeypatch):
     # Caller-supplied keys win.
     assert metadata["langfuse_session_id"] == "custom-session-id"
     assert metadata["langfuse_user_id"] == "explicit-user"
-    assert metadata[DEERFLOW_TRACE_METADATA_KEY] == "explicit-deerflow-trace"
-    assert fake_agent.captured_config.get("context", {}).get(DEERFLOW_TRACE_METADATA_KEY) == "explicit-deerflow-trace"
+    assert metadata[SynapseAI_TRACE_METADATA_KEY] == "explicit-SynapseAI-trace"
+    assert fake_agent.captured_config.get("context", {}).get(SynapseAI_TRACE_METADATA_KEY) == "explicit-SynapseAI-trace"
     # Worker still fills in keys that the caller didn't set.
     assert metadata["langfuse_trace_name"] == "lead-agent"
 
 
 @pytest.mark.asyncio
 async def test_run_agent_inbound_header_trace_overrides_metadata(monkeypatch):
-    """A valid inbound ``X-Trace-Id`` wins over ``config.metadata.deerflow_trace_id``."""
+    """A valid inbound ``X-Trace-Id`` wins over ``config.metadata.SynapseAI_trace_id``."""
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
 
@@ -337,7 +337,7 @@ async def test_run_agent_inbound_header_trace_overrides_metadata(monkeypatch):
                 config={
                     "configurable": {"thread_id": "thread-header"},
                     "metadata": {
-                        DEERFLOW_TRACE_METADATA_KEY: "metadata-trace-ignored",
+                        SynapseAI_TRACE_METADATA_KEY: "metadata-trace-ignored",
                     },
                 },
             )
@@ -345,8 +345,8 @@ async def test_run_agent_inbound_header_trace_overrides_metadata(monkeypatch):
             reset_trace_id_from_request_header(header_token)
 
     metadata = fake_agent.captured_config.get("metadata") or {}
-    assert metadata[DEERFLOW_TRACE_METADATA_KEY] == "header-trace-1"
-    assert fake_agent.captured_config.get("context", {}).get(DEERFLOW_TRACE_METADATA_KEY) == "header-trace-1"
+    assert metadata[SynapseAI_TRACE_METADATA_KEY] == "header-trace-1"
+    assert fake_agent.captured_config.get("context", {}).get(SynapseAI_TRACE_METADATA_KEY) == "header-trace-1"
 
 
 @pytest.mark.asyncio

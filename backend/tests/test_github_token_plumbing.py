@@ -28,8 +28,8 @@ from langgraph_sdk.errors import ConflictError
 from app.channels.manager import ChannelManager
 from app.channels.message_bus import InboundMessage, InboundMessageType, MessageBus
 from app.channels.store import ChannelStore
-from deerflow.sandbox.local.local_sandbox import LocalSandbox
-from deerflow.sandbox.tools import _github_env_from_runtime, bash_tool
+from SynapseAI.sandbox.local.local_sandbox import LocalSandbox
+from SynapseAI.sandbox.tools import _github_env_from_runtime, bash_tool
 
 
 def _make_conflict_error(detail: str = "thread_id already exists") -> ConflictError:
@@ -51,7 +51,7 @@ def _make_conflict_error(detail: str = "thread_id already exists") -> ConflictEr
 def test_local_sandbox_env_overlay_reaches_subprocess(monkeypatch: pytest.MonkeyPatch) -> None:
     """``env`` is layered on top of a sanitized os.environ for the subprocess
     call — inherited benign vars survive, the injected secret wins."""
-    import deerflow.sandbox.local.local_sandbox as local_sandbox
+    import SynapseAI.sandbox.local.local_sandbox as local_sandbox
 
     captured: dict = {}
 
@@ -74,7 +74,7 @@ def test_local_sandbox_env_overlay_reaches_subprocess(monkeypatch: pytest.Monkey
 def test_local_sandbox_no_env_passes_sanitized_environ(monkeypatch: pytest.MonkeyPatch) -> None:
     """Without ``env`` the subprocess still gets a sanitized environ — platform
     secrets are scrubbed (#3861), only benign inherited vars survive."""
-    import deerflow.sandbox.local.local_sandbox as local_sandbox
+    import SynapseAI.sandbox.local.local_sandbox as local_sandbox
 
     captured: dict = {}
 
@@ -102,7 +102,7 @@ def test_aio_sandbox_env_routes_through_bash_exec() -> None:
     persistent-shell ``export … unset`` overlay, which could not keep secrets
     out of the command string.
     """
-    from deerflow.community.aio_sandbox.aio_sandbox import AioSandbox
+    from SynapseAI.community.aio_sandbox.aio_sandbox import AioSandbox
 
     captured: dict = {}
 
@@ -127,7 +127,7 @@ def test_aio_sandbox_env_routes_through_bash_exec() -> None:
 
 
 def test_aio_sandbox_no_env_leaves_command_unchanged() -> None:
-    from deerflow.community.aio_sandbox.aio_sandbox import AioSandbox
+    from SynapseAI.community.aio_sandbox.aio_sandbox import AioSandbox
 
     captured: dict = {}
 
@@ -201,7 +201,7 @@ def test_extra_env_rejects_invalid_keys(bad_key) -> None:
     route a key through a shell — the contract is what matters, not each
     implementation's current escaping rules.
     """
-    from deerflow.sandbox.sandbox import _validate_extra_env
+    from SynapseAI.sandbox.sandbox import _validate_extra_env
 
     with pytest.raises(ValueError, match="extra_env key"):
         _validate_extra_env({bad_key: "value"})
@@ -220,7 +220,7 @@ def test_extra_env_rejects_invalid_keys(bad_key) -> None:
 )
 def test_extra_env_accepts_valid_keys(good_key: str) -> None:
     """POSIX env-var names round-trip cleanly."""
-    from deerflow.sandbox.sandbox import _validate_extra_env
+    from SynapseAI.sandbox.sandbox import _validate_extra_env
 
     # No exception => acceptance.
     _validate_extra_env({good_key: "any value with spaces and $metachars"})
@@ -228,7 +228,7 @@ def test_extra_env_accepts_valid_keys(good_key: str) -> None:
 
 def test_extra_env_none_and_empty_pass_through() -> None:
     """``None`` and empty dicts are the common case — must not raise."""
-    from deerflow.sandbox.sandbox import _validate_extra_env
+    from SynapseAI.sandbox.sandbox import _validate_extra_env
 
     _validate_extra_env(None)
     _validate_extra_env({})
@@ -238,7 +238,7 @@ def test_local_sandbox_rejects_invalid_env_key(monkeypatch: pytest.MonkeyPatch) 
     """End-to-end: a bad key reaches the implementation's ``execute_command``
     and is rejected before any subprocess is spawned.
     """
-    import deerflow.sandbox.local.local_sandbox as local_sandbox
+    import SynapseAI.sandbox.local.local_sandbox as local_sandbox
 
     fake_run_called = False
 
@@ -261,7 +261,7 @@ def test_aio_sandbox_rejects_invalid_env_key() -> None:
     """End-to-end on the AIO sandbox path — the injection vector flagged in
     the review never reaches the shell's ``exec_command``.
     """
-    from deerflow.community.aio_sandbox.aio_sandbox import AioSandbox
+    from SynapseAI.community.aio_sandbox.aio_sandbox import AioSandbox
 
     exec_called = False
 
@@ -362,8 +362,8 @@ def test_bash_tool_passes_token_as_env(monkeypatch: pytest.MonkeyPatch) -> None:
             captured["env"] = env
             return "done"
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: _Sandbox())
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: _Sandbox())
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
 
     result = bash_tool.func(runtime=runtime, description="push", command="git push")
 
@@ -385,8 +385,8 @@ def test_bash_tool_no_env_without_token(monkeypatch: pytest.MonkeyPatch) -> None
             captured["env"] = env
             return "done"
 
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_sandbox_initialized", lambda runtime: _Sandbox())
-    monkeypatch.setattr("deerflow.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_sandbox_initialized", lambda runtime: _Sandbox())
+    monkeypatch.setattr("SynapseAI.sandbox.tools.ensure_thread_directories_exist", lambda runtime: None)
 
     bash_tool.func(runtime=runtime, description="ls", command="ls")
     assert captured["env"] is None

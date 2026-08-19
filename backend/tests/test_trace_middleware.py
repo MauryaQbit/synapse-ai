@@ -5,7 +5,7 @@ from fastapi.responses import Response, StreamingResponse
 from starlette.testclient import TestClient
 
 from app.gateway.trace_middleware import TraceMiddleware, resolve_trace_enabled
-from deerflow.trace_context import (
+from SynapseAI.trace_context import (
     TRACE_ID_HEADER,
     get_current_trace_id,
     is_trace_id_from_request_header,

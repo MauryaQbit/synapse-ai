@@ -9,47 +9,47 @@ import yaml
 from dotenv import load_dotenv
 from pydantic import BaseModel, ConfigDict, Field, PrivateAttr, model_validator
 
-from deerflow.config.acp_config import ACPAgentConfig, load_acp_config_from_dict
-from deerflow.config.agent_storage_config import AgentStorageConfig
-from deerflow.config.agents_api_config import AgentsApiConfig, load_agents_api_config_from_dict
-from deerflow.config.auth_config import AuthAppConfig
-from deerflow.config.authorization_config import AuthorizationConfig, load_authorization_config_from_dict
-from deerflow.config.channel_connections_config import ChannelConnectionsConfig
-from deerflow.config.checkpointer_config import CheckpointerConfig, load_checkpointer_config_from_dict
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.config.dedupe_storage_config import DedupeStorageConfig
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.config.file_signature import ConfigSignature as _ConfigSignature
-from deerflow.config.file_signature import get_config_signature as _get_config_signature
-from deerflow.config.guardrails_config import GuardrailsConfig, load_guardrails_config_from_dict
-from deerflow.config.input_polish_config import InputPolishConfig
-from deerflow.config.loop_detection_config import LoopDetectionConfig
-from deerflow.config.mcp_tasks_config import McpTasksConfig
-from deerflow.config.memory_config import MemoryConfig, load_memory_config_from_dict
-from deerflow.config.model_config import ModelConfig
-from deerflow.config.read_before_write_config import ReadBeforeWriteConfig
-from deerflow.config.reload_boundary import format_field_description
-from deerflow.config.run_events_config import RunEventsConfig
-from deerflow.config.run_ownership_config import RunOwnershipConfig
-from deerflow.config.runtime_paths import existing_project_file
-from deerflow.config.safety_finish_reason_config import SafetyFinishReasonConfig
-from deerflow.config.sandbox_config import SandboxConfig
-from deerflow.config.scheduler_config import SchedulerConfig
-from deerflow.config.skill_evolution_config import SkillEvolutionConfig
-from deerflow.config.skill_scan_config import SkillScanConfig
-from deerflow.config.skills_config import SkillsConfig
-from deerflow.config.stream_bridge_config import StreamBridgeConfig, load_stream_bridge_config_from_dict
-from deerflow.config.subagents_config import SubagentsAppConfig, load_subagents_config_from_dict
-from deerflow.config.suggestions_config import SuggestionsConfig
-from deerflow.config.summarization_config import SummarizationConfig, load_summarization_config_from_dict
-from deerflow.config.title_config import TitleConfig, load_title_config_from_dict
-from deerflow.config.token_budget_config import TokenBudgetConfig
-from deerflow.config.token_usage_config import TokenUsageConfig
-from deerflow.config.tool_config import ToolConfig, ToolGroupConfig
-from deerflow.config.tool_output_config import ToolOutputConfig
-from deerflow.config.tool_progress_config import ToolProgressConfig
-from deerflow.config.tool_search_config import ToolSearchConfig, load_tool_search_config_from_dict
-from deerflow.extensions.loader import ExtensionSpec
+from SynapseAI.config.acp_config import ACPAgentConfig, load_acp_config_from_dict
+from SynapseAI.config.agent_storage_config import AgentStorageConfig
+from SynapseAI.config.agents_api_config import AgentsApiConfig, load_agents_api_config_from_dict
+from SynapseAI.config.auth_config import AuthAppConfig
+from SynapseAI.config.authorization_config import AuthorizationConfig, load_authorization_config_from_dict
+from SynapseAI.config.channel_connections_config import ChannelConnectionsConfig
+from SynapseAI.config.checkpointer_config import CheckpointerConfig, load_checkpointer_config_from_dict
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.config.dedupe_storage_config import DedupeStorageConfig
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.config.file_signature import ConfigSignature as _ConfigSignature
+from SynapseAI.config.file_signature import get_config_signature as _get_config_signature
+from SynapseAI.config.guardrails_config import GuardrailsConfig, load_guardrails_config_from_dict
+from SynapseAI.config.input_polish_config import InputPolishConfig
+from SynapseAI.config.loop_detection_config import LoopDetectionConfig
+from SynapseAI.config.mcp_tasks_config import McpTasksConfig
+from SynapseAI.config.memory_config import MemoryConfig, load_memory_config_from_dict
+from SynapseAI.config.model_config import ModelConfig
+from SynapseAI.config.read_before_write_config import ReadBeforeWriteConfig
+from SynapseAI.config.reload_boundary import format_field_description
+from SynapseAI.config.run_events_config import RunEventsConfig
+from SynapseAI.config.run_ownership_config import RunOwnershipConfig
+from SynapseAI.config.runtime_paths import existing_project_file
+from SynapseAI.config.safety_finish_reason_config import SafetyFinishReasonConfig
+from SynapseAI.config.sandbox_config import SandboxConfig
+from SynapseAI.config.scheduler_config import SchedulerConfig
+from SynapseAI.config.skill_evolution_config import SkillEvolutionConfig
+from SynapseAI.config.skill_scan_config import SkillScanConfig
+from SynapseAI.config.skills_config import SkillsConfig
+from SynapseAI.config.stream_bridge_config import StreamBridgeConfig, load_stream_bridge_config_from_dict
+from SynapseAI.config.subagents_config import SubagentsAppConfig, load_subagents_config_from_dict
+from SynapseAI.config.suggestions_config import SuggestionsConfig
+from SynapseAI.config.summarization_config import SummarizationConfig, load_summarization_config_from_dict
+from SynapseAI.config.title_config import TitleConfig, load_title_config_from_dict
+from SynapseAI.config.token_budget_config import TokenBudgetConfig
+from SynapseAI.config.token_usage_config import TokenUsageConfig
+from SynapseAI.config.tool_config import ToolConfig, ToolGroupConfig
+from SynapseAI.config.tool_output_config import ToolOutputConfig
+from SynapseAI.config.tool_progress_config import ToolProgressConfig
+from SynapseAI.config.tool_search_config import ToolSearchConfig, load_tool_search_config_from_dict
+from SynapseAI.extensions.loader import ExtensionSpec
 
 load_dotenv()
 
@@ -58,7 +58,7 @@ logger = logging.getLogger(__name__)
 
 CONFIG_FILE_DATABASE_DEFAULTS = {
     "backend": "sqlite",
-    "sqlite_dir": ".deer-flow/data",
+    "sqlite_dir": ".synapse-ai/data",
 }
 
 
@@ -143,8 +143,8 @@ def is_trace_correlation_enabled(config: Any) -> bool:
     """Return ``True`` when ``logging.enhance.enabled`` is set on *config*.
 
     Single source of truth for the request-trace-correlation gate, shared by
-    the Gateway ``TraceMiddleware`` and the embedded ``DeerFlowClient`` so
-    the two entry points cannot drift on when ``deerflow_trace_id`` is
+    the Gateway ``TraceMiddleware`` and the embedded ``SynapseAIClient`` so
+    the two entry points cannot drift on when ``SynapseAI_trace_id`` is
     emitted (Langfuse metadata) and when a request-level trace id is bound
     at all. Accepts any object exposing ``logging.enhance.enabled`` via
     ``getattr`` chains (``AppConfig``, ``SimpleNamespace`` fixtures, etc.);
@@ -169,9 +169,9 @@ def logging_level_from_config(name: str | None) -> int:
 
 
 def apply_logging_level(name: str | None) -> None:
-    """Resolve *name* to a logging level and apply it to the ``deerflow``/``app`` logger hierarchies.
+    """Resolve *name* to a logging level and apply it to the ``SynapseAI``/``app`` logger hierarchies.
 
-    Only the ``deerflow`` and ``app`` logger levels are changed so that
+    Only the ``SynapseAI`` and ``app`` logger levels are changed so that
     third-party library verbosity (e.g. uvicorn, sqlalchemy) is not
     affected. Root handler levels are lowered (never raised) so that
     messages from the configured loggers can propagate through without
@@ -179,7 +179,7 @@ def apply_logging_level(name: str | None) -> None:
     intentionally restrictive for third-party log output.
     """
     level = logging_level_from_config(name)
-    for logger_name in ("deerflow", "app"):
+    for logger_name in ("SynapseAI", "app"):
         logging.getLogger(logger_name).setLevel(level)
     for handler in logging.root.handlers:
         if level < handler.level:
@@ -187,13 +187,13 @@ def apply_logging_level(name: str | None) -> None:
 
 
 class AppConfig(BaseModel):
-    """Config for the DeerFlow application"""
+    """Config for the SynapseAI application"""
 
     log_level: str = Field(
         default="info",
         description=format_field_description(
             "log_level",
-            field_doc="Logging level for deerflow and app modules (debug/info/warning/error); third-party libraries are not affected.",
+            field_doc="Logging level for SynapseAI and app modules (debug/info/warning/error); third-party libraries are not affected.",
         ),
     )
     logging: LoggingConfig = Field(
@@ -366,7 +366,7 @@ class AppConfig(BaseModel):
 
         Priority:
         1. If provided `config_path` argument, use it.
-        2. If provided `DEER_FLOW_CONFIG_PATH` environment variable, use it.
+        2. If provided `SYNAPSE_CONFIG_PATH` environment variable, use it.
         3. Otherwise, search the caller project root.
         4. Finally, search legacy backend/repository-root defaults for monorepo compatibility.
         """
@@ -375,10 +375,10 @@ class AppConfig(BaseModel):
             if not Path.exists(path):
                 raise FileNotFoundError(f"Config file specified by param `config_path` not found at {path}")
             return path
-        elif os.getenv("DEER_FLOW_CONFIG_PATH"):
-            path = Path(os.getenv("DEER_FLOW_CONFIG_PATH"))
+        elif os.getenv("SYNAPSE_CONFIG_PATH"):
+            path = Path(os.getenv("SYNAPSE_CONFIG_PATH"))
             if not Path.exists(path):
-                raise FileNotFoundError(f"Config file specified by environment variable `DEER_FLOW_CONFIG_PATH` not found at {path}")
+                raise FileNotFoundError(f"Config file specified by environment variable `SYNAPSE_CONFIG_PATH` not found at {path}")
             return path
         else:
             project_config = existing_project_file(("config.yaml",))
@@ -449,7 +449,7 @@ class AppConfig(BaseModel):
 
     @classmethod
     def _apply_singleton_configs(cls, config: Self, acp_agents: dict[str, ACPAgentConfig]) -> None:
-        from deerflow.config.checkpointer_config import get_checkpointer_config
+        from SynapseAI.config.checkpointer_config import get_checkpointer_config
 
         previous_checkpointer_config = get_checkpointer_config()
 
@@ -478,8 +478,8 @@ class AppConfig(BaseModel):
             # would land in the new schema while ORM rows keep landing in the old one,
             # with no error surfaced. Requiring the documented restart keeps the
             # deployment self-consistent.
-            from deerflow.runtime.checkpointer import reset_checkpointer
-            from deerflow.runtime.store import reset_store
+            from SynapseAI.runtime.checkpointer import reset_checkpointer
+            from SynapseAI.runtime.store import reset_store
 
             reset_checkpointer()
             reset_store()
@@ -633,8 +633,8 @@ _app_config_path: Path | None = None
 _app_config_mtime: float | None = None
 _app_config_signature: _ConfigSignature | None = None
 _app_config_is_custom = False
-_current_app_config: ContextVar[AppConfig | None] = ContextVar("deerflow_current_app_config", default=None)
-_current_app_config_stack: ContextVar[tuple[AppConfig | None, ...]] = ContextVar("deerflow_current_app_config_stack", default=())
+_current_app_config: ContextVar[AppConfig | None] = ContextVar("SynapseAI_current_app_config", default=None)
+_current_app_config_stack: ContextVar[tuple[AppConfig | None, ...]] = ContextVar("SynapseAI_current_app_config_stack", default=())
 
 
 def _get_config_mtime(config_path: Path) -> float | None:
@@ -659,7 +659,7 @@ def _load_and_cache_app_config(config_path: str | None = None) -> AppConfig:
 
 
 def get_app_config() -> AppConfig:
-    """Get the DeerFlow config instance.
+    """Get the SynapseAI config instance.
 
     Returns a cached singleton instance and automatically reloads it when the
     underlying config file path or content signature changes. Use

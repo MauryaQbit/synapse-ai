@@ -35,12 +35,12 @@ from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.types import Overwrite
 
-from deerflow.agents.goal_state import GoalState
-from deerflow.agents.thread_state import DeltaThreadState, merge_message_writes
-from deerflow.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY, checkpoint_tuple_uses_delta
-from deerflow.runtime.checkpoint_state import CheckpointStateAccessor
-from deerflow.runtime.goal import write_thread_goal
-from deerflow.runtime.runs.worker import _ensure_interrupted_title, persist_run_durations
+from SynapseAI.agents.goal_state import GoalState
+from SynapseAI.agents.thread_state import DeltaThreadState, merge_message_writes
+from SynapseAI.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY, checkpoint_tuple_uses_delta
+from SynapseAI.runtime.checkpoint_state import CheckpointStateAccessor
+from SynapseAI.runtime.goal import write_thread_goal
+from SynapseAI.runtime.runs.worker import _ensure_interrupted_title, persist_run_durations
 
 
 class FullState(TypedDict):
@@ -321,7 +321,7 @@ async def test_non_delta_writers_preserve_delta_messages_and_markers(saver_env: 
 
 
 # ---------------------------------------------------------------------------
-# InMemorySaver delta-history patch guards (deerflow.checkpoint_patches)
+# InMemorySaver delta-history patch guards (SynapseAI.checkpoint_patches)
 # ---------------------------------------------------------------------------
 
 
@@ -329,7 +329,7 @@ def test_inmemory_delta_history_patch_is_active() -> None:
     """The compatibility patch must be applied in every test/app process."""
     from langgraph.checkpoint.memory import InMemorySaver
 
-    from deerflow import checkpoint_patches
+    from SynapseAI import checkpoint_patches
 
     assert getattr(InMemorySaver, checkpoint_patches._PATCH_FLAG, False) is True
     assert InMemorySaver.get_delta_channel_history is checkpoint_patches._get_delta_channel_history_via_base
@@ -340,7 +340,7 @@ def test_inmemory_delta_history_patch_stands_down_without_upstream_override(monk
     """If upstream removes its (buggy) override, the patch must not reinstall."""
     from langgraph.checkpoint.memory import InMemorySaver
 
-    from deerflow import checkpoint_patches
+    from SynapseAI import checkpoint_patches
 
     monkeypatch.setattr(checkpoint_patches, "_upstream_override_present", lambda: False)
     monkeypatch.delattr(InMemorySaver, checkpoint_patches._PATCH_FLAG, raising=False)
@@ -359,7 +359,7 @@ def test_inmemory_delta_history_patch_warns_on_unvalidated_langgraph(monkeypatch
 
     from langgraph.checkpoint.memory import InMemorySaver
 
-    from deerflow import checkpoint_patches
+    from SynapseAI import checkpoint_patches
 
     monkeypatch.setattr(checkpoint_patches.importlib.metadata, "version", lambda _name: "99.0.0")
     monkeypatch.setattr(checkpoint_patches, "_upstream_override_present", lambda: False)

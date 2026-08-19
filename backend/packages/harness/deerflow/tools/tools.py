@@ -2,13 +2,13 @@ import logging
 
 from langchain.tools import BaseTool
 
-from deerflow.config import get_app_config
-from deerflow.config.app_config import AppConfig
-from deerflow.reflection import resolve_variable
-from deerflow.sandbox.security import is_host_bash_allowed
-from deerflow.tools.builtins import ask_clarification_tool, list_uploaded_files, present_file_tool, review_skill_package, task_tool, view_image_tool
-from deerflow.tools.mcp_metadata import tag_mcp_tool
-from deerflow.tools.sync import make_sync_tool_wrapper
+from SynapseAI.config import get_app_config
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.reflection import resolve_variable
+from SynapseAI.sandbox.security import is_host_bash_allowed
+from SynapseAI.tools.builtins import ask_clarification_tool, list_uploaded_files, present_file_tool, review_skill_package, task_tool, view_image_tool
+from SynapseAI.tools.mcp_metadata import tag_mcp_tool
+from SynapseAI.tools.sync import make_sync_tool_wrapper
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ def _is_host_bash_tool(tool: object) -> bool:
     use = getattr(tool, "use", None)
     if group == "bash":
         return True
-    if use == "deerflow.sandbox.tools:bash_tool":
+    if use == "SynapseAI.sandbox.tools:bash_tool":
         return True
     return False
 
@@ -54,7 +54,7 @@ def get_available_tools(
     """Get all available tools from config.
 
     Note: MCP tools should be initialized at application startup using
-    `initialize_mcp_tools()` from deerflow.mcp module.
+    `initialize_mcp_tools()` from SynapseAI.mcp module.
 
     Args:
         groups: Optional list of tool groups to filter by.
@@ -98,7 +98,7 @@ def get_available_tools(
         builtin_tools.append(list_uploaded_files)
     skill_evolution_config = getattr(config, "skill_evolution", None)
     if getattr(skill_evolution_config, "enabled", False):
-        from deerflow.tools.skill_manage_tool import skill_manage_tool
+        from SynapseAI.tools.skill_manage_tool import skill_manage_tool
 
         builtin_tools.append(skill_manage_tool)
 
@@ -125,8 +125,8 @@ def get_available_tools(
     mcp_tools = []
     if include_mcp:
         try:
-            from deerflow.config.extensions_config import ExtensionsConfig
-            from deerflow.mcp.cache import get_cached_mcp_tools
+            from SynapseAI.config.extensions_config import ExtensionsConfig
+            from SynapseAI.mcp.cache import get_cached_mcp_tools
 
             extensions_config = ExtensionsConfig.from_file()
             if extensions_config.get_enabled_mcp_servers():
@@ -149,10 +149,10 @@ def get_available_tools(
     # Add invoke_acp_agent tool if any ACP agents are configured
     acp_tools: list[BaseTool] = []
     try:
-        from deerflow.tools.builtins.invoke_acp_agent_tool import build_invoke_acp_agent_tool
+        from SynapseAI.tools.builtins.invoke_acp_agent_tool import build_invoke_acp_agent_tool
 
         if app_config is None:
-            from deerflow.config.acp_config import get_acp_agents
+            from SynapseAI.config.acp_config import get_acp_agents
 
             acp_agents = get_acp_agents()
         else:

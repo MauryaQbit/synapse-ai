@@ -10,13 +10,13 @@ from uuid import uuid4
 import pytest
 from langchain_core.messages import HumanMessage
 
-from deerflow.runtime.events.store.memory import MemoryRunEventStore
-from deerflow.runtime.journal import RunJournal
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from SynapseAI.runtime.events.store.memory import MemoryRunEventStore
+from SynapseAI.runtime.journal import RunJournal
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
 
 def test_run_journal_is_marked_as_loop_bound():
-    assert RunJournal.deerflow_loop_bound is True
+    assert RunJournal.SynapseAI_loop_bound is True
 
 
 @pytest.fixture
@@ -335,7 +335,7 @@ class TestFinalToolMessageReconciliation:
 
         j, store = journal_setup
         j.on_llm_end(
-            _make_llm_response("", tool_calls=[{"id": "call_search", "name": "web_search", "args": {"query": "deerflow"}}]),
+            _make_llm_response("", tool_calls=[{"id": "call_search", "name": "web_search", "args": {"query": "SynapseAI"}}]),
             run_id=uuid4(),
             parent_run_id=None,
             tags=["lead_agent"],

@@ -10,11 +10,11 @@ import pytest
 import pytest_asyncio
 from sqlalchemy import text
 
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.persistence.engine import close_engine, get_engine, get_session_factory, init_engine_from_config
-from deerflow.persistence.run import RunRepository
-from deerflow.persistence.scheduled_task_runs import ScheduledTaskRunRepository
-from deerflow.persistence.scheduled_tasks import ScheduledTaskRepository
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.persistence.engine import close_engine, get_engine, get_session_factory, init_engine_from_config
+from SynapseAI.persistence.run import RunRepository
+from SynapseAI.persistence.scheduled_task_runs import ScheduledTaskRunRepository
+from SynapseAI.persistence.scheduled_tasks import ScheduledTaskRepository
 
 POSTGRES_URL = os.environ.get("TEST_POSTGRES_URI")
 

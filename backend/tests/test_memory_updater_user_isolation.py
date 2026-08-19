@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock
 
-from deerflow.agents.memory.backends.deermem.deermem.config import DeerMemConfig
-from deerflow.agents.memory.backends.deermem.deermem.core.updater import MemoryUpdater
+from SynapseAI.agents.memory.backends.deermem.deermem.config import DeerMemConfig
+from SynapseAI.agents.memory.backends.deermem.deermem.core.updater import MemoryUpdater
 
 
 def _updater(storage: MagicMock) -> MemoryUpdater:

@@ -10,7 +10,7 @@ Covers:
 - Parent/child checkpoint-lineage and message-stream isolation
 
 Note: Due to circular import issues in the main codebase, conftest.py mocks
-deerflow.subagents.executor. This test file uses delayed import via fixture to test
+SynapseAI.subagents.executor. This test file uses delayed import via fixture to test
 the real implementation in isolation.
 """
 
@@ -27,19 +27,19 @@ from unittest.mock import MagicMock, patch
 import pytest
 from packaging.version import Version
 
-from deerflow.skills.types import Skill
+from SynapseAI.skills.types import Skill
 
 # Module names that need to be mocked to break circular imports
 _MOCKED_MODULE_NAMES = [
-    "deerflow.agents",
-    "deerflow.agents.thread_state",
-    "deerflow.agents.middlewares",
-    "deerflow.agents.middlewares.thread_data_middleware",
-    "deerflow.sandbox",
-    "deerflow.sandbox.middleware",
-    "deerflow.sandbox.security",
-    "deerflow.models",
-    "deerflow.skills.storage",
+    "SynapseAI.agents",
+    "SynapseAI.agents.thread_state",
+    "SynapseAI.agents.middlewares",
+    "SynapseAI.agents.middlewares.thread_data_middleware",
+    "SynapseAI.sandbox",
+    "SynapseAI.sandbox.middleware",
+    "SynapseAI.sandbox.security",
+    "SynapseAI.models",
+    "SynapseAI.skills.storage",
 ]
 
 _LANGGRAPH_HAS_ROOT_LINEAGE_STREAM_REGRESSION = Version(package_version("langgraph")) >= Version("1.2.6")
@@ -63,7 +63,7 @@ def _patch_default_get_app_config(executor_module):
 
 
 def _clear_stale_executor_package_attr() -> None:
-    subagents_pkg = sys.modules.get("deerflow.subagents")
+    subagents_pkg = sys.modules.get("SynapseAI.subagents")
     if subagents_pkg is not None and hasattr(subagents_pkg, "executor"):
         delattr(subagents_pkg, "executor")
 
@@ -77,39 +77,39 @@ def _setup_executor_classes():
     """
     # Save original modules
     original_modules = {name: sys.modules.get(name) for name in _MOCKED_MODULE_NAMES}
-    original_executor = sys.modules.get("deerflow.subagents.executor")
-    original_tool_search = sys.modules.get("deerflow.tools.builtins.tool_search")
+    original_executor = sys.modules.get("SynapseAI.subagents.executor")
+    original_tool_search = sys.modules.get("SynapseAI.tools.builtins.tool_search")
 
     # Preload the real deferred-tool helpers before replacing the parent agent
     # packages with cycle-breaking test doubles. Executor imports this module
     # lazily while building initial state.
-    tool_search_module = importlib.import_module("deerflow.tools.builtins.tool_search")
+    tool_search_module = importlib.import_module("SynapseAI.tools.builtins.tool_search")
 
     # Remove mocked executor if exists (from conftest.py)
-    if "deerflow.subagents.executor" in sys.modules:
-        del sys.modules["deerflow.subagents.executor"]
+    if "SynapseAI.subagents.executor" in sys.modules:
+        del sys.modules["SynapseAI.subagents.executor"]
     _clear_stale_executor_package_attr()
 
     # Set up mocks
     for name in _MOCKED_MODULE_NAMES:
         sys.modules[name] = MagicMock()
-    storage_module = ModuleType("deerflow.skills.storage")
+    storage_module = ModuleType("SynapseAI.skills.storage")
     storage_module.get_or_new_skill_storage = lambda **kwargs: SimpleNamespace(load_skills=lambda *, enabled_only: [])
     storage_module.get_or_new_user_skill_storage = lambda user_id, **kwargs: SimpleNamespace(load_skills=lambda *, enabled_only: [])
-    sys.modules["deerflow.skills.storage"] = storage_module
-    sys.modules["deerflow.tools.builtins.tool_search"] = tool_search_module
+    sys.modules["SynapseAI.skills.storage"] = storage_module
+    sys.modules["SynapseAI.tools.builtins.tool_search"] = tool_search_module
 
     # Import real classes inside fixture
     from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-    from deerflow.subagents.config import SubagentConfig
-    from deerflow.subagents.executor import (
+    from SynapseAI.subagents.config import SubagentConfig
+    from SynapseAI.subagents.executor import (
         SubagentExecutor,
         SubagentResult,
         SubagentStatus,
     )
 
-    executor_module = sys.modules["deerflow.subagents.executor"]
+    executor_module = sys.modules["SynapseAI.subagents.executor"]
 
     # Most tests in this module patch _create_agent and exercise executor
     # control flow only. Keep those tests hermetic: CI checkouts do not include
@@ -139,13 +139,13 @@ def _setup_executor_classes():
 
     # Restore executor module (conftest.py mock)
     if original_executor is not None:
-        sys.modules["deerflow.subagents.executor"] = original_executor
-    elif "deerflow.subagents.executor" in sys.modules:
-        del sys.modules["deerflow.subagents.executor"]
+        sys.modules["SynapseAI.subagents.executor"] = original_executor
+    elif "SynapseAI.subagents.executor" in sys.modules:
+        del sys.modules["SynapseAI.subagents.executor"]
     if original_tool_search is not None:
-        sys.modules["deerflow.tools.builtins.tool_search"] = original_tool_search
+        sys.modules["SynapseAI.tools.builtins.tool_search"] = original_tool_search
     else:
-        sys.modules.pop("deerflow.tools.builtins.tool_search", None)
+        sys.modules.pop("SynapseAI.tools.builtins.tool_search", None)
 
 
 # Helper classes that wrap real classes for testing
@@ -283,8 +283,8 @@ class TestAgentConstruction:
         monkeypatch: pytest.MonkeyPatch,
     ):
         """Explicit app_config must flow into both model and middleware factories."""
-        import deerflow.config as config_module
-        from deerflow.subagents import executor as executor_module
+        import SynapseAI.config as config_module
+        from SynapseAI.subagents import executor as executor_module
 
         SubagentExecutor = classes["SubagentExecutor"]
 
@@ -318,9 +318,9 @@ class TestAgentConstruction:
         monkeypatch.setattr(executor_module, "create_agent", fake_create_agent)
         monkeypatch.setitem(
             sys.modules,
-            "deerflow.agents.middlewares.tool_error_handling_middleware",
+            "SynapseAI.agents.middlewares.tool_error_handling_middleware",
             _module(
-                "deerflow.agents.middlewares.tool_error_handling_middleware",
+                "SynapseAI.agents.middlewares.tool_error_handling_middleware",
                 build_subagent_runtime_middlewares=fake_build_subagent_runtime_middlewares,
             ),
         )
@@ -386,7 +386,7 @@ class TestAgentConstruction:
             captured["app_config"] = app_config
             return SimpleNamespace(load_skills=lambda *, enabled_only: [SimpleNamespace(name="demo-skill", skill_file=skill_file)])
 
-        monkeypatch.setattr(sys.modules["deerflow.skills.storage"], "get_or_new_user_skill_storage", fake_get_or_new_user_skill_storage)
+        monkeypatch.setattr(sys.modules["SynapseAI.skills.storage"], "get_or_new_user_skill_storage", fake_get_or_new_user_skill_storage)
 
         executor = SubagentExecutor(
             config=base_config,
@@ -415,8 +415,8 @@ class TestAgentConstruction:
             return SimpleNamespace(load_skills=lambda *, enabled_only: [SimpleNamespace(name="shared-skill", owner=user_id)])
 
         global_storage = MagicMock(side_effect=AssertionError("subagents must not read the global-only skill catalog"))
-        monkeypatch.setattr(sys.modules["deerflow.skills.storage"], "get_or_new_skill_storage", global_storage)
-        monkeypatch.setattr(sys.modules["deerflow.skills.storage"], "get_or_new_user_skill_storage", user_storage)
+        monkeypatch.setattr(sys.modules["SynapseAI.skills.storage"], "get_or_new_skill_storage", global_storage)
+        monkeypatch.setattr(sys.modules["SynapseAI.skills.storage"], "get_or_new_user_skill_storage", user_storage)
 
         alice = SubagentExecutor(config=base_config, tools=[], app_config=app_config, thread_id="alice-thread", user_id="alice")
         bob = SubagentExecutor(config=base_config, tools=[], app_config=app_config, thread_id="bob-thread", user_id="bob")
@@ -439,8 +439,8 @@ class TestAgentConstruction:
         SubagentExecutor = classes["SubagentExecutor"]
         user_storage = MagicMock(return_value=SimpleNamespace(load_skills=lambda *, enabled_only: []))
         global_storage = MagicMock(side_effect=AssertionError("subagents must not read the global-only skill catalog"))
-        monkeypatch.setattr(sys.modules["deerflow.skills.storage"], "get_or_new_skill_storage", global_storage)
-        monkeypatch.setattr(sys.modules["deerflow.skills.storage"], "get_or_new_user_skill_storage", user_storage)
+        monkeypatch.setattr(sys.modules["SynapseAI.skills.storage"], "get_or_new_skill_storage", global_storage)
+        monkeypatch.setattr(sys.modules["SynapseAI.skills.storage"], "get_or_new_user_skill_storage", user_storage)
 
         executor = SubagentExecutor(config=base_config, tools=[], thread_id="test-thread", user_id=None)
 
@@ -465,7 +465,7 @@ class TestAgentConstruction:
         skill_file.write_text("Skill instructions here", encoding="utf-8")
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: [SimpleNamespace(name="my-skill", skill_file=skill_file, allowed_tools=None)]),
         )
@@ -505,7 +505,7 @@ class TestAgentConstruction:
         SubagentExecutor = classes["SubagentExecutor"]
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []),
         )
@@ -550,7 +550,7 @@ class TestAgentConstruction:
         skill_file.write_text("Skill content", encoding="utf-8")
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: [SimpleNamespace(name="my-skill", skill_file=skill_file, allowed_tools=None)]),
         )
@@ -581,13 +581,13 @@ class TestAgentConstruction:
         <available-deferred-tools> section into the SystemMessage."""
         from langchain_core.tools import tool as as_tool
 
-        from deerflow.subagents import executor as executor_module
-        from deerflow.tools.mcp_metadata import tag_mcp_tool
+        from SynapseAI.subagents import executor as executor_module
+        from SynapseAI.tools.mcp_metadata import tag_mcp_tool
 
         SubagentExecutor = classes["SubagentExecutor"]
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []),
         )
@@ -630,13 +630,13 @@ class TestAgentConstruction:
         with an MCP-tagged tool present."""
         from langchain_core.tools import tool as as_tool
 
-        from deerflow.subagents import executor as executor_module
-        from deerflow.tools.mcp_metadata import tag_mcp_tool
+        from SynapseAI.subagents import executor as executor_module
+        from SynapseAI.tools.mcp_metadata import tag_mcp_tool
 
         SubagentExecutor = classes["SubagentExecutor"]
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []),
         )
@@ -670,11 +670,11 @@ class TestAgentConstruction:
         base_config,
         monkeypatch: pytest.MonkeyPatch,
     ):
-        from deerflow.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
+        from SynapseAI.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
 
         SubagentExecutor = classes["SubagentExecutor"]
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_skill_storage",
             lambda *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []),
         )
@@ -682,7 +682,7 @@ class TestAgentConstruction:
             authorization=AuthorizationConfig(
                 enabled=True,
                 provider=AuthorizationProviderConfig(
-                    use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                    use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                     config={"roles": {"user": {"tools": {"allow": ["safe_tool"]}}}},
                 ),
             ),
@@ -724,14 +724,14 @@ class TestAgentConstruction:
         """
         from langchain_core.tools import tool as as_tool
 
-        from deerflow.subagents import executor as executor_module
-        from deerflow.tools.mcp_metadata import tag_mcp_tool
+        from SynapseAI.subagents import executor as executor_module
+        from SynapseAI.tools.mcp_metadata import tag_mcp_tool
 
         SubagentConfig = classes["SubagentConfig"]
         SubagentExecutor = classes["SubagentExecutor"]
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: []),
         )
@@ -792,8 +792,8 @@ class TestAgentConstruction:
     ):
         """A deferred setup passed to _create_agent flows into the subagent
         middleware factory (so DeferredToolFilterMiddleware can attach)."""
-        from deerflow.subagents import executor as executor_module
-        from deerflow.tools.builtins.tool_search import DeferredToolSetup
+        from SynapseAI.subagents import executor as executor_module
+        from SynapseAI.tools.builtins.tool_search import DeferredToolSetup
 
         SubagentExecutor = classes["SubagentExecutor"]
         app_config = SimpleNamespace(models=[SimpleNamespace(name="default-model")], tool_search=SimpleNamespace(enabled=True, auto_promote_top_k=3))
@@ -807,9 +807,9 @@ class TestAgentConstruction:
         monkeypatch.setattr(executor_module, "create_agent", lambda **kwargs: object())
         monkeypatch.setitem(
             sys.modules,
-            "deerflow.agents.middlewares.tool_error_handling_middleware",
+            "SynapseAI.agents.middlewares.tool_error_handling_middleware",
             _module(
-                "deerflow.agents.middlewares.tool_error_handling_middleware",
+                "SynapseAI.agents.middlewares.tool_error_handling_middleware",
                 build_subagent_runtime_middlewares=fake_build_subagent_runtime_middlewares,
             ),
         )
@@ -877,7 +877,7 @@ class TestAsyncExecutionPath:
         fallback_message = AIMessage(
             content=fallback_text,
             additional_kwargs={
-                "deerflow_error_fallback": True,
+                "SynapseAI_error_fallback": True,
                 "error_type": "BadRequestError",
                 "error_reason": "generic",
                 "error_detail": "Error code: 400 - InvalidParameter",
@@ -932,7 +932,7 @@ class TestAsyncExecutionPath:
         stale_fallback = AIMessage(
             content="LLM request failed: an earlier parent-history error",
             additional_kwargs={
-                "deerflow_error_fallback": True,
+                "SynapseAI_error_fallback": True,
                 "error_type": "BadRequestError",
                 "error_reason": "generic",
                 "error_detail": "Error code: 400 - InvalidParameter",
@@ -952,7 +952,7 @@ class TestAsyncExecutionPath:
     @pytest.mark.anyio
     async def test_aexecute_exposes_collected_usage_before_subagent_finishes(self, classes, base_config, mock_agent, msg, monkeypatch):
         """Polling callers can read a cumulative token snapshot while running."""
-        from deerflow.subagents import executor as executor_module
+        from SynapseAI.subagents import executor as executor_module
 
         SubagentExecutor = classes["SubagentExecutor"]
         SubagentResult = classes["SubagentResult"]
@@ -1139,7 +1139,7 @@ class TestAsyncExecutionPath:
 
     @pytest.mark.anyio
     async def test_aexecute_step_capture_survives_history_contraction(self, classes, base_config, mock_agent, msg):
-        """Regression for #3875 Phase 3: DeerFlowSummarizationMiddleware rewrites the
+        """Regression for #3875 Phase 3: SynapseAISummarizationMiddleware rewrites the
         messages channel mid-run via ``RemoveMessage(id=REMOVE_ALL_MESSAGES)``,
         so a later ``values`` snapshot hands the executor a SHORTER message list
         than the cursor it was tracking. Without the contraction reset in
@@ -1357,7 +1357,7 @@ class TestAsyncExecutionPath:
 
         ``_extract_llm_error_fallback`` (#4042) marks a terminal ``AIMessage``
         as a handled provider failure via
-        ``additional_kwargs.deerflow_error_fallback``, and the
+        ``additional_kwargs.SynapseAI_error_fallback``, and the
         normal-completion branch above already consults it before falling
         back to ``_extract_final_result``. This except-block must apply the
         same check before recovering ``usable_partial`` from raw non-empty
@@ -1376,7 +1376,7 @@ class TestAsyncExecutionPath:
         fallback_message = AIMessage(
             content=fallback_text,
             additional_kwargs={
-                "deerflow_error_fallback": True,
+                "SynapseAI_error_fallback": True,
                 "error_type": "BadRequestError",
                 "error_reason": "generic",
                 "error_detail": "Error code: 400 - InvalidParameter",
@@ -1525,7 +1525,7 @@ class TestAsyncExecutionPath:
         (skill_dir / "SKILL.md").write_text("Skill instruction text", encoding="utf-8")
 
         monkeypatch.setattr(
-            sys.modules["deerflow.skills.storage"],
+            sys.modules["SynapseAI.skills.storage"],
             "get_or_new_user_skill_storage",
             lambda user_id, *, app_config=None: SimpleNamespace(load_skills=lambda *, enabled_only: [SimpleNamespace(name="regression-skill", skill_file=skill_dir / "SKILL.md", allowed_tools=None)]),
         )
@@ -1678,7 +1678,7 @@ class TestSyncExecutionPath:
     @pytest.mark.anyio
     async def test_execute_in_running_event_loop_calls_isolated_loop_directly(self, classes, base_config, mock_agent, msg):
         """Test that execute() calls the isolated-loop helper directly in a running loop."""
-        from deerflow.runtime.user_context import (
+        from SynapseAI.runtime.user_context import (
             get_effective_user_id,
             reset_current_user,
             set_current_user,
@@ -1923,7 +1923,7 @@ class TestThreadSafety:
     @pytest.fixture
     def executor_module(self, _setup_executor_classes):
         """Import the executor module with real classes."""
-        executor = importlib.import_module("deerflow.subagents.executor")
+        executor = importlib.import_module("SynapseAI.subagents.executor")
 
         return _patch_default_get_app_config(importlib.reload(executor))
 
@@ -2047,7 +2047,7 @@ class TestCleanupBackgroundTask:
     def executor_module(self, _setup_executor_classes):
         """Import the executor module with real classes."""
         # Re-import to get the real module with cleanup_background_task
-        executor = importlib.import_module("deerflow.subagents.executor")
+        executor = importlib.import_module("SynapseAI.subagents.executor")
 
         return _patch_default_get_app_config(importlib.reload(executor))
 
@@ -2190,7 +2190,7 @@ class TestCooperativeCancellation:
     @pytest.fixture
     def executor_module(self, _setup_executor_classes):
         """Import the executor module with real classes."""
-        executor = importlib.import_module("deerflow.subagents.executor")
+        executor = importlib.import_module("SynapseAI.subagents.executor")
 
         return _patch_default_get_app_config(importlib.reload(executor))
 
@@ -2423,7 +2423,7 @@ class TestCooperativeCancellation:
         """Regression: background subagent execution must keep request user context."""
         import concurrent.futures
 
-        from deerflow.runtime.user_context import (
+        from SynapseAI.runtime.user_context import (
             get_effective_user_id,
             reset_current_user,
             set_current_user,
@@ -2475,7 +2475,7 @@ class TestCooperativeCancellation:
 
         SubagentExecutor = classes["SubagentExecutor"]
         SubagentStatus = classes["SubagentStatus"]
-        parent_callback = SimpleNamespace(deerflow_loop_bound=True)
+        parent_callback = SimpleNamespace(SynapseAI_loop_bound=True)
         stream_callback = object()
         child_callback = object()
         observed: dict[str, object] = {}
@@ -2529,7 +2529,7 @@ class TestCooperativeCancellation:
         from langchain_core.callbacks.manager import AsyncCallbackManager
         from langchain_core.runnables.config import var_child_runnable_config
 
-        loop_bound = SimpleNamespace(deerflow_loop_bound=True)
+        loop_bound = SimpleNamespace(SynapseAI_loop_bound=True)
         stream_handler = object()
         manager = AsyncCallbackManager(
             handlers=[loop_bound, stream_handler],
@@ -2757,7 +2757,7 @@ class TestSubagentCheckpointLineage:
         ``thread_id`` clears the ambient ``checkpoint_ns`` on LangGraph 1.2.6+,
         so the child is routed as a root graph instead of a subgraph.
         """
-        executor_module = importlib.import_module("deerflow.subagents.executor")
+        executor_module = importlib.import_module("SynapseAI.subagents.executor")
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [])
 
         executor = classes["SubagentExecutor"](
@@ -2810,7 +2810,7 @@ class TestSubagentCheckpointLineage:
         from langgraph.checkpoint.memory import MemorySaver
         from langgraph.graph import END, START, MessagesState, StateGraph
 
-        executor_module = importlib.import_module("deerflow.subagents.executor")
+        executor_module = importlib.import_module("SynapseAI.subagents.executor")
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [])
 
         child_builder = StateGraph(MessagesState)
@@ -2938,7 +2938,7 @@ class TestSubagentTracingWiring:
 
     @pytest.fixture
     def executor_module(self, _setup_executor_classes):
-        executor = importlib.import_module("deerflow.subagents.executor")
+        executor = importlib.import_module("SynapseAI.subagents.executor")
         return _patch_default_get_app_config(importlib.reload(executor))
 
     @pytest.fixture(autouse=True)
@@ -2946,7 +2946,7 @@ class TestSubagentTracingWiring:
         """Reset tracing config and env between tests so monkeypatched env
         vars do not leak across tests in this class or the rest of the suite.
         """
-        from deerflow.config.tracing_config import reset_tracing_config
+        from SynapseAI.config.tracing_config import reset_tracing_config
 
         for name in ("LANGFUSE_TRACING", "LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_BASE_URL"):
             monkeypatch.delenv(name, raising=False)
@@ -2954,7 +2954,7 @@ class TestSubagentTracingWiring:
         yield
         reset_tracing_config()
 
-    def _make_executor(self, classes, *, user_id=None, name="general-purpose", parent_model="test-model", deerflow_trace_id=None):
+    def _make_executor(self, classes, *, user_id=None, name="general-purpose", parent_model="test-model", SynapseAI_trace_id=None):
         SubagentExecutor = classes["SubagentExecutor"]
         SubagentConfig = classes["SubagentConfig"]
         config = SubagentConfig(
@@ -2971,7 +2971,7 @@ class TestSubagentTracingWiring:
             thread_id="thread-trace-1",
             trace_id="trace-1",
             user_id=user_id,
-            deerflow_trace_id=deerflow_trace_id,
+            SynapseAI_trace_id=SynapseAI_trace_id,
         )
 
     @pytest.mark.anyio
@@ -3019,7 +3019,7 @@ class TestSubagentTracingWiring:
         monkeypatch.setenv("LANGFUSE_TRACING", "true")
         monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
         monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-        from deerflow.config.tracing_config import reset_tracing_config
+        from SynapseAI.config.tracing_config import reset_tracing_config
 
         reset_tracing_config()
 
@@ -3029,7 +3029,7 @@ class TestSubagentTracingWiring:
         sentinel = _Sentinel()
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [sentinel])
 
-        executor = self._make_executor(classes, user_id="alice", name="general_purpose", deerflow_trace_id="gateway-trace-sub")
+        executor = self._make_executor(classes, user_id="alice", name="general_purpose", SynapseAI_trace_id="gateway-trace-sub")
         fake_agent = _FakeStreamAgent()
         monkeypatch.setattr(executor, "_build_initial_state", self._noop_build_initial_state)
         monkeypatch.setattr(executor, "_create_agent", lambda *a, **kw: fake_agent)
@@ -3042,8 +3042,8 @@ class TestSubagentTracingWiring:
         # Underscores are normalized to hyphens so the trace name matches the
         # lead-agent naming shape.
         assert metadata.get("langfuse_trace_name") == "subagent:general-purpose"
-        assert metadata.get("deerflow_trace_id") == "gateway-trace-sub"
-        assert fake_agent.captured_context.get("deerflow_trace_id") == "gateway-trace-sub"
+        assert metadata.get("SynapseAI_trace_id") == "gateway-trace-sub"
+        assert fake_agent.captured_context.get("SynapseAI_trace_id") == "gateway-trace-sub"
         tags = metadata.get("langfuse_tags") or []
         assert any(t.startswith("model:") for t in tags), "model tag must be emitted for cost attribution"
 
@@ -3085,7 +3085,7 @@ class TestSubagentTracingWiring:
         monkeypatch.setenv("LANGFUSE_TRACING", "true")
         monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
         monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-        from deerflow.config.tracing_config import reset_tracing_config
+        from SynapseAI.config.tracing_config import reset_tracing_config
 
         reset_tracing_config()
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [object()])
@@ -3098,7 +3098,7 @@ class TestSubagentTracingWiring:
         await executor._aexecute("do something")
 
         metadata = (fake_agent.captured_config or {}).get("metadata") or {}
-        # DEFAULT_USER_ID is "default" (see deerflow.runtime.user_context).
+        # DEFAULT_USER_ID is "default" (see SynapseAI.runtime.user_context).
         assert metadata.get("langfuse_user_id") == "default"
 
     @pytest.mark.anyio
@@ -3114,7 +3114,7 @@ class TestSubagentTracingWiring:
         monkeypatch.setenv("LANGFUSE_TRACING", "true")
         monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
         monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-        from deerflow.config.tracing_config import reset_tracing_config
+        from SynapseAI.config.tracing_config import reset_tracing_config
 
         reset_tracing_config()
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [object()])
@@ -3150,14 +3150,14 @@ class TestSubagentTracingWiring:
         executor_module,
         monkeypatch,
     ):
-        """``DEER_FLOW_ENV`` must surface as an ``env:<value>`` tag so Langfuse
+        """``SYNAPSE_ENV`` must surface as an ``env:<value>`` tag so Langfuse
         cost aggregation can split traces by deployment environment.
         """
         monkeypatch.setenv("LANGFUSE_TRACING", "true")
         monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
         monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-        monkeypatch.setenv("DEER_FLOW_ENV", "staging")
-        from deerflow.config.tracing_config import reset_tracing_config
+        monkeypatch.setenv("SYNAPSE_ENV", "staging")
+        from SynapseAI.config.tracing_config import reset_tracing_config
 
         reset_tracing_config()
         monkeypatch.setattr(executor_module, "build_tracing_callbacks", lambda: [object()])
@@ -3191,7 +3191,7 @@ class TestSubagentGuardrailAttribution:
 
     @pytest.fixture
     def executor_module(self, _setup_executor_classes):
-        executor = importlib.import_module("deerflow.subagents.executor")
+        executor = importlib.import_module("SynapseAI.subagents.executor")
         return _patch_default_get_app_config(importlib.reload(executor))
 
     def _make_executor(
@@ -3271,7 +3271,7 @@ class TestSubagentGuardrailAttribution:
     ):
         """The IM-channel sender identity captured at task_tool must reach the
         subagent's ``astream`` context so delegated bash commands export the
-        dispatching turn's ``DEERFLOW_CHANNEL_USER_ID`` (group chats share one
+        dispatching turn's ``SynapseAI_CHANNEL_USER_ID`` (group chats share one
         thread across senders)."""
         SubagentExecutor = classes["SubagentExecutor"]
         SubagentConfig = classes["SubagentConfig"]

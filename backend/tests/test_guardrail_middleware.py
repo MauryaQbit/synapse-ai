@@ -8,9 +8,9 @@ from unittest.mock import MagicMock
 import pytest
 from langgraph.errors import GraphBubbleUp
 
-from deerflow.guardrails.builtin import AllowlistProvider
-from deerflow.guardrails.middleware import GuardrailMiddleware
-from deerflow.guardrails.provider import GuardrailDecision, GuardrailReason, GuardrailRequest
+from SynapseAI.guardrails.builtin import AllowlistProvider
+from SynapseAI.guardrails.middleware import GuardrailMiddleware
+from SynapseAI.guardrails.provider import GuardrailDecision, GuardrailReason, GuardrailRequest
 
 # --- Helpers ---
 
@@ -236,7 +236,7 @@ class TestGuardrailMiddleware:
 
     def test_protocol_isinstance_check(self):
         """AllowlistProvider satisfies GuardrailProvider protocol at runtime."""
-        from deerflow.guardrails.provider import GuardrailProvider
+        from SynapseAI.guardrails.provider import GuardrailProvider
 
         assert isinstance(AllowlistProvider(), GuardrailProvider)
 
@@ -666,7 +666,7 @@ class TestGuardrailRequestAttribution:
 
 class TestGuardrailsConfig:
     def test_config_defaults(self):
-        from deerflow.config.guardrails_config import GuardrailsConfig
+        from SynapseAI.config.guardrails_config import GuardrailsConfig
 
         config = GuardrailsConfig()
         assert config.enabled is False
@@ -675,7 +675,7 @@ class TestGuardrailsConfig:
         assert config.provider is None
 
     def test_config_from_dict(self):
-        from deerflow.config.guardrails_config import GuardrailsConfig
+        from SynapseAI.config.guardrails_config import GuardrailsConfig
 
         config = GuardrailsConfig.model_validate(
             {
@@ -683,7 +683,7 @@ class TestGuardrailsConfig:
                 "fail_closed": False,
                 "passport": "./guardrails/passport.json",
                 "provider": {
-                    "use": "deerflow.guardrails.builtin:AllowlistProvider",
+                    "use": "SynapseAI.guardrails.builtin:AllowlistProvider",
                     "config": {"denied_tools": ["bash"]},
                 },
             }
@@ -691,11 +691,11 @@ class TestGuardrailsConfig:
         assert config.enabled is True
         assert config.fail_closed is False
         assert config.passport == "./guardrails/passport.json"
-        assert config.provider.use == "deerflow.guardrails.builtin:AllowlistProvider"
+        assert config.provider.use == "SynapseAI.guardrails.builtin:AllowlistProvider"
         assert config.provider.config == {"denied_tools": ["bash"]}
 
     def test_singleton_load_and_get(self):
-        from deerflow.config.guardrails_config import get_guardrails_config, load_guardrails_config_from_dict, reset_guardrails_config
+        from SynapseAI.config.guardrails_config import get_guardrails_config, load_guardrails_config_from_dict, reset_guardrails_config
 
         try:
             load_guardrails_config_from_dict({"enabled": True, "provider": {"use": "test:Foo"}})

@@ -14,8 +14,8 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.integrations import lark_broker
-from deerflow.integrations.lark_broker import BrokerConfig, run_lark_cli, serve
+from SynapseAI.integrations import lark_broker
+from SynapseAI.integrations.lark_broker import BrokerConfig, run_lark_cli, serve
 
 
 def _fake_lark_cli(tmp_path: Path) -> str:
@@ -226,7 +226,7 @@ def test_install_shim_writes_runtime_layout(tmp_path: Path) -> None:
     assert os.access(dest / "bin" / "lark-cli", os.X_OK)
     assert shim_body.read_text(encoding="utf-8") == lark_broker.LARK_CLI_BROKER_SHIM_SCRIPT
     assert os.access(shim_body, os.X_OK)
-    marker = json.loads((dest / ".deerflow-lark-cli-runtime.json").read_text())
+    marker = json.loads((dest / ".SynapseAI-lark-cli-runtime.json").read_text())
     assert marker == {"version": "v1.0.65", "kind": "shim"}
 
 
@@ -254,7 +254,7 @@ def test_launcher_resolves_python_and_forwards(broker_server, tmp_path: Path) ->
 
 
 def test_launcher_can_pin_interpreter_via_env(broker_server, tmp_path: Path) -> None:
-    """DEERFLOW_LARK_BROKER_PYTHON pins the interpreter for images with no python3
+    """SynapseAI_LARK_BROKER_PYTHON pins the interpreter for images with no python3
     on PATH (the launcher must not silently ENOEXEC)."""
     host, port = broker_server
     dest = tmp_path / "runtime"

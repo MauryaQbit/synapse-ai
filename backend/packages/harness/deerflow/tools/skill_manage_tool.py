@@ -13,20 +13,20 @@ from weakref import WeakValueDictionary
 
 from langchain.tools import tool
 
-from deerflow.agents.lead_agent.prompt import refresh_user_skills_system_prompt_cache_async
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.skills.security_scanner import scan_skill_content
-from deerflow.skills.security_static_scanner import (
+from SynapseAI.agents.lead_agent.prompt import refresh_user_skills_system_prompt_cache_async
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.skills.security_scanner import scan_skill_content
+from SynapseAI.skills.security_static_scanner import (
     StaticFinding,
     StaticScanBlockedError,
     StaticScannerError,
     enforce_static_scan,
 )
-from deerflow.skills.storage import get_or_new_user_skill_storage
-from deerflow.skills.storage.skill_storage import SkillStorage
-from deerflow.skills.types import SKILL_MD_FILE
-from deerflow.tools.sync import make_sync_tool_wrapper
-from deerflow.tools.types import Runtime
+from SynapseAI.skills.storage import get_or_new_user_skill_storage
+from SynapseAI.skills.storage.skill_storage import SkillStorage
+from SynapseAI.skills.types import SKILL_MD_FILE
+from SynapseAI.tools.sync import make_sync_tool_wrapper
+from SynapseAI.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 

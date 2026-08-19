@@ -19,11 +19,11 @@ from app.gateway.authz import require_permission
 from app.gateway.deps import get_run_manager
 from app.gateway.internal_auth import get_trusted_internal_owner_user_id
 from app.gateway.path_utils import resolve_thread_virtual_path
-from deerflow.config.paths import make_safe_user_id
-from deerflow.runtime import ConflictError, ThreadOperationKind
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.sandbox.sandbox_provider import get_sandbox_provider
-from deerflow.utils.thread_id import ThreadId
+from SynapseAI.config.paths import make_safe_user_id
+from SynapseAI.runtime import ConflictError, ThreadOperationKind
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.sandbox.sandbox_provider import get_sandbox_provider
+from SynapseAI.utils.thread_id import ThreadId
 
 logger = logging.getLogger(__name__)
 

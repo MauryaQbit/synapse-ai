@@ -1,6 +1,6 @@
-"""DeerFlow's extension mechanism (host side).
+"""SynapseAI's extension mechanism (host side).
 
-The public contracts live in the separate `deerflow-extension-api` package;
+The public contracts live in the separate `SynapseAI-extension-api` package;
 this module implements loading, registration, middleware injection and the
 hook-site plumbing.
 """
@@ -13,13 +13,13 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from typing import Any
 
-from deerflow.extensions.loader import (
+from SynapseAI.extensions.loader import (
     Diagnostic,
     ExtensionLoadError,
     ExtensionSpec,
     load_extensions,
 )
-from deerflow.extensions.registry import EMPTY_EXTENSIONS, ExtensionRegistry, LoadedExtensions
+from SynapseAI.extensions.registry import EMPTY_EXTENSIONS, ExtensionRegistry, LoadedExtensions
 
 #: Runtime-context key carrying the run's immutable extension snapshot.
 #:
@@ -28,11 +28,11 @@ from deerflow.extensions.registry import EMPTY_EXTENSIONS, ExtensionRegistry, Lo
 #: context is how the run reaches that later code. The double-underscore prefix
 #: marks it as host-internal: the Gateway strips caller-supplied ``__`` keys,
 #: and this snapshot is never part of the public extension contract.
-EXTENSION_SNAPSHOT_CONTEXT_KEY = "__deerflow_extension_snapshot"
+EXTENSION_SNAPSHOT_CONTEXT_KEY = "__SynapseAI_extension_snapshot"
 
 _loaded: LoadedExtensions = EMPTY_EXTENSIONS
 _agent_build_extensions: ContextVar[LoadedExtensions | None] = ContextVar(
-    "deerflow_agent_build_extensions",
+    "SynapseAI_agent_build_extensions",
     default=None,
 )
 

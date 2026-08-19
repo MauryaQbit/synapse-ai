@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "deer-flow.fullname" . }}-config
-  namespace: {{ include "deer-flow.namespace" . }}
+  name: {{ include "synapse-ai.fullname" . }}-config
+  namespace: {{ include "synapse-ai.namespace" . }}
   labels:
-    {{- include "deer-flow.labels" . | nindent 4 }}
+    {{- include "synapse-ai.labels" . | nindent 4 }}
 data:
   config.yaml: |
 {{ .Values.config | default "" | indent 4 }}

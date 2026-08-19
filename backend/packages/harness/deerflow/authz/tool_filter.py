@@ -12,11 +12,11 @@ from typing import Any
 
 from langchain_core.tools import BaseTool
 
-from deerflow.authz.enforcement import filter_tools_by_authorization
-from deerflow.authz.principal import build_principal_from_context
-from deerflow.authz.provider import AuthorizationProvider
-from deerflow.authz.runtime import resolve_authorization_provider
-from deerflow.config.app_config import AppConfig
+from SynapseAI.authz.enforcement import filter_tools_by_authorization
+from SynapseAI.authz.principal import build_principal_from_context
+from SynapseAI.authz.provider import AuthorizationProvider
+from SynapseAI.authz.runtime import resolve_authorization_provider
+from SynapseAI.config.app_config import AppConfig
 
 
 def apply_tool_authorization(

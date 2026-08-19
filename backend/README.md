@@ -1,8 +1,8 @@
-# DeerFlow Backend
+# SynapseAI Backend
 
 **Language:** English | [简体中文](README_zh.md)
 
-DeerFlow is a LangGraph-based AI super agent with sandbox execution, persistent memory, and extensible tool integration. The backend enables AI agents to execute code, browse the web, manage files, delegate tasks to subagents, and retain context across conversations - all in isolated, per-thread environments.
+SynapseAI is a LangGraph-based AI super agent with sandbox execution, persistent memory, and extensible tool integration. The backend enables AI agents to execute code, browse the web, manage files, delegate tasks to subagents, and retain context across conversations - all in isolated, per-thread environments.
 
 ---
 
@@ -73,7 +73,7 @@ Per-thread isolated execution with virtual path translation:
 - **Abstract interface**: `execute_command`, `read_file`, `write_file`, `list_dir`
 - **Providers**: `LocalSandboxProvider` (filesystem) and `AioSandboxProvider` (Docker, in community/). Async runtime paths use async sandbox lifecycle hooks so startup, readiness polling, and release do not block the event loop. `AioSandboxProvider` validates active-cache and warm-pool containers during acquire/reuse, dropping definitively dead entries so a thread can provision a fresh sandbox after an unexpected container exit while keeping `get()` as an in-memory lookup. Backend health-check failures are treated as unknown, not dead, and a container that cannot be verified during discovery is simply not adopted (acquire falls through to create instead of failing).
 - **Virtual paths**: `/mnt/user-data/{workspace,uploads,outputs}` → thread-specific physical directories
-- **Skills path**: `/mnt/skills` → `deer-flow/skills/` directory
+- **Skills path**: `/mnt/skills` → `synapse-ai/skills/` directory
 - **Skills loading**: Recursively discovers nested `SKILL.md` files under `skills/{public,custom}` and preserves nested container paths
 - **SkillScan**: Native offline deterministic scanning runs before the LLM skill scanner on installs and agent-managed skill writes; `CRITICAL` findings block and warning findings become LLM context
 - **File-write safety**: `str_replace` serializes read-modify-write per `(sandbox.id, path)` so isolated sandboxes keep concurrency even when virtual paths match
@@ -129,7 +129,7 @@ FastAPI application providing REST endpoints for frontend integration:
 | `GET /api/threads/{id}/runs/{run_id}/events` | Debug/audit events for one run; filter `event_types=context:memory` for effective memory identity |
 | `POST /api/threads/{id}/uploads` | Upload files (auto-converts PDF/PPT/Excel/Word to Markdown, rejects directory paths, auto-renames duplicate filenames in one request) |
 | `GET /api/threads/{id}/uploads/list` | List uploaded files |
-| `DELETE /api/threads/{id}` | Delete DeerFlow-managed local thread data after LangGraph thread deletion; unexpected failures are logged server-side and return a generic 500 detail |
+| `DELETE /api/threads/{id}` | Delete SynapseAI-managed local thread data after LangGraph thread deletion; unexpected failures are logged server-side and return a generic 500 detail |
 | `GET /api/threads/{id}/artifacts/{path}` | Serve generated artifacts |
 
 ### IM Channels
@@ -138,7 +138,7 @@ The IM bridge supports Feishu, Slack, and Telegram. Slack and Telegram still use
 
 Discord registers each typing-indicator loop before inbound message handling yields and refuses to start new typing work after the channel stops. Typing tasks are owned by the dedicated Discord event loop, so normal shutdown schedules bounded cancellation, awaiting, and map cleanup on that loop before closing the client. The Discord worker also drains the tasks in its `finally` block while its loop is still usable, covering disconnect and exception exits; if `stop()` encounters an already-stopped foreign loop, it never awaits those loop-bound tasks from the main loop. This serializes registration and cleanup across the main and Discord threads while preventing shutdown hangs and cross-loop `RuntimeError`s.
 
-For Feishu card updates, DeerFlow stores the running card's `message_id` per inbound message and patches that same card until the run finishes, preserving the existing `OK` / `DONE` reaction flow. When a follow-up arrives inside an existing Feishu topic while another turn is still running, the later message now waits on the mapped DeerFlow `thread_id`, receives a queued/running card on that exact source message, and keeps a compact source-message blockquote in subsequent patches so rapid consecutive questions remain distinguishable.
+For Feishu card updates, SynapseAI stores the running card's `message_id` per inbound message and patches that same card until the run finishes, preserving the existing `OK` / `DONE` reaction flow. When a follow-up arrives inside an existing Feishu topic while another turn is still running, the later message now waits on the mapped SynapseAI `thread_id`, receives a queued/running card on that exact source message, and keeps a compact source-message blockquote in subsequent patches so rapid consecutive questions remain distinguishable.
 
 ---
 
@@ -153,7 +153,7 @@ For Feishu card updates, DeerFlow stores the running card's `message_id` per inb
 ### Installation
 
 ```bash
-cd deer-flow
+cd synapse-ai
 
 # Copy configuration files
 cp config.example.yaml config.yaml
@@ -216,10 +216,10 @@ Direct access: Gateway at http://localhost:8001
 no services required:
 
 ```bash
-uv pip install 'deerflow-harness[tui]'   # optional 'textual' dependency
-deerflow                                 # launch the TUI
-deerflow --print "summarize this repo"   # headless one-shot
-deerflow --recursion-limit 250 --print "run a longer task"
+uv pip install 'SynapseAI-harness[tui]'   # optional 'textual' dependency
+SynapseAI                                 # launch the TUI
+SynapseAI --print "summarize this repo"   # headless one-shot
+SynapseAI --recursion-limit 250 --print "run a longer task"
 ```
 
 Sessions opened in the TUI appear in the Web UI sidebar (it writes the shared
@@ -231,8 +231,8 @@ Sessions opened in the TUI appear in the Web UI sidebar (it writes the shared
 
 ```
 backend/
-├── packages/harness/           # deerflow-harness package (import: deerflow.*)
-│   └── deerflow/
+├── packages/harness/           # SynapseAI-harness package (import: SynapseAI.*)
+│   └── SynapseAI/
 │       ├── agents/             # Agent system
 │       │   ├── lead_agent/     # Main agent (factory, prompts)
 │       │   ├── middlewares/    # Middleware components
@@ -257,7 +257,7 @@ backend/
 │       ├── guardrails/         # Pre-tool-call authorization providers
 │       ├── tracing/            # Tracer factory & trace metadata
 │       ├── uploads/            # Uploads manager
-│       ├── tui/                # Terminal UI (`deerflow` console script)
+│       ├── tui/                # Terminal UI (`SynapseAI` console script)
 │       ├── community/          # Community tools & providers
 │       ├── reflection/         # Dynamic module loading
 │       └── utils/              # Utilities
@@ -287,12 +287,12 @@ uv run langgraph dev --allow-blocking
 
 Run it from `backend/` so the CLI discovers `langgraph.json`. The in-memory
 server is intended for development and testing, not production deployment. The
-flag permits DeerFlow's synchronous configuration and graph-factory setup
+flag permits SynapseAI's synchronous configuration and graph-factory setup
 during local Studio requests; it is not a production-server setting. Its local
 Studio authentication and registered graph discovery are handled automatically;
 no custom connection headers are required. Assistant ownership/provenance is
 stamped by the server, and normal assistant-version selection remains available.
-Before the locked local runtime loads its persisted development store, DeerFlow
+Before the locked local runtime loads its persisted development store, SynapseAI
 repairs legacy assistant rows and version history so older metadata cannot
 reactivate server-only privileges or be discarded by runtime startup cleanup.
 Run `uv sync` after dependency changes; this compatibility path requires the
@@ -322,7 +322,7 @@ Key sections:
 
 Provider note:
 - `models[*].use` references provider classes by module path (for example `langchain_openai:ChatOpenAI`).
-- If a provider module is missing, DeerFlow now returns an actionable error with install guidance (for example `uv add langchain-google-genai`).
+- If a provider module is missing, SynapseAI now returns an actionable error with install guidance (for example `uv add langchain-google-genai`).
 
 ### Extensions Configuration (`extensions_config.json`)
 
@@ -385,14 +385,14 @@ deferred schemas before the model call.
 
 ### Environment Variables
 
-- `DEER_FLOW_CONFIG_PATH` - Override config.yaml location
-- `DEER_FLOW_EXTENSIONS_CONFIG_PATH` - Override extensions_config.json location
+- `SYNAPSE_CONFIG_PATH` - Override config.yaml location
+- `SYNAPSE_EXTENSIONS_CONFIG_PATH` - Override extensions_config.json location
 - Model API keys: `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `DEEPSEEK_API_KEY`, etc.
 - Tool API keys: `TAVILY_API_KEY`, `GITHUB_TOKEN`, etc.
 
 ### LangSmith Tracing
 
-DeerFlow has built-in [LangSmith](https://smith.langchain.com) integration for observability. When enabled, all LLM calls, agent runs, tool executions, and middleware processing are traced and visible in the LangSmith dashboard.
+SynapseAI has built-in [LangSmith](https://smith.langchain.com) integration for observability. When enabled, all LLM calls, agent runs, tool executions, and middleware processing are traced and visible in the LangSmith dashboard.
 
 **Setup:**
 
@@ -410,7 +410,7 @@ LANGSMITH_PROJECT=xxx
 
 ### Langfuse Tracing
 
-DeerFlow also supports [Langfuse](https://langfuse.com) observability for LangChain-compatible runs.
+SynapseAI also supports [Langfuse](https://langfuse.com) observability for LangChain-compatible runs.
 
 Add the following to your `.env` file:
 
@@ -425,9 +425,9 @@ If you are using a self-hosted Langfuse deployment, set `LANGFUSE_BASE_URL` to y
 
 ### Dual Provider Behavior
 
-If both LangSmith and Langfuse are enabled, DeerFlow initializes and attaches both callbacks so the same run data is reported to both systems.
+If both LangSmith and Langfuse are enabled, SynapseAI initializes and attaches both callbacks so the same run data is reported to both systems.
 
-If a provider is explicitly enabled but required credentials are missing, or the provider callback cannot be initialized, DeerFlow raises an error when tracing is initialized during model creation instead of silently disabling tracing.
+If a provider is explicitly enabled but required credentials are missing, or the provider callback cannot be initialized, SynapseAI raises an error when tracing is initialized during model creation instead of silently disabling tracing.
 
 **Docker:** In `docker-compose.yaml`, tracing is disabled by default (`LANGSMITH_TRACING=false`). Set `LANGSMITH_TRACING=true` and/or `LANGFUSE_TRACING=true` in your `.env`, together with the required credentials, to enable tracing in containerized deployments.
 
@@ -447,15 +447,15 @@ make detect-blocking-io  # Inventory blocking IO that may block the backend even
 make migrate-rev MSG="..."  # Autogenerate a new alembic revision against the live ORM models
 ```
 
-`make dev` pre-creates and excludes `DEER_FLOW_HOME` (by default
-`backend/.deer-flow`) and `backend/sandbox` from Uvicorn's reload watcher. Use
+`make dev` pre-creates and excludes `SYNAPSE_HOME` (by default
+`backend/.synapse-ai`) and `backend/sandbox` from Uvicorn's reload watcher. Use
 this target instead of a bare `uvicorn --reload`: agent tasks write Python and
-other runtime files under `DEER_FLOW_HOME`, and watching that directory can
+other runtime files under `SYNAPSE_HOME`, and watching that directory can
 restart the Gateway during an active run.
 
 ### Schema Migrations
 
-DeerFlow's application tables (`runs`, `threads_meta`, `feedback`, `users`,
+SynapseAI's application tables (`runs`, `threads_meta`, `feedback`, `users`,
 `run_events`, and the `channel_*` tables) are owned by alembic. The Gateway
 runs `alembic upgrade head` automatically on startup via
 `bootstrap_schema(engine, backend=...)`, so operators do not run `alembic`
@@ -464,7 +464,7 @@ across processes; per-engine `asyncio.Lock` inside one SQLite process) and
 idempotent against pre-existing schemas (empty / legacy / versioned).
 
 When you add or change an ORM model, ship the change as a new revision under
-`packages/harness/deerflow/persistence/migrations/versions/`:
+`packages/harness/SynapseAI/persistence/migrations/versions/`:
 
 ```bash
 make migrate-rev MSG="add foo column to runs"
@@ -472,7 +472,7 @@ make migrate-rev MSG="add foo column to runs"
 
 The target invokes `scripts/_autogen_revision.py`, which builds a fresh temp
 SQLite at `head` and diffs the live models against it — so a clean checkout
-does not need a pre-existing `./data/deerflow.db`. Review the generated file
+does not need a pre-existing `./data/SynapseAI.db`. Review the generated file
 and switch raw `op.add_column` / `op.drop_column` calls to the idempotent
 helpers in `migrations/_helpers.py` before committing. There is no
 `make migrate` / `make migrate-stamp` target on purpose — Gateway startup is
@@ -493,7 +493,7 @@ the only execution path, which keeps operational mistakes off the table. See
 # Offline backend suite (live external-API tests are excluded)
 make test
 
-# Explicit real-API DeerFlowClient integration suite
+# Explicit real-API SynapseAIClient integration suite
 make test-live
 ```
 
@@ -501,12 +501,12 @@ The live suite requires a valid root `config.yaml` and API credentials. It may
 incur API costs or create local sandboxes, artifacts, and files, so it is not
 part of default test runs or CI. Direct pytest invocation of
 `tests/test_client_live.py` also requires
-`DEER_FLOW_RUN_LIVE_TESTS=1`.
+`SYNAPSE_RUN_LIVE_TESTS=1`.
 
 `make detect-blocking-io` statically scans backend business code for blocking
 IO that may run on the backend event loop and is not test-coverage-bound. It
 prints a concise summary for human review and writes complete JSON findings to
-`.deer-flow/blocking-io-findings.json` at the repository root (regardless of
+`.synapse-ai/blocking-io-findings.json` at the repository root (regardless of
 whether the target is invoked from the repo root or from `backend/`). JSON
 findings include both broad IO category and review-oriented fields such as
 `priority`, `location`, `blocking_call`, `event_loop_exposure`, `reason`, and

@@ -1,6 +1,6 @@
 """Neutralize prompt-injection control tokens in untrusted tool results.
 
-DeerFlow already treats the genuine user message as untrusted and neutralizes
+SynapseAI already treats the genuine user message as untrusted and neutralizes
 framework/injection tags in it (see ``InputSanitizationMiddleware``). Remote
 content that the agent *fetches* — web page bodies and search snippets returned
 by ``web_fetch`` / ``web_search`` / ``image_search``, plus the target site's
@@ -76,7 +76,7 @@ def _neutralize_content(content: object) -> object:
     """
     # Imported lazily so this module can be loaded even when a test stubs the
     # input-sanitization module, and to mirror the codebase's deferred-import style.
-    from deerflow.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
+    from SynapseAI.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
 
     if isinstance(content, str):
         return neutralize_untrusted_tags(content)

@@ -21,9 +21,9 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.asyncio import create_async_engine
 
-import deerflow.persistence.models  # noqa: F401
-from deerflow.persistence import bootstrap as bootstrap_mod
-from deerflow.persistence.bootstrap import bootstrap_schema
+import SynapseAI.persistence.models  # noqa: F401
+from SynapseAI.persistence import bootstrap as bootstrap_mod
+from SynapseAI.persistence.bootstrap import bootstrap_schema
 
 pytestmark = pytest.mark.asyncio
 

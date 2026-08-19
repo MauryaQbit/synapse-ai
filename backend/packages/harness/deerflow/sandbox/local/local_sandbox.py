@@ -12,12 +12,12 @@ from functools import cached_property
 from pathlib import Path
 from typing import NamedTuple
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.sandbox.env_policy import build_sandbox_env
-from deerflow.sandbox.local.list_dir import list_dir
-from deerflow.sandbox.path_patterns import build_output_mask_pattern
-from deerflow.sandbox.sandbox import Sandbox, _validate_extra_env
-from deerflow.sandbox.search import GrepMatch, find_glob_matches, find_grep_matches
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.sandbox.env_policy import build_sandbox_env
+from SynapseAI.sandbox.local.list_dir import list_dir
+from SynapseAI.sandbox.path_patterns import build_output_mask_pattern
+from SynapseAI.sandbox.sandbox import Sandbox, _validate_extra_env
+from SynapseAI.sandbox.search import GrepMatch, find_glob_matches, find_grep_matches
 
 logger = logging.getLogger(__name__)
 
@@ -222,7 +222,7 @@ class LocalSandbox(Sandbox):
     def _reverse_output_patterns(self) -> list[re.Pattern[str]]:
         """Compiled matchers for local paths in command output (longest local path first)."""
         # The rule — segment boundary plus path tail — is owned by
-        # ``deerflow.sandbox.path_patterns`` and shared with
+        # ``SynapseAI.sandbox.path_patterns`` and shared with
         # ``sandbox.tools._compiled_mask_patterns``, the other site that rewrites host
         # paths back to virtual ones. Its rationale (why the boundary class is
         # text-oriented rather than shell-oriented like ``_command_pattern``, why ``$``
@@ -588,8 +588,8 @@ class LocalSandbox(Sandbox):
                     # The write fd may already be closed by the exception cleanup above.
                     pass
 
-        stdout_capture, stdout_thread = LocalSandbox._start_pipe_drain(stdout_read_fd, "deerflow-bash-stdout-drain")
-        stderr_capture, stderr_thread = LocalSandbox._start_pipe_drain(stderr_read_fd, "deerflow-bash-stderr-drain")
+        stdout_capture, stdout_thread = LocalSandbox._start_pipe_drain(stdout_read_fd, "SynapseAI-bash-stdout-drain")
+        stderr_capture, stderr_thread = LocalSandbox._start_pipe_drain(stderr_read_fd, "SynapseAI-bash-stderr-drain")
         try:
             process_group_id = os.getpgid(process.pid)
         except OSError:

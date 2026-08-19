@@ -7,9 +7,9 @@ per agent build and passes the same instance to Layer 1 and Layer 2).
 
 from __future__ import annotations
 
-from deerflow.authz.provider import AuthorizationProvider
-from deerflow.config.authorization_config import AuthorizationConfig
-from deerflow.reflection import resolve_variable
+from SynapseAI.authz.provider import AuthorizationProvider
+from SynapseAI.config.authorization_config import AuthorizationConfig
+from SynapseAI.reflection import resolve_variable
 
 
 def resolve_authorization_provider(
@@ -47,7 +47,7 @@ def resolve_authorization_provider(
     if not isinstance(instance, AuthorizationProvider):
         raise ValueError(f"Authorization provider '{class_path}' does not satisfy the AuthorizationProvider Protocol")
 
-    from deerflow.authz.rbac import RbacAuthorizationProvider
+    from SynapseAI.authz.rbac import RbacAuthorizationProvider
 
     if isinstance(instance, RbacAuthorizationProvider):
         try:

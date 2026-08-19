@@ -1,4 +1,4 @@
-"""Authentication module for DeerFlow.
+"""Authentication module for SynapseAI.
 
 This module provides:
 - JWT-based authentication

@@ -40,11 +40,11 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.runtime import Runtime
 
-from deerflow.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
-from deerflow.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
+    from SynapseAI.config.app_config import AppConfig
 
 logger = logging.getLogger(__name__)
 
@@ -234,7 +234,7 @@ class DynamicContextMiddleware(AgentMiddleware):
         memory stays at role:user — preventing untrusted content from gaining
         system privilege (OWASP LLM01).
         """
-        from deerflow.agents.lead_agent.prompt import _get_memory_context
+        from SynapseAI.agents.lead_agent.prompt import _get_memory_context
 
         injection_enabled = self._app_config.memory.injection_enabled if self._app_config else True
         memory_context = (

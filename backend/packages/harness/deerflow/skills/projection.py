@@ -16,11 +16,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from deerflow.skills.parser import parse_skill_file
-from deerflow.skills.types import SKILL_MD_FILE, Skill, SkillCategory
+from SynapseAI.skills.parser import parse_skill_file
+from SynapseAI.skills.types import SKILL_MD_FILE, Skill, SkillCategory
 
 if TYPE_CHECKING:
-    from deerflow.skills.storage.skill_storage import SkillStorage
+    from SynapseAI.skills.storage.skill_storage import SkillStorage
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class SkillProjectionPaths:
 
 
 def get_skill_projection_paths(storage: SkillStorage) -> SkillProjectionPaths:
-    from deerflow.config.paths import get_paths
+    from SynapseAI.config.paths import get_paths
 
     paths = getattr(storage, "_paths", None) or get_paths()
     user_id = getattr(storage, "user_id", None)
@@ -252,7 +252,7 @@ def _update_tree_digest(digest, root: Path, label: str) -> None:
 
 
 def _extensions_state() -> dict:
-    from deerflow.config.extensions_config import ExtensionsConfig
+    from SynapseAI.config.extensions_config import ExtensionsConfig
 
     config = ExtensionsConfig.from_file()
     return {name: state.model_dump(mode="json") for name, state in config.skills.items()}
@@ -329,7 +329,7 @@ def _view_signature(paths: SkillProjectionPaths, scope: str) -> str:
 
 
 def _load_public_skills(storage: SkillStorage, *, enabled_only: bool) -> list[Skill]:
-    from deerflow.config.extensions_config import ExtensionsConfig
+    from SynapseAI.config.extensions_config import ExtensionsConfig
 
     public_root = storage.get_skills_root_path() / SkillCategory.PUBLIC.value
     if not public_root.is_dir():
@@ -565,9 +565,9 @@ def ensure_public_skill_projection(*, app_config=None) -> bool:
     every historical user would make gateway readiness scale with tenant count,
     while providing no additional safety before that user's next acquire.
     """
-    from deerflow.config import get_app_config
-    from deerflow.config.paths import get_paths
-    from deerflow.skills.storage import get_or_new_skill_storage
+    from SynapseAI.config import get_app_config
+    from SynapseAI.config.paths import get_paths
+    from SynapseAI.skills.storage import get_or_new_skill_storage
 
     try:
         config = app_config or get_app_config()

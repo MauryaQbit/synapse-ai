@@ -76,7 +76,7 @@ class _MountedProvider:
 
 
 async def test_receive_file_remote_sandbox_does_not_block_event_loop(tmp_path, monkeypatch) -> None:
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = await asyncio.to_thread(Paths, str(tmp_path))
     provider = _RemoteProvider()
@@ -107,7 +107,7 @@ async def test_receive_file_remote_sandbox_does_not_block_event_loop(tmp_path, m
 
 
 async def test_receive_file_mounted_sandbox_skips_redundant_sync(tmp_path, monkeypatch) -> None:
-    from deerflow.config.paths import Paths
+    from SynapseAI.config.paths import Paths
 
     paths = await asyncio.to_thread(Paths, str(tmp_path))
     monkeypatch.setattr("app.channels.feishu.get_paths", lambda: paths)

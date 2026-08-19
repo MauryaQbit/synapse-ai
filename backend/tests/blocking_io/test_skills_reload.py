@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 from app.gateway.routers import skills as skills_router
-from deerflow.agents.lead_agent import prompt as prompt_module
-from deerflow.skills.storage.local_skill_storage import LocalSkillStorage
+from SynapseAI.agents.lead_agent import prompt as prompt_module
+from SynapseAI.skills.storage.local_skill_storage import LocalSkillStorage
 
 pytestmark = pytest.mark.asyncio
 

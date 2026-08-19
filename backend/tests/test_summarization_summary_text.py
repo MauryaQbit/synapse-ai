@@ -7,8 +7,8 @@ from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, Syst
 from langchain_core.outputs import ChatGeneration, ChatResult
 from pydantic import Field
 
-from deerflow.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY
-from deerflow.agents.middlewares.summarization_middleware import DeerFlowSummarizationMiddleware
+from SynapseAI.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY
+from SynapseAI.agents.middlewares.summarization_middleware import SynapseAISummarizationMiddleware
 
 
 def _char_count(messages) -> int:
@@ -69,7 +69,7 @@ def _big_history(n: int = 12) -> list:
 
 class TestSummaryFailureSafety:
     def test_summary_model_failure_does_not_destroy_history(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_RaisingChatModel(),
             trigger=("messages", 4),
             keep=("messages", 2),
@@ -82,8 +82,8 @@ class TestSummaryFailureSafety:
 
 
 class TestSummaryWritesChannel:
-    def _middleware(self) -> DeerFlowSummarizationMiddleware:
-        return DeerFlowSummarizationMiddleware(
+    def _middleware(self) -> SynapseAISummarizationMiddleware:
+        return SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="COMPRESSED_SUMMARY"),
             trigger=("messages", 4),
             keep=("messages", 2),
@@ -100,7 +100,7 @@ class TestSummaryWritesChannel:
         assert any(isinstance(message, RemoveMessage) for message in out["messages"])
 
     def test_empty_summary_window_after_rescue_does_not_overwrite_existing_summary(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="SHOULD_NOT_BE_USED"),
             trigger=("messages", 2),
             keep=("messages", 1),
@@ -125,7 +125,7 @@ class TestSummaryWritesChannel:
 
     def test_existing_summary_is_included_when_creating_next_summary(self):
         model = _RecordingSummaryModel(text="UPDATED_SUMMARY")
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=model,
             trigger=("messages", 4),
             keep=("messages", 2),
@@ -146,7 +146,7 @@ class TestSummaryWritesChannel:
         assert "OLD_SUMMARY_SENTINEL" in model.prompts[-1]
 
     def test_summary_text_counts_toward_summarization_trigger(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="UPDATED_SUMMARY"),
             trigger=("tokens", 80),
             keep=("messages", 2),
@@ -169,7 +169,7 @@ class TestSummaryWritesChannel:
         assert out["summary_text"] == "UPDATED_SUMMARY"
 
     def test_compact_state_force_ignores_trigger_threshold(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="FORCED_SUMMARY"),
             trigger=("messages", 100),
             keep=("messages", 2),
@@ -184,7 +184,7 @@ class TestSummaryWritesChannel:
         assert len(result.messages_to_summarize) > 0
 
     def test_previous_summary_is_trimmed_with_summary_prompt_input(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="UPDATED_SUMMARY"),
             trigger=("messages", 4),
             keep=("messages", 2),
@@ -203,7 +203,7 @@ class TestSummaryWritesChannel:
         assert "NEW_MESSAGE_SENTINEL" in prompt
 
     def test_new_message_summary_prompt_trim_uses_token_counter_budget(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="UPDATED_SUMMARY"),
             trigger=("messages", 4),
             keep=("messages", 2),
@@ -219,7 +219,7 @@ class TestSummaryWritesChannel:
         assert "NEW_MESSAGE_SENTINEL" in new_messages
 
     def test_summary_prompt_fallback_bound_respects_small_budget(self):
-        middleware = DeerFlowSummarizationMiddleware(
+        middleware = SynapseAISummarizationMiddleware(
             model=_StaticChatModel(text="UPDATED_SUMMARY"),
             trigger=("messages", 4),
             keep=("messages", 2),

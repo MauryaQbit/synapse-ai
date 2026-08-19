@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from deerflow.constants import (
+from SynapseAI.constants import (
     RUN_EVENT_CATEGORY_MAX_LENGTH,
     RUN_EVENT_TYPE_MAX_LENGTH,
     WORKSPACE_CHANGES_EVENT_CATEGORY,

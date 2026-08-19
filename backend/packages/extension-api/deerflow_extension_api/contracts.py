@@ -14,10 +14,10 @@ from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, runtime_checkable
 
-from deerflow_extension_api.state import ExtensionData
+from SynapseAI_extension_api.state import ExtensionData
 
 if TYPE_CHECKING:  # pragma: no cover - typing only
-    from deerflow_extension_api.placement import AgentBuildContext, MiddlewarePlacement
+    from SynapseAI_extension_api.placement import AgentBuildContext, MiddlewarePlacement
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -224,8 +224,8 @@ def extension(*, api: str, name: str | None = None) -> Callable[[F], F]:
     """
 
     def _decorate(func: F) -> F:
-        func.__deerflow_api__ = api  # type: ignore[attr-defined]
-        func.__deerflow_name__ = name  # type: ignore[attr-defined]
+        func.__SynapseAI_api__ = api  # type: ignore[attr-defined]
+        func.__SynapseAI_name__ = name  # type: ignore[attr-defined]
         return func
 
     return _decorate

@@ -4,8 +4,8 @@ const meta: MetaRecord = {
   index: {
     title: "简介",
   },
-  "why-deerflow": {
-    title: "为什么选择 DeerFlow",
+  "why-SynapseAI": {
+    title: "为什么选择 SynapseAI",
   },
   "core-concepts": {
     title: "核心概念",

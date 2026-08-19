@@ -5,8 +5,8 @@ from typing import Any
 import pytest
 from langgraph.checkpoint.base import BaseCheckpointSaver, CheckpointTuple
 
-from deerflow.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
-from deerflow.runtime.checkpointer.cached_saver import CachedHistorySaver
+from SynapseAI.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
+from SynapseAI.runtime.checkpointer.cached_saver import CachedHistorySaver
 
 PREFIX = "ckpt-hist:v1:testdb"
 

@@ -66,10 +66,10 @@ from langchain.agents.middleware.types import ModelCallResult, ModelRequest, Mod
 from langchain_core.messages import HumanMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares._bounded_dict import BoundedDict
+from SynapseAI.agents.middlewares._bounded_dict import BoundedDict
 
 if TYPE_CHECKING:
-    from deerflow.config.loop_detection_config import LoopDetectionConfig
+    from SynapseAI.config.loop_detection_config import LoopDetectionConfig
 
 logger = logging.getLogger(__name__)
 
@@ -311,7 +311,7 @@ class LoopDetectionMiddleware(AgentMiddleware[AgentState]):
         ``context["run_id"] = self.run_id`` unconditionally (no truthiness
         guard), so an embedded/TUI-dispatched subagent — whose ``run_id`` is
         never assigned per ``AGENTS.md``'s description of the embedded
-        ``DeerFlowClient`` — runs with a context that legitimately carries
+        ``SynapseAIClient`` — runs with a context that legitimately carries
         ``run_id=None`` (the key is *present*, not absent). The executor
         later reads the stop reason back with the raw attribute,
         ``consume_stop_reason(self.run_id)``, so this must return exactly

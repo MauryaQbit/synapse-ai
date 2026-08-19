@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.mcp.task_tool_caller import McpTaskToolCaller, mcp_task_session_scope_key
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.mcp.task_tool_caller import McpTaskToolCaller, mcp_task_session_scope_key
 
 
 def _config() -> ExtensionsConfig:
@@ -86,9 +86,9 @@ async def test_stdio_task_call_reuses_exact_scope_and_raw_tool_name() -> None:
     caller = McpTaskToolCaller(_config())
 
     with (
-        patch("deerflow.mcp.task_tool_caller.get_session_pool", return_value=pool),
+        patch("SynapseAI.mcp.task_tool_caller.get_session_pool", return_value=pool),
         patch(
-            "deerflow.mcp.task_tool_caller._prepare_stdio_connection",
+            "SynapseAI.mcp.task_tool_caller._prepare_stdio_connection",
             return_value={"transport": "stdio", "command": "report-mcp"},
         ),
     ):
@@ -119,9 +119,9 @@ async def test_broken_stdio_task_session_is_evicted_for_next_poll_reconnect() ->
     caller = McpTaskToolCaller(_config())
 
     with (
-        patch("deerflow.mcp.task_tool_caller.get_session_pool", return_value=pool),
+        patch("SynapseAI.mcp.task_tool_caller.get_session_pool", return_value=pool),
         patch(
-            "deerflow.mcp.task_tool_caller._prepare_stdio_connection",
+            "SynapseAI.mcp.task_tool_caller._prepare_stdio_connection",
             return_value={"transport": "stdio", "command": "report-mcp"},
         ),
         pytest.raises(ConnectionError, match="disconnected"),
@@ -151,9 +151,9 @@ async def test_stdio_task_session_initialization_respects_configured_timeout() -
     caller = McpTaskToolCaller(config)
 
     with (
-        patch("deerflow.mcp.task_tool_caller.get_session_pool", return_value=pool),
+        patch("SynapseAI.mcp.task_tool_caller.get_session_pool", return_value=pool),
         patch(
-            "deerflow.mcp.task_tool_caller._prepare_stdio_connection",
+            "SynapseAI.mcp.task_tool_caller._prepare_stdio_connection",
             return_value={"transport": "stdio", "command": "report-mcp"},
         ),
         pytest.raises(TimeoutError),

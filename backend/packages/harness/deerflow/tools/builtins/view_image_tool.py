@@ -6,9 +6,9 @@ from langchain.tools import InjectedToolCallId, tool
 from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 
-from deerflow.agents.thread_state import ThreadDataState
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.tools.types import Runtime
+from SynapseAI.agents.thread_state import ThreadDataState
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.tools.types import Runtime
 
 _ALLOWED_IMAGE_VIRTUAL_ROOTS = (
     f"{VIRTUAL_PATH_PREFIX}/workspace",
@@ -43,7 +43,7 @@ def _detect_image_mime(image_data: bytes) -> str | None:
 
 
 def _sanitize_image_error(error: Exception, thread_data: ThreadDataState | None) -> str:
-    from deerflow.sandbox.tools import mask_local_paths_in_output
+    from SynapseAI.sandbox.tools import mask_local_paths_in_output
 
     return mask_local_paths_in_output(f"{type(error).__name__}: {error}", thread_data)
 
@@ -68,8 +68,8 @@ def view_image_tool(
     Args:
         image_path: Absolute /mnt/user-data virtual path to the image file. Common formats supported: jpg, jpeg, png, webp, gif.
     """
-    from deerflow.sandbox.exceptions import SandboxRuntimeError
-    from deerflow.sandbox.tools import (
+    from SynapseAI.sandbox.exceptions import SandboxRuntimeError
+    from SynapseAI.sandbox.tools import (
         get_thread_data,
         resolve_and_validate_user_data_path,
         validate_local_tool_path,

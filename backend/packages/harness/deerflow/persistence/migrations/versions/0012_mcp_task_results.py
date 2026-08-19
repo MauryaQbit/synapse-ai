@@ -18,7 +18,7 @@ depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
-    from deerflow.persistence.migrations._helpers import safe_add_column
+    from SynapseAI.persistence.migrations._helpers import safe_add_column
 
     safe_add_column(
         "mcp_tasks",
@@ -40,7 +40,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
-    from deerflow.persistence.migrations._helpers import safe_drop_column
+    from SynapseAI.persistence.migrations._helpers import safe_drop_column
 
     safe_drop_column("mcp_tasks", "result_artifact")
     safe_drop_column("mcp_tasks", "result_truncated")

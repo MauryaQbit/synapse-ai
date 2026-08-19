@@ -1,7 +1,7 @@
 """Custom agent definition persistence — abstract store + file/db backends.
 
 The public entry point is :func:`get_agent_store`, which the free functions in
-:mod:`deerflow.config.agents_config` dispatch to. ``file`` (default) preserves
+:mod:`SynapseAI.config.agents_config` dispatch to. ``file`` (default) preserves
 today's on-disk layout; ``db`` shares definitions across nodes via the SQL
 persistence layer.
 """
@@ -10,16 +10,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from deerflow.persistence.agents.base import (
+from SynapseAI.persistence.agents.base import (
     AgentDeleteOutcome,
     AgentExistsError,
     AgentStore,
     parse_agent_config,
 )
-from deerflow.persistence.agents.model import AgentRow
+from SynapseAI.persistence.agents.model import AgentRow
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
+    from SynapseAI.config.app_config import AppConfig
 
 __all__ = [
     "AgentDeleteOutcome",
@@ -50,7 +50,7 @@ def make_agent_store(config: AppConfig) -> AgentStore:
                 "share agent definitions across nodes; set database.backend accordingly or use "
                 "agent_storage.backend='file'."
             )
-        from deerflow.persistence.agents.sql import SqlAgentStore
+        from SynapseAI.persistence.agents.sql import SqlAgentStore
 
         return SqlAgentStore(config.database.app_sync_sqlalchemy_url)
 
@@ -76,7 +76,7 @@ def get_agent_store() -> AgentStore:
     downgraded to node-local ``file``. Pinned by
     ``test_get_agent_store_resolves_db_backend_from_on_disk_config``.
     """
-    from deerflow.config.app_config import get_app_config
+    from SynapseAI.config.app_config import get_app_config
 
     try:
         config = get_app_config()
@@ -88,7 +88,7 @@ def get_agent_store() -> AgentStore:
 def _file_store() -> AgentStore:
     global _file_store_singleton
     if _file_store_singleton is None:
-        from deerflow.persistence.agents.file import FileAgentStore
+        from SynapseAI.persistence.agents.file import FileAgentStore
 
         _file_store_singleton = FileAgentStore()
     return _file_store_singleton

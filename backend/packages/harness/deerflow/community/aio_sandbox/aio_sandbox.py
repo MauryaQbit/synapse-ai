@@ -9,9 +9,9 @@ import httpx
 from agent_sandbox import Sandbox as AioSandboxClient
 from agent_sandbox.core.api_error import ApiError
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.sandbox.sandbox import Sandbox, _validate_extra_env
-from deerflow.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.sandbox.sandbox import Sandbox, _validate_extra_env
+from SynapseAI.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
 
 from .backend import sandbox_http_trust_env
 
@@ -174,7 +174,7 @@ class AioSandbox(Sandbox):
                 unchanged.
             timeout: Optional per-call timeout. The current sandbox SDK does not
                 expose a command-level timeout distinct from its client/request
-                timeout, so DeerFlow keeps using the backend's default here.
+                timeout, so SynapseAI keeps using the backend's default here.
 
         Returns:
             The output of the command.

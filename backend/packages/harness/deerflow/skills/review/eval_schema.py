@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from deerflow.skills.review.models import make_finding
+from SynapseAI.skills.review.models import make_finding
 
 
 def analyze_eval_manifests(snapshot: dict[str, Any]) -> tuple[dict[str, Any], list[dict[str, Any]]]:

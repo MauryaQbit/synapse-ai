@@ -7,10 +7,10 @@ from fastapi import APIRouter, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
 from app.gateway.internal_auth import get_trusted_internal_owner_user_id
-from deerflow.agents.memory import MemoryConflictError, MemoryCorruptionError, MemoryManager, get_memory_manager
-from deerflow.config.memory_config import get_memory_config
-from deerflow.config.paths import make_safe_user_id
-from deerflow.runtime.user_context import get_effective_user_id
+from SynapseAI.agents.memory import MemoryConflictError, MemoryCorruptionError, MemoryManager, get_memory_manager
+from SynapseAI.config.memory_config import get_memory_config
+from SynapseAI.config.paths import make_safe_user_id
+from SynapseAI.runtime.user_context import get_effective_user_id
 
 router = APIRouter(prefix="/api", tags=["memory"])
 
@@ -220,7 +220,7 @@ async def get_memory(http_request: Request) -> MemoryResponse:
             "version": "1.0",
             "lastUpdated": "2024-01-15T10:30:00Z",
             "user": {
-                "workContext": {"summary": "Working on DeerFlow project", "updatedAt": "..."},
+                "workContext": {"summary": "Working on SynapseAI project", "updatedAt": "..."},
                 "personalContext": {"summary": "Prefers concise responses", "updatedAt": "..."},
                 "topOfMind": {"summary": "Building memory API", "updatedAt": "..."}
             },
@@ -460,7 +460,7 @@ async def get_memory_config_endpoint() -> MemoryConfigResponse:
             "mode": "middleware",
             "manager_class": "deermem",
             "backend_config": {
-                "storage_path": "/.../.deer-flow",
+                "storage_path": "/.../.synapse-ai",
                 "debounce_seconds": 30,
                 "max_facts": 100,
                 "fact_confidence_threshold": 0.7,

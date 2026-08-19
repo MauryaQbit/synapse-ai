@@ -31,11 +31,11 @@ from app.gateway.internal_auth import (
 )
 from app.gateway.run_models import RunCreateRequest
 from app.gateway.utils import sanitize_log_param
-from deerflow.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
-from deerflow.agents.middlewares.view_image_middleware import _IMAGE_CONTEXT_MESSAGE_MARKER_KEY
-from deerflow.config.app_config import get_app_config
-from deerflow.config.database_config import resolve_checkpoint_graph_cache_max
-from deerflow.runtime import (
+from SynapseAI.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
+from SynapseAI.agents.middlewares.view_image_middleware import _IMAGE_CONTEXT_MESSAGE_MARKER_KEY
+from SynapseAI.config.app_config import get_app_config
+from SynapseAI.config.database_config import resolve_checkpoint_graph_cache_max
+from SynapseAI.runtime import (
     END_SENTINEL,
     HEARTBEAT_SENTINEL,
     ORPHAN_RECOVERY_STOP_REASON,
@@ -53,25 +53,25 @@ from deerflow.runtime import (
     build_state_mutation_graph,
     run_agent,
 )
-from deerflow.runtime.checkpoint_mode import (
+from SynapseAI.runtime.checkpoint_mode import (
     INTERNAL_CHECKPOINT_MODE_KEY,
     CheckpointModeMismatchError,
     checkpoint_tuple_uses_delta,
     inject_checkpoint_mode,
 )
-from deerflow.runtime.checkpoint_state import graph_state_schema
-from deerflow.runtime.goal import goal_thread_lock
-from deerflow.runtime.journal import build_checkpoint_history_seed_events
-from deerflow.runtime.runs.naming import resolve_root_run_name
-from deerflow.runtime.secret_context import (
+from SynapseAI.runtime.checkpoint_state import graph_state_schema
+from SynapseAI.runtime.goal import goal_thread_lock
+from SynapseAI.runtime.journal import build_checkpoint_history_seed_events
+from SynapseAI.runtime.runs.naming import resolve_root_run_name
+from SynapseAI.runtime.secret_context import (
     LegacyRunMetadataSecretError,
     redact_config_secrets,
     validate_run_metadata_secrets,
 )
-from deerflow.runtime.stream_modes import normalize_stream_modes
-from deerflow.runtime.user_context import reset_current_user, set_current_user
-from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
-from deerflow.utils.thread_id import validate_thread_id
+from SynapseAI.runtime.stream_modes import normalize_stream_modes
+from SynapseAI.runtime.user_context import reset_current_user, set_current_user
+from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
+from SynapseAI.utils.thread_id import validate_thread_id
 
 logger = logging.getLogger(__name__)
 
@@ -402,7 +402,7 @@ def merge_run_context_overrides(config: dict[str, Any], context: Mapping[str, An
 
 
 async def resolve_trusted_internal_owner_for_attribution(request: Request, owner_user_id: str | None) -> Any | None:
-    """Resolve the DeerFlow user used only for trusted internal attribution."""
+    """Resolve the SynapseAI user used only for trusted internal attribution."""
 
     if not owner_user_id:
         return None
@@ -493,7 +493,7 @@ def resolve_agent_factory(assistant_id: str | None):
     same factory; the routing happens inside ``make_lead_agent`` when it reads
     ``cfg["agent_name"]``.
     """
-    from deerflow.agents.lead_agent.agent import make_lead_agent
+    from SynapseAI.agents.lead_agent.agent import make_lead_agent
 
     return make_lead_agent
 
@@ -1109,7 +1109,7 @@ async def start_run(
     # via check_access; only a thread already owned by another user is rejected
     # with 404, matching thread_runs.py's anti-enumeration behaviour. Internal
     # channel runs act on behalf of the connection owner carried in
-    # X-DeerFlow-Owner-User-Id, so they are scoped to that owner instead of
+    # X-SynapseAI-Owner-User-Id, so they are scoped to that owner instead of
     # bypassing the check -- a leaked internal token must not grant cross-user
     # thread access.
     user = getattr(request.state, "user", None)
@@ -1135,7 +1135,7 @@ async def start_run(
         config = build_run_config(thread_id, body.config, body.metadata, assistant_id=body.assistant_id)
         await apply_checkpoint_to_run_config(config, body=body, thread_id=thread_id, request=request)
 
-        # Merge DeerFlow-specific context overrides into both ``configurable`` and ``context``.
+        # Merge SynapseAI-specific context overrides into both ``configurable`` and ``context``.
         # The ``context`` field is a custom extension for the langgraph-compat layer
         # that carries agent configuration (model_name, thinking_enabled, etc.).
         # Only agent-relevant keys are forwarded; unknown keys (e.g. thread_id) are ignored.

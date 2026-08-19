@@ -175,4 +175,4 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ## Attribution
 
-This project is based on DeerFlow by ByteDance. We acknowledge the original authors for their contributions.
+This project is based on SynapseAI by ByteDance. We acknowledge the original authors for their contributions.

@@ -5,7 +5,7 @@ from enum import StrEnum
 from math import isfinite
 from typing import Any
 
-from deerflow.constants import (
+from SynapseAI.constants import (
     MCP_TASK_NAME_MAX_LENGTH,
     MCP_TASK_SERVER_NAME_MAX_LENGTH,
 )

@@ -7,12 +7,12 @@ Supported backends: memory, sqlite, postgres.
 
 Usage (e.g. FastAPI lifespan)::
 
-    from deerflow.runtime.checkpointer.async_provider import make_checkpointer
+    from SynapseAI.runtime.checkpointer.async_provider import make_checkpointer
 
     async with make_checkpointer() as checkpointer:
         app.state.checkpointer = checkpointer  # InMemorySaver if not configured
 
-For sync usage see :mod:`deerflow.runtime.checkpointer.provider`.
+For sync usage see :mod:`SynapseAI.runtime.checkpointer.provider`.
 """
 
 from __future__ import annotations
@@ -24,14 +24,14 @@ from collections.abc import AsyncIterator
 
 from langgraph.types import Checkpointer
 
-from deerflow.config.app_config import AppConfig, get_app_config
-from deerflow.persistence.postgres_schema import create_schema_sql, dsn_with_search_path, normalize_libpq_dsn
-from deerflow.runtime.checkpointer.provider import (
+from SynapseAI.config.app_config import AppConfig, get_app_config
+from SynapseAI.persistence.postgres_schema import create_schema_sql, dsn_with_search_path, normalize_libpq_dsn
+from SynapseAI.runtime.checkpointer.provider import (
     POSTGRES_CONN_REQUIRED,
     POSTGRES_INSTALL,
     SQLITE_INSTALL,
 )
-from deerflow.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
+from SynapseAI.runtime.store._sqlite_utils import ensure_sqlite_parent_dir, resolve_sqlite_conn_str
 
 logger = logging.getLogger(__name__)
 
@@ -232,7 +232,7 @@ async def make_checkpointer(app_config: AppConfig | None = None) -> AsyncIterato
     saver is wrapped in a :class:`CachedHistorySaver` backed by a history cache
     whose lifetime equals this context manager's.
     """
-    from deerflow.runtime.checkpoint_mode import frozen_checkpoint_channel_mode
+    from SynapseAI.runtime.checkpoint_mode import frozen_checkpoint_channel_mode
 
     if app_config is None:
         app_config = get_app_config()
@@ -241,11 +241,11 @@ async def make_checkpointer(app_config: AppConfig | None = None) -> AsyncIterato
         db_config = getattr(app_config, "database", None)
         mode = frozen_checkpoint_channel_mode() or (db_config.checkpoint_channel_mode if db_config is not None else "full")
         if mode == "delta":
-            from deerflow.runtime.checkpoint_cache.provider import (
+            from SynapseAI.runtime.checkpoint_cache.provider import (
                 checkpoint_cache_key_prefix,
                 make_checkpoint_cache,
             )
-            from deerflow.runtime.checkpointer.cached_saver import CachedHistorySaver
+            from SynapseAI.runtime.checkpointer.cached_saver import CachedHistorySaver
 
             async with make_checkpoint_cache(app_config, serde=saver.serde) as cache:
                 yield CachedHistorySaver(saver, cache, key_prefix=checkpoint_cache_key_prefix(app_config))

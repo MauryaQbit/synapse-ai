@@ -10,13 +10,13 @@ from langgraph.config import get_config
 from langgraph.constants import TAG_NOSTREAM
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares.dynamic_context_middleware import is_dynamic_context_reminder
-from deerflow.config.title_config import get_title_config
-from deerflow.models import create_chat_model
+from SynapseAI.agents.middlewares.dynamic_context_middleware import is_dynamic_context_reminder
+from SynapseAI.config.title_config import get_title_config
+from SynapseAI.models import create_chat_model
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
-    from deerflow.config.title_config import TitleConfig
+    from SynapseAI.config.app_config import AppConfig
+    from SynapseAI.config.title_config import TitleConfig
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
         self._app_config = app_config
         self._title_config = title_config
         if extensions is None:
-            from deerflow.extensions import get_agent_build_extensions
+            from SynapseAI.extensions import get_agent_build_extensions
 
             extensions = get_agent_build_extensions()
         self._extensions = extensions
@@ -236,9 +236,9 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
             model = create_chat_model(name=config.model_name, **model_kwargs)
             invoke_config = self._get_runnable_config()
 
-            from deerflow_extension_api import SystemOperationKind
+            from SynapseAI_extension_api import SystemOperationKind
 
-            from deerflow.extensions.notify import observe_system_model_call
+            from SynapseAI.extensions.notify import observe_system_model_call
 
             response = await observe_system_model_call(
                 self._extensions,
@@ -262,7 +262,7 @@ class TitleMiddleware(AgentMiddleware[TitleMiddlewareState]):
 
     @override
     async def aafter_model(self, state: TitleMiddlewareState, runtime: Runtime) -> dict | None:
-        from deerflow_extension_api import task_store_from_runtime
+        from SynapseAI_extension_api import task_store_from_runtime
 
         return await self._agenerate_title_result(
             state,

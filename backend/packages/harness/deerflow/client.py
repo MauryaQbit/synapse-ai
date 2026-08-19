@@ -1,12 +1,12 @@
-"""DeerFlowClient — Embedded Python client for DeerFlow agent system.
+"""SynapseAIClient — Embedded Python client for SynapseAI agent system.
 
-Provides direct programmatic access to DeerFlow's agent capabilities
+Provides direct programmatic access to SynapseAI's agent capabilities
 without requiring LangGraph Server or Gateway API processes.
 
 Usage:
-    from deerflow.client import DeerFlowClient
+    from SynapseAI.client import SynapseAIClient
 
-    client = DeerFlowClient()
+    client = SynapseAIClient()
     response = client.chat("Analyze this paper for me", thread_id="my-thread")
     print(response)
 
@@ -33,36 +33,36 @@ from langchain.agents.middleware import AgentMiddleware
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 
-from deerflow.agents.lead_agent.agent import _authorize_model_name, build_middlewares
-from deerflow.agents.lead_agent.prompt import apply_prompt_template, get_enabled_skills_for_config
-from deerflow.agents.thread_state import get_thread_state_schema, normalize_middleware_state_schemas
-from deerflow.authz.principal import build_principal_from_context
-from deerflow.config.agents_config import AGENT_NAME_PATTERN
-from deerflow.config.app_config import get_app_config, is_trace_correlation_enabled, reload_app_config
-from deerflow.config.extensions_config import (
+from SynapseAI.agents.lead_agent.agent import _authorize_model_name, build_middlewares
+from SynapseAI.agents.lead_agent.prompt import apply_prompt_template, get_enabled_skills_for_config
+from SynapseAI.agents.thread_state import get_thread_state_schema, normalize_middleware_state_schemas
+from SynapseAI.authz.principal import build_principal_from_context
+from SynapseAI.config.agents_config import AGENT_NAME_PATTERN
+from SynapseAI.config.app_config import get_app_config, is_trace_correlation_enabled, reload_app_config
+from SynapseAI.config.extensions_config import (
     ExtensionsConfig,
     SkillStateConfig,
     atomic_write_extensions_config,
     get_extensions_config,
     reload_extensions_config,
 )
-from deerflow.config.paths import get_paths
-from deerflow.models import create_chat_model
-from deerflow.runtime import CheckpointStateAccessor
-from deerflow.runtime.checkpoint_mode import (
+from SynapseAI.config.paths import get_paths
+from SynapseAI.models import create_chat_model
+from SynapseAI.runtime import CheckpointStateAccessor
+from SynapseAI.runtime.checkpoint_mode import (
     ensure_checkpoint_mode_compatible,
     freeze_checkpoint_channel_mode,
     freeze_checkpoint_snapshot_frequency,
     inject_checkpoint_mode,
 )
-from deerflow.runtime.goal import DEFAULT_MAX_GOAL_CONTINUATIONS, build_goal_state, goal_thread_lock, read_thread_goal, write_thread_goal
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.skills.describe import build_skill_search_setup
-from deerflow.skills.storage import get_or_new_user_skill_storage
-from deerflow.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware, get_mcp_routing_hints_prompt_section
-from deerflow.trace_context import DEERFLOW_TRACE_METADATA_KEY, generate_trace_id, get_current_trace_id, reset_current_trace_id, set_current_trace_id
-from deerflow.tracing import build_tracing_callbacks, inject_langfuse_metadata
-from deerflow.uploads.manager import (
+from SynapseAI.runtime.goal import DEFAULT_MAX_GOAL_CONTINUATIONS, build_goal_state, goal_thread_lock, read_thread_goal, write_thread_goal
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.skills.describe import build_skill_search_setup
+from SynapseAI.skills.storage import get_or_new_user_skill_storage
+from SynapseAI.tools.builtins.tool_search import assemble_deferred_tools, build_mcp_routing_middleware, get_mcp_routing_hints_prompt_section
+from SynapseAI.trace_context import SynapseAI_TRACE_METADATA_KEY, generate_trace_id, get_current_trace_id, reset_current_trace_id, set_current_trace_id
+from SynapseAI.tracing import build_tracing_callbacks, inject_langfuse_metadata
+from SynapseAI.uploads.manager import (
     claim_unique_filename,
     delete_file_safe,
     enrich_file_listing,
@@ -72,7 +72,7 @@ from deerflow.uploads.manager import (
     upload_artifact_url,
     upload_virtual_path,
 )
-from deerflow.utils.thread_id import resolve_thread_id, validate_thread_id
+from SynapseAI.utils.thread_id import resolve_thread_id, validate_thread_id
 
 logger = logging.getLogger(__name__)
 
@@ -123,10 +123,10 @@ class StreamEvent:
     data: dict[str, Any] = field(default_factory=dict)
 
 
-class DeerFlowClient:
-    """Embedded Python client for DeerFlow agent system.
+class SynapseAIClient:
+    """Embedded Python client for SynapseAI agent system.
 
-    Provides direct programmatic access to DeerFlow's agent capabilities
+    Provides direct programmatic access to SynapseAI's agent capabilities
     without requiring LangGraph Server or Gateway API processes.
 
     Note:
@@ -141,9 +141,9 @@ class DeerFlowClient:
 
     Example::
 
-        from deerflow.client import DeerFlowClient
+        from SynapseAI.client import SynapseAIClient
 
-        client = DeerFlowClient()
+        client = SynapseAIClient()
 
         # Simple one-shot
         print(client.chat("hello"))
@@ -190,7 +190,7 @@ class DeerFlowClient:
             environment: Deployment environment label that ends up in
                 ``langfuse_tags`` (e.g. ``"production"`` / ``"staging"``).
                 When ``None`` the worker/client falls back to the
-                ``DEER_FLOW_ENV`` or ``ENVIRONMENT`` env vars. Pass an
+                ``SYNAPSE_ENV`` or ``ENVIRONMENT`` env vars. Pass an
                 explicit value for programmatic callers that do not want
                 env-var coupling.
         """
@@ -293,7 +293,7 @@ class DeerFlowClient:
         # Phase 3: enforce model:use authorization on the embedded/library path
         # too, mirroring the Gateway runtime path in ``_make_lead_agent`` so the
         # role-scoped model policy cannot be bypassed by constructing the agent
-        # through ``DeerFlowClient``. Resolve the ``None`` default to a concrete
+        # through ``SynapseAIClient``. Resolve the ``None`` default to a concrete
         # name first (what ``create_chat_model(name=None)`` would pick) so the
         # policy covers the implicit default model. ``cfg`` already carries the
         # identity that ``apply_tool_authorization`` reads below.
@@ -321,7 +321,7 @@ class DeerFlowClient:
             late_tools.append(skill_setup.describe_skill_tool)
 
         # Apply authorization Layer 1 before deferred assembly.
-        from deerflow.authz.tool_filter import apply_tool_authorization
+        from SynapseAI.authz.tool_filter import apply_tool_authorization
 
         configured_tool_ids = {id(tool) for tool in tools}
         authorized_tools, _authz_provider = apply_tool_authorization(
@@ -381,7 +381,7 @@ class DeerFlowClient:
         }
         checkpointer = self._checkpointer
         if checkpointer is None:
-            from deerflow.runtime.checkpointer import get_checkpointer
+            from SynapseAI.runtime.checkpointer import get_checkpointer
 
             checkpointer = get_checkpointer()
         if checkpointer is not None:
@@ -394,7 +394,7 @@ class DeerFlowClient:
     @staticmethod
     def _get_tools(*, model_name: str | None, subagent_enabled: bool):
         """Lazy import to avoid circular dependency at module level."""
-        from deerflow.tools import get_available_tools
+        from SynapseAI.tools import get_available_tools
 
         return get_available_tools(model_name=model_name, subagent_enabled=subagent_enabled)
 
@@ -428,7 +428,7 @@ class DeerFlowClient:
             "type": "ai",
             "content": "",
             "id": msg_id,
-            "tool_calls": DeerFlowClient._serialize_tool_calls(tool_calls),
+            "tool_calls": SynapseAIClient._serialize_tool_calls(tool_calls),
         }
         if additional_kwargs:
             data["additional_kwargs"] = additional_kwargs
@@ -439,7 +439,7 @@ class DeerFlowClient:
         """Build a ``messages-tuple`` tool-result event from a ToolMessage."""
         data: dict[str, Any] = {
             "type": "tool",
-            "content": DeerFlowClient._extract_text(msg.content),
+            "content": SynapseAIClient._extract_text(msg.content),
             "name": msg.name,
             "tool_call_id": msg.tool_call_id,
             "id": msg.id,
@@ -454,33 +454,33 @@ class DeerFlowClient:
         if isinstance(msg, AIMessage):
             d: dict[str, Any] = {"type": "ai", "content": msg.content, "id": getattr(msg, "id", None)}
             if msg.tool_calls:
-                d["tool_calls"] = DeerFlowClient._serialize_tool_calls(msg.tool_calls)
+                d["tool_calls"] = SynapseAIClient._serialize_tool_calls(msg.tool_calls)
             if getattr(msg, "usage_metadata", None):
                 d["usage_metadata"] = msg.usage_metadata
-            if additional_kwargs := DeerFlowClient._serialize_additional_kwargs(msg):
+            if additional_kwargs := SynapseAIClient._serialize_additional_kwargs(msg):
                 d["additional_kwargs"] = additional_kwargs
             return d
         if isinstance(msg, ToolMessage):
             d = {
                 "type": "tool",
-                "content": DeerFlowClient._extract_text(msg.content),
+                "content": SynapseAIClient._extract_text(msg.content),
                 "name": getattr(msg, "name", None),
                 "tool_call_id": getattr(msg, "tool_call_id", None),
                 "id": getattr(msg, "id", None),
             }
-            if additional_kwargs := DeerFlowClient._serialize_additional_kwargs(msg):
+            if additional_kwargs := SynapseAIClient._serialize_additional_kwargs(msg):
                 d["additional_kwargs"] = additional_kwargs
             if (artifact := getattr(msg, "artifact", None)) is not None:
                 d["artifact"] = artifact
             return d
         if isinstance(msg, HumanMessage):
             d = {"type": "human", "content": msg.content, "id": getattr(msg, "id", None)}
-            if additional_kwargs := DeerFlowClient._serialize_additional_kwargs(msg):
+            if additional_kwargs := SynapseAIClient._serialize_additional_kwargs(msg):
                 d["additional_kwargs"] = additional_kwargs
             return d
         if isinstance(msg, SystemMessage):
             d = {"type": "system", "content": msg.content, "id": getattr(msg, "id", None)}
-            if additional_kwargs := DeerFlowClient._serialize_additional_kwargs(msg):
+            if additional_kwargs := SynapseAIClient._serialize_additional_kwargs(msg):
                 d["additional_kwargs"] = additional_kwargs
             return d
         return {"type": "unknown", "content": str(msg), "id": getattr(msg, "id", None)}
@@ -529,7 +529,7 @@ class DeerFlowClient:
     def _get_thread_checkpointer(self):
         checkpointer = self._checkpointer
         if checkpointer is None:
-            from deerflow.runtime.checkpointer.provider import get_checkpointer
+            from SynapseAI.runtime.checkpointer.provider import get_checkpointer
 
             checkpointer = get_checkpointer()
         return checkpointer
@@ -685,15 +685,15 @@ class DeerFlowClient:
         thread_id: str | None = None,
         **kwargs,
     ) -> Generator[StreamEvent, None, None]:
-        """Stream a conversation turn with a DeerFlow request trace context.
+        """Stream a conversation turn with a SynapseAI request trace context.
 
         Mirrors the Gateway ``TraceMiddleware`` gate: when
         ``logging.enhance.enabled`` is off the embedded client does **not**
         create a fresh request-level trace id, so Langfuse traces from
         embedded / TUI / CLI callers keep their pre-enhancement schema and
-        do not gain a ``metadata.deerflow_trace_id`` key by default. A
+        do not gain a ``metadata.SynapseAI_trace_id`` key by default. A
         caller that explicitly binds its own trace via
-        :func:`deerflow.trace_context.request_trace_context` still opts in:
+        :func:`SynapseAI.trace_context.request_trace_context` still opts in:
         the inner ``get_current_trace_id()`` read propagates that value
         into Langfuse metadata regardless of the flag.
         """
@@ -787,7 +787,7 @@ class DeerFlowClient:
           heartbeats, multi-subscriber fan-out).  A single in-process
           caller with a direct iterator needs none of that.
 
-        So ``DeerFlowClient.stream()`` is a parallel, sync, in-process
+        So ``SynapseAIClient.stream()`` is a parallel, sync, in-process
         consumer of the same ``create_agent()`` factory — not a wrapper
         around Gateway.  The two paths **should** stay in sync on which
         LangGraph stream modes they subscribe to; that invariant is
@@ -829,7 +829,7 @@ class DeerFlowClient:
         }
         checkpointer = self._checkpointer
         if checkpointer is None:
-            from deerflow.runtime.checkpointer import get_checkpointer
+            from SynapseAI.runtime.checkpointer import get_checkpointer
 
             checkpointer = get_checkpointer()
         if checkpointer is not None:
@@ -857,7 +857,7 @@ class DeerFlowClient:
                 context[key] = kwargs[key]
 
         configurable = config.get("configurable") or {}
-        deerflow_trace_id = get_current_trace_id()
+        SynapseAI_trace_id = get_current_trace_id()
         effective_user_id = context.get("user_id") or get_effective_user_id()
         if self._app_config.authorization.enabled:
             # Match the existing user-scoped storage/tracing identity when an
@@ -871,15 +871,15 @@ class DeerFlowClient:
             user_id=effective_user_id,
             assistant_id=self._agent_name or "lead-agent",
             model_name=configurable.get("model_name") or self._model_name,
-            environment=self._environment or os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT"),
-            deerflow_trace_id=deerflow_trace_id,
+            environment=self._environment or os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT"),
+            SynapseAI_trace_id=SynapseAI_trace_id,
         )
 
         self._ensure_agent(config, context=context)
 
         state: dict[str, Any] = {"messages": [HumanMessage(content=message, additional_kwargs={"run_id": run_id})]}
-        if deerflow_trace_id:
-            context[DEERFLOW_TRACE_METADATA_KEY] = deerflow_trace_id
+        if SynapseAI_trace_id:
+            context[SynapseAI_TRACE_METADATA_KEY] = SynapseAI_trace_id
         if self._agent_name:
             context["agent_name"] = self._agent_name
 
@@ -1156,19 +1156,19 @@ class DeerFlowClient:
         Returns:
             Memory data dict (see src/agents/memory/updater.py for structure).
         """
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         return get_memory_manager().get_memory(user_id=get_effective_user_id())
 
     def export_memory(self) -> dict:
         """Export current memory data for backup or transfer."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         return get_memory_manager().get_memory(user_id=get_effective_user_id())
 
     def import_memory(self, memory_data: dict) -> dict:
         """Import and persist full memory data."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         return get_memory_manager().import_memory(memory_data, user_id=get_effective_user_id())
 
@@ -1226,7 +1226,7 @@ class DeerFlowClient:
         """
         config_path = ExtensionsConfig.resolve_config_path()
         if config_path is None:
-            raise FileNotFoundError("Cannot locate extensions_config.json. Set DEER_FLOW_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
+            raise FileNotFoundError("Cannot locate extensions_config.json. Set SYNAPSE_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
 
         current_config = get_extensions_config()
 
@@ -1287,14 +1287,14 @@ class DeerFlowClient:
 
         # PUBLIC skills → global extensions_config.json (shared state).
         # CUSTOM / LEGACY skills → per-user _skill_states.json (isolated state).
-        from deerflow.skills.types import SkillCategory
+        from SynapseAI.skills.types import SkillCategory
 
         if skill.category == SkillCategory.PUBLIC:
             config_path = ExtensionsConfig.resolve_config_path()
             if config_path is None:
-                raise FileNotFoundError("Cannot locate extensions_config.json. Set DEER_FLOW_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
+                raise FileNotFoundError("Cannot locate extensions_config.json. Set SYNAPSE_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
 
-            from deerflow.skills.projection import skill_projection_mutation
+            from SynapseAI.skills.projection import skill_projection_mutation
 
             removal_names = (name,) if not enabled else ()
             with skill_projection_mutation(storage, "public", remove_names=removal_names):
@@ -1309,7 +1309,7 @@ class DeerFlowClient:
                 reload_extensions_config()
         else:
             # CUSTOM / LEGACY: write per-user state
-            from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+            from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
 
             if isinstance(storage, UserScopedSkillStorage):
                 storage.set_skill_enabled_state(name, enabled)
@@ -1317,7 +1317,7 @@ class DeerFlowClient:
                 # Fallback for non-user-scoped storage (unlikely in practice)
                 config_path = ExtensionsConfig.resolve_config_path()
                 if config_path is None:
-                    raise FileNotFoundError("Cannot locate extensions_config.json. Set DEER_FLOW_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
+                    raise FileNotFoundError("Cannot locate extensions_config.json. Set SYNAPSE_EXTENSIONS_CONFIG_PATH or ensure it exists in the project root.")
                 extensions_config = get_extensions_config()
                 extensions_config.skills[name] = SkillStateConfig(enabled=enabled)
                 config_data = extensions_config.to_file_dict()
@@ -1330,7 +1330,7 @@ class DeerFlowClient:
         # cached enabled-state would stay stale until process restart. See
         # review feedback on PR #3889.
         try:
-            from deerflow.agents.lead_agent.prompt import clear_skills_system_prompt_cache, invalidate_user_skill_cache
+            from SynapseAI.agents.lead_agent.prompt import clear_skills_system_prompt_cache, invalidate_user_skill_cache
 
             skill_category_value = skill.category.value if hasattr(skill.category, "value") else skill.category
             if skill_category_value == SkillCategory.PUBLIC.value:
@@ -1389,7 +1389,7 @@ class DeerFlowClient:
         ``get_context`` backend) raises ``NotImplementedError`` so the caller
         sees a clean unsupported-op error instead of an uncaught propagation.
         """
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         manager = get_memory_manager()
         user_id = get_effective_user_id()
@@ -1404,13 +1404,13 @@ class DeerFlowClient:
 
     def clear_memory(self) -> dict:
         """Clear all persisted memory data."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         return get_memory_manager().clear_memory(user_id=get_effective_user_id())
 
     def create_memory_fact(self, content: str, category: str = "context", confidence: float = 0.5) -> dict:
         """Create a single fact manually."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         manager = get_memory_manager()
         memory_data, fact_id = manager.create_fact(content=content, category=category, confidence=confidence, user_id=get_effective_user_id())
@@ -1420,7 +1420,7 @@ class DeerFlowClient:
 
     def delete_memory_fact(self, fact_id: str) -> dict:
         """Delete a single fact from memory by fact id."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         manager = get_memory_manager()
         return manager.delete_fact(fact_id, user_id=get_effective_user_id())
@@ -1433,7 +1433,7 @@ class DeerFlowClient:
         confidence: float | None = None,
     ) -> dict:
         """Update a single fact manually, preserving omitted fields."""
-        from deerflow.agents.memory import get_memory_manager
+        from SynapseAI.agents.memory import get_memory_manager
 
         manager = get_memory_manager()
         return manager.update_fact(
@@ -1450,7 +1450,7 @@ class DeerFlowClient:
         Returns:
             Memory config dict.
         """
-        from deerflow.config.memory_config import get_memory_config
+        from SynapseAI.config.memory_config import get_memory_config
 
         config = get_memory_config()
         return {
@@ -1495,7 +1495,7 @@ class DeerFlowClient:
             ValueError: If any supplied path exists but is not a regular file.
         """
         validate_thread_id(thread_id)
-        from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
+        from SynapseAI.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
 
         # Validate all files upfront to avoid partial uploads.
         resolved_files = []
@@ -1619,7 +1619,7 @@ class DeerFlowClient:
             PermissionError: If path traversal is detected.
         """
         validate_thread_id(thread_id)
-        from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS
+        from SynapseAI.utils.file_conversion import CONVERTIBLE_EXTENSIONS
 
         uploads_dir = get_uploads_dir(thread_id)
         return delete_file_safe(uploads_dir, filename, convertible_extensions=CONVERTIBLE_EXTENSIONS)
@@ -1647,7 +1647,7 @@ class DeerFlowClient:
             actual = get_paths().resolve_virtual_path(thread_id, path, user_id=get_effective_user_id())
         except ValueError as exc:
             if "traversal" in str(exc):
-                from deerflow.uploads.manager import PathTraversalError
+                from SynapseAI.uploads.manager import PathTraversalError
 
                 raise PathTraversalError("Path traversal detected") from exc
             raise

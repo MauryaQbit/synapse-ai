@@ -7,7 +7,7 @@ import tempfile
 from pathlib import Path
 from typing import Any
 
-from deerflow.config import get_paths
+from SynapseAI.config import get_paths
 
 from .diff import compare_snapshots, get_changed_paths
 from .scanner import scan_workspace_roots
@@ -44,7 +44,7 @@ def _prepare_capture(thread_id: str, *, user_id: str | None, include_text: bool)
     # creates the text cache directory — both blocking IO that must stay off the
     # event loop.
     roots = build_thread_workspace_roots(thread_id, user_id=user_id)
-    text_cache_dir = Path(tempfile.mkdtemp(prefix="deerflow-workspace-changes-")) if include_text else None
+    text_cache_dir = Path(tempfile.mkdtemp(prefix="SynapseAI-workspace-changes-")) if include_text else None
     return roots, text_cache_dir
 
 

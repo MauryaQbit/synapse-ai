@@ -15,7 +15,7 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.runtime.events.store.jsonl import JsonlRunEventStore
+from SynapseAI.runtime.events.store.jsonl import JsonlRunEventStore
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -150,7 +150,7 @@ async def test_put_offloads_write_via_to_thread():
 # ---------------------------------------------------------------------------
 # put_batch atomicity: a failed append must not leave partial records so a
 # caller re-buffering the batch on retry does not produce duplicates.
-# Regression for deer-flow PR #4082 (review feedback from willem-bd).
+# Regression for synapse-ai PR #4082 (review feedback from willem-bd).
 # ---------------------------------------------------------------------------
 
 
@@ -167,7 +167,7 @@ async def test_put_batch_failure_rolls_back_no_partial_records(monkeypatch):
     """
     import json
 
-    from deerflow.runtime.events.store import jsonl as jsonl_mod
+    from SynapseAI.runtime.events.store import jsonl as jsonl_mod
 
     real_append = jsonl_mod.JsonlRunEventStore._append_records
 
@@ -278,7 +278,7 @@ async def test_db_put_batch_rejects_mixed_thread_ids():
     """DbRunEventStore.put_batch must raise ValueError for cross-thread batches."""
     from unittest.mock import MagicMock
 
-    from deerflow.runtime.events.store.db import DbRunEventStore
+    from SynapseAI.runtime.events.store.db import DbRunEventStore
 
     mock_sf = MagicMock()
     store = DbRunEventStore(session_factory=mock_sf)

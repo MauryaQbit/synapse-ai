@@ -14,15 +14,15 @@ from fastapi.testclient import TestClient
 from app.channels.runtime_config_store import ChannelRuntimeConfigStore
 from app.gateway.auth.models import User
 from app.gateway.routers import channel_connections
-from deerflow.config.app_config import AppConfig, reset_app_config, set_app_config
-from deerflow.config.channel_connections_config import ChannelConnectionsConfig
+from SynapseAI.config.app_config import AppConfig, reset_app_config, set_app_config
+from SynapseAI.config.channel_connections_config import ChannelConnectionsConfig
 
 
 @pytest.fixture(autouse=True)
 def _stub_app_config(monkeypatch):
     """Keep router tests independent from a developer-local config.yaml."""
-    monkeypatch.setenv("DEER_FLOW_AUTH_DISABLED", "0")
-    set_app_config(AppConfig.model_validate({"sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"}}))
+    monkeypatch.setenv("SYNAPSE_AUTH_DISABLED", "0")
+    set_app_config(AppConfig.model_validate({"sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"}}))
     yield
     reset_app_config()
 
@@ -46,8 +46,8 @@ def _non_admin_user() -> User:
 
 
 async def _make_repo(tmp_path):
-    from deerflow.persistence.channel_connections import ChannelConnectionRepository
-    from deerflow.persistence.engine import get_session_factory, init_engine
+    from SynapseAI.persistence.channel_connections import ChannelConnectionRepository
+    from SynapseAI.persistence.engine import get_session_factory, init_engine
 
     await init_engine("sqlite", url=f"sqlite+aiosqlite:///{tmp_path / 'router.db'}", sqlite_dir=str(tmp_path))
     return ChannelConnectionRepository(get_session_factory())
@@ -79,7 +79,7 @@ def _enabled_connections_config() -> ChannelConnectionsConfig:
     return ChannelConnectionsConfig.model_validate(
         {
             "enabled": True,
-            "telegram": {"enabled": True, "bot_username": "deerflow_bot"},
+            "telegram": {"enabled": True, "bot_username": "SynapseAI_bot"},
             "slack": {"enabled": True},
             "discord": {"enabled": True},
             "feishu": {"enabled": True},
@@ -160,7 +160,7 @@ def test_get_providers_uses_existing_channels_config(tmp_path):
     assert by_provider["telegram"]["auth_mode"] == "deep_link"
     assert by_provider["telegram"]["credential_values"] == {
         "bot_token": "********",
-        "bot_username": "deerflow_bot",
+        "bot_username": "SynapseAI_bot",
     }
     assert by_provider["slack"]["configured"] is True
     assert by_provider["slack"]["auth_mode"] == "binding_code"
@@ -215,8 +215,8 @@ def test_get_providers_degrades_when_persistence_is_unavailable(monkeypatch):
 def test_get_providers_reports_connected_without_binding_in_auth_disabled_mode(tmp_path, monkeypatch):
     import anyio
 
-    monkeypatch.setenv("DEER_FLOW_AUTH_DISABLED", "1")
-    monkeypatch.delenv("DEER_FLOW_ENV", raising=False)
+    monkeypatch.setenv("SYNAPSE_AUTH_DISABLED", "1")
+    monkeypatch.delenv("SYNAPSE_ENV", raising=False)
     monkeypatch.delenv("ENVIRONMENT", raising=False)
     repo = anyio.run(_make_repo, tmp_path)
     app = _make_app(_enabled_connections_config(), repo, _channels_config())
@@ -467,7 +467,7 @@ def test_connect_telegram_returns_deep_link_and_persists_state(tmp_path):
     body = response.json()
     assert body["provider"] == "telegram"
     assert body["mode"] == "deep_link"
-    assert body["url"].startswith("https://t.me/deerflow_bot?start=")
+    assert body["url"].startswith("https://t.me/SynapseAI_bot?start=")
     assert body["code"]
     assert "/start" in body["instruction"]
 
@@ -494,7 +494,7 @@ def test_connect_slack_returns_binding_command_and_persists_state(tmp_path):
     assert body["mode"] == "binding_code"
     assert body["url"] is None
     assert len(body["code"]) >= 22
-    assert body["instruction"] == f"Send /connect {body['code']} to the DeerFlow Slack bot."
+    assert body["instruction"] == f"Send /connect {body['code']} to the SynapseAI Slack bot."
 
     async def count_states():
         return await repo.count_oauth_states(owner_user_id=str(_user().id), provider="slack")
@@ -540,7 +540,7 @@ def test_connect_discord_returns_binding_command_and_persists_state(tmp_path):
     assert body["mode"] == "binding_code"
     assert body["url"] is None
     assert body["code"]
-    assert body["instruction"] == f"Send /connect {body['code']} to the DeerFlow Discord bot."
+    assert body["instruction"] == f"Send /connect {body['code']} to the SynapseAI Discord bot."
 
     async def count_states():
         return await repo.count_oauth_states(owner_user_id=str(_user().id), provider="discord")
@@ -573,7 +573,7 @@ def test_connect_existing_binding_code_channels_return_command_and_persist_state
         assert body["mode"] == "binding_code"
         assert body["url"] is None
         assert len(body["code"]) >= 22
-        assert body["instruction"] == f"Send /connect {body['code']} to the DeerFlow {expected_display_name} bot."
+        assert body["instruction"] == f"Send /connect {body['code']} to the SynapseAI {expected_display_name} bot."
 
         async def count_states(provider=provider):
             return await repo.count_oauth_states(owner_user_id=str(_user().id), provider=provider)
@@ -929,7 +929,7 @@ def test_disconnect_provider_runtime_config_suppresses_file_config_and_stops_cha
     set_app_config(
         AppConfig.model_validate(
             {
-                "sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"},
+                "sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"},
                 "channels": {
                     "feishu": {
                         "enabled": True,
@@ -1093,7 +1093,7 @@ def test_configure_provider_runtime_does_not_clobber_concurrent_config_update(tm
         {
             "enabled": True,
             "slack": {"enabled": True},
-            "telegram": {"enabled": True, "bot_username": "deerflow_bot"},
+            "telegram": {"enabled": True, "bot_username": "SynapseAI_bot"},
         }
     )
     runtime_config_store = ChannelRuntimeConfigStore(tmp_path / "channels" / "runtime-config.json")

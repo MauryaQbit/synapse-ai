@@ -14,8 +14,8 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from deerflow.config.paths import get_paths
-from deerflow.runtime.user_context import get_effective_user_id
+from SynapseAI.config.paths import get_paths
+from SynapseAI.runtime.user_context import get_effective_user_id
 
 logger = logging.getLogger(__name__)
 
@@ -159,7 +159,7 @@ def validate_agent_name(name: str | None) -> str | None:
 class AgentModelSettings(BaseModel):
     """Per-agent LLM sampling overrides layered on top of the model profile.
 
-    These are provider sampling knobs (not DeerFlow runtime switches like
+    These are provider sampling knobs (not SynapseAI runtime switches like
     ``thinking_enabled``). They let two agents that reference the *same*
     ``models:`` profile still run with different temperature / output length —
     the core ask of issue #4336, where "different agents have different
@@ -311,7 +311,7 @@ def load_agent_config(name: str | None, *, user_id: str | None = None) -> AgentC
     if name is None:
         return None
     # Lazy import: the store package imports back from this module.
-    from deerflow.persistence.agents import get_agent_store
+    from SynapseAI.persistence.agents import get_agent_store
 
     return get_agent_store().get(name, user_id=user_id)
 
@@ -339,7 +339,7 @@ def load_agent_soul(agent_name: str | None, *, user_id: str | None = None) -> st
             return None
         content = soul_path.read_text(encoding="utf-8").strip()
         return content or None
-    from deerflow.persistence.agents import get_agent_store
+    from SynapseAI.persistence.agents import get_agent_store
 
     return get_agent_store().get_soul(agent_name, user_id=user_id)
 
@@ -359,6 +359,6 @@ def list_custom_agents(*, user_id: str | None = None) -> list[AgentConfig]:
     Returns:
         List of AgentConfig for each valid agent found.
     """
-    from deerflow.persistence.agents import get_agent_store
+    from SynapseAI.persistence.agents import get_agent_store
 
     return get_agent_store().list(user_id=user_id)

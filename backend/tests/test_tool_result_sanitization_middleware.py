@@ -1,6 +1,6 @@
 """Tests for ToolResultSanitizationMiddleware (remote tool-result injection guard).
 
-DeerFlow neutralizes framework/injection tags in the genuine user message. These
+SynapseAI neutralizes framework/injection tags in the genuine user message. These
 tests pin the same neutralization onto remote tool results (web_fetch /
 web_search / image_search / web_capture), and confirm local tool output is left
 untouched.
@@ -14,13 +14,13 @@ from types import SimpleNamespace
 from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 
-from deerflow.agents.middlewares.input_sanitization_middleware import _check_user_content
-from deerflow.agents.middlewares.tool_result_sanitization_middleware import (
+from SynapseAI.agents.middlewares.input_sanitization_middleware import _check_user_content
+from SynapseAI.agents.middlewares.tool_result_sanitization_middleware import (
     ToolResultSanitizationMiddleware,
     _neutralize_content,
 )
-from deerflow.community.browserless.browserless_client import BrowserlessScreenshotResult
-from deerflow.community.browserless.tools import _target_status_warning
+from SynapseAI.community.browserless.browserless_client import BrowserlessScreenshotResult
+from SynapseAI.community.browserless.tools import _target_status_warning
 
 # A web page body an attacker controls, embedding a forged framework block plus
 # a forged user-input boundary marker.

@@ -22,7 +22,7 @@ upgrades, and pinning conflicts with tracking latest). Instead:
   fallback (no external URL injection);
 * every archive member passes structural guards (zip-slip / symlink /
   executable-binary / size / required-skill completeness / ``SKILL.md`` parse);
-* a **content** SHA-256 over the extracted skill tree, after DeerFlow's shared
+* a **content** SHA-256 over the extracted skill tree, after SynapseAI's shared
   guidance is injected, is recorded in the manifest, so a reinstall whose
   effective skill content changed is detectable/auditable even when GitHub
   re-packs identical content with different archive bytes.
@@ -30,8 +30,8 @@ upgrades, and pinning conflicts with tracking latest). Instead:
 Runtime coupling: the npm-installed ``lark-cli`` binary version is pinned in
 ``backend/Dockerfile`` (``ARG LARK_CLI_NPM_VERSION``) and
 ``docker/docker-compose*.yaml`` as a bootstrap fallback. The admin install path
-also manages a writable DeerFlow-owned Gateway CLI under
-``.deer-flow/integrations/lark-cli/gateway-cli`` and prefers it over the system
+also manages a writable SynapseAI-owned Gateway CLI under
+``.synapse-ai/integrations/lark-cli/gateway-cli`` and prefers it over the system
 PATH, so users do not need to run terminal installation commands. Reinstalling
 the integration refreshes both the managed Gateway CLI and the skill pack to the
 same version when network access is available. ``get_lark_integration_status``
@@ -73,13 +73,13 @@ except ImportError:  # pragma: no cover - Windows fallback
     fcntl = None  # type: ignore[assignment]
     import msvcrt
 
-from deerflow.config.app_config import AppConfig
-from deerflow.config.paths import Paths, get_paths
-from deerflow.integrations.lark_broker import LARK_BROKER_URL_ENV
-from deerflow.skills.installer import is_executable_binary_prefix, is_symlink_member, is_unsafe_zip_member
-from deerflow.skills.parser import parse_skill_file
-from deerflow.skills.permissions import make_skill_tree_sandbox_readable
-from deerflow.skills.types import SKILL_MD_FILE, SkillCategory
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.paths import Paths, get_paths
+from SynapseAI.integrations.lark_broker import LARK_BROKER_URL_ENV
+from SynapseAI.skills.installer import is_executable_binary_prefix, is_symlink_member, is_unsafe_zip_member
+from SynapseAI.skills.parser import parse_skill_file
+from SynapseAI.skills.permissions import make_skill_tree_sandbox_readable
+from SynapseAI.skills.types import SKILL_MD_FILE, SkillCategory
 
 logger = logging.getLogger(__name__)
 
@@ -91,8 +91,8 @@ LARK_CLI_NPM_VERSION = FALLBACK_LARK_CLI_VERSION.removeprefix("v")
 LARK_CLI_NPM_PACKAGE = "@larksuite/cli"
 LARK_CLI_GITHUB_REPO = "larksuite/cli"
 LARK_CLI_LATEST_RELEASE_API = f"https://api.github.com/repos/{LARK_CLI_GITHUB_REPO}/releases/latest"
-LARK_CLI_SOURCE_ARCHIVE_ENV = "DEER_FLOW_LARK_CLI_SKILLS_ARCHIVE"
-LARK_CLI_SANDBOX_RUNTIME_SOURCE_ENV = "DEER_FLOW_LARK_CLI_SANDBOX_RUNTIME_DIR"
+LARK_CLI_SOURCE_ARCHIVE_ENV = "SYNAPSE_LARK_CLI_SKILLS_ARCHIVE"
+LARK_CLI_SANDBOX_RUNTIME_SOURCE_ENV = "SYNAPSE_LARK_CLI_SANDBOX_RUNTIME_DIR"
 LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS = 60
 LARK_CLI_NPM_INSTALL_TIMEOUT_SECONDS = 180
 LARK_HTTP_TIMEOUT_SECONDS = 20
@@ -104,14 +104,14 @@ LARK_CLI_LATEST_VERSION_TTL_SECONDS = 3600
 LARK_CLI_MAX_ARCHIVE_BYTES = 128 * 1024 * 1024
 LARK_CLI_MAX_EXTRACTED_BYTES = 256 * 1024 * 1024
 LARK_CLI_MAX_RUNTIME_ASSET_BYTES = 128 * 1024 * 1024
-LARK_CLI_MANIFEST_FILE = ".deerflow-lark-cli-manifest.json"
+LARK_CLI_MANIFEST_FILE = ".SynapseAI-lark-cli-manifest.json"
 LARK_CLI_SANDBOX_CONFIG_DIR = "/mnt/integrations/lark-cli/config"
 LARK_CLI_SANDBOX_LOCKS_DIR = f"{LARK_CLI_SANDBOX_CONFIG_DIR}/locks"
 LARK_CLI_SANDBOX_DATA_DIR = "/mnt/integrations/lark-cli/data"
 LARK_CLI_SANDBOX_RUNTIME_DIR = "/mnt/integrations/lark-cli/runtime"
 LARK_CLI_LINUX_ARCHES = ("amd64", "arm64")
-LARK_CLI_RUNTIME_MANIFEST_FILE = ".deerflow-lark-cli-runtime.json"
-LARK_CLI_FLOW_STATE_FILE = ".deerflow-lark-cli-flow.json"
+LARK_CLI_RUNTIME_MANIFEST_FILE = ".SynapseAI-lark-cli-runtime.json"
+LARK_CLI_FLOW_STATE_FILE = ".SynapseAI-lark-cli-flow.json"
 
 # Pattern B (issue #4338): loopback URL the sandbox shim uses to reach the broker
 # sidecar. LARK_BROKER_URL_ENV is imported from the broker module so the shim,
@@ -132,8 +132,8 @@ script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 exec "$script_dir/../linux-$arch/lark-cli" "$@"
 """
 _VERSION_TAG_RE = re.compile(r"v?\d+\.\d+\.\d+")
-_DEERFLOW_LARK_SHARED_GUIDANCE_MARKER = "<!-- deerflow-lark-cli-auth-guidance-v2 -->"
-_DEERFLOW_LARK_SHARED_GUIDANCE_LEGACY_MARKERS = ("<!-- deerflow-lark-cli-auth-guidance-v1 -->",)
+_SynapseAI_LARK_SHARED_GUIDANCE_MARKER = "<!-- SynapseAI-lark-cli-auth-guidance-v2 -->"
+_SynapseAI_LARK_SHARED_GUIDANCE_LEGACY_MARKERS = ("<!-- SynapseAI-lark-cli-auth-guidance-v1 -->",)
 _LARK_APP_REGISTRATION_PATH = "/oauth/v1/app/registration"
 
 LARK_SKILL_NAMES: tuple[str, ...] = (
@@ -326,7 +326,7 @@ def ensure_lark_cli_credential_tree(user_id: str, *, paths: Paths | None = None)
 
 
 def lark_cli_managed_gateway_dir() -> Path:
-    """Gateway-scoped DeerFlow-managed lark-cli install root."""
+    """Gateway-scoped SynapseAI-managed lark-cli install root."""
     return get_paths().base_dir / "integrations" / INTEGRATION_ID / "gateway-cli"
 
 
@@ -356,7 +356,7 @@ def _download_lark_release_asset(version: str, asset_name: str, *, max_bytes: in
     """Download one official release asset with a strict size bound."""
     request = urllib.request.Request(
         _lark_cli_release_asset_url(version, asset_name),
-        headers={"Accept": "application/octet-stream", "User-Agent": "deer-flow"},
+        headers={"Accept": "application/octet-stream", "User-Agent": "synapse-ai"},
     )
     try:
         with urllib.request.urlopen(request, timeout=LARK_CLI_DOWNLOAD_TIMEOUT_SECONDS) as response:
@@ -593,7 +593,7 @@ def _lark_cli_managed_path() -> str | None:
 
 
 def lark_cli_env_overlay(user_id: str, *, sandbox_paths: bool = False, broker: bool = False) -> dict[str, str]:
-    """Environment overlay for lark-cli using DeerFlow-managed credentials.
+    """Environment overlay for lark-cli using SynapseAI-managed credentials.
 
     The directories are per-user so a local trusted-mode login cannot bleed
     across accounts.
@@ -806,7 +806,7 @@ def sandbox_lark_broker_active(config: AppConfig | None = None) -> bool:
     """
     if config is None:
         try:
-            from deerflow.config.app_config import get_app_config
+            from SynapseAI.config.app_config import get_app_config
 
             config = get_app_config()
         except Exception:  # noqa: BLE001 - degrade to non-broker overlay
@@ -1022,7 +1022,7 @@ def _probe_provisioner_capabilities(config: AppConfig, *, timeout: float = 5.0) 
     headers = {"X-API-Key": api_key} if api_key else {}
     url = f"{base.rstrip('/')}/api/capabilities"
     try:
-        request = urllib.request.Request(url, headers={"User-Agent": "deer-flow", **headers})
+        request = urllib.request.Request(url, headers={"User-Agent": "synapse-ai", **headers})
         with urllib.request.urlopen(request, timeout=timeout) as response:
             payload = json.loads(response.read().decode("utf-8"))
         if not isinstance(payload, dict):
@@ -1234,7 +1234,7 @@ def _resolve_lark_cli_path() -> str | None:
 
 
 def _ensure_managed_gateway_lark_cli() -> LarkCliProbe:
-    """Install/update the DeerFlow-managed Gateway lark-cli.
+    """Install/update the SynapseAI-managed Gateway lark-cli.
 
     This is called by the admin install endpoint so non-technical users do not
     need to install ``@larksuite/cli`` in a terminal. If npm/GitHub are not
@@ -1642,7 +1642,7 @@ def _installed_lark_skill_names(root: Path) -> set[str]:
 
 
 def _enabled_lark_skill_names(user_id: str, config: AppConfig) -> set[str]:
-    from deerflow.skills.storage import get_or_new_user_skill_storage
+    from SynapseAI.skills.storage import get_or_new_user_skill_storage
 
     try:
         storage = get_or_new_user_skill_storage(user_id, app_config=config)
@@ -1662,7 +1662,7 @@ def _resolve_latest_lark_cli_version() -> str:
     try:
         request = urllib.request.Request(
             LARK_CLI_LATEST_RELEASE_API,
-            headers={"Accept": "application/vnd.github+json", "User-Agent": "deer-flow"},
+            headers={"Accept": "application/vnd.github+json", "User-Agent": "synapse-ai"},
         )
         with urllib.request.urlopen(request, timeout=LARK_HTTP_TIMEOUT_SECONDS) as response:
             raw = response.read().decode("utf-8")
@@ -1690,7 +1690,7 @@ def _cached_latest_lark_cli_version() -> str | None:
     try:
         request = urllib.request.Request(
             LARK_CLI_LATEST_RELEASE_API,
-            headers={"Accept": "application/vnd.github+json", "User-Agent": "deer-flow"},
+            headers={"Accept": "application/vnd.github+json", "User-Agent": "synapse-ai"},
         )
         with urllib.request.urlopen(request, timeout=LARK_HTTP_TIMEOUT_SECONDS) as response:
             data = json.loads(response.read().decode("utf-8"))
@@ -1742,7 +1742,7 @@ def _download_lark_archive(version: str) -> Path:
 def _content_sha256(root: Path, skill_names: set[str]) -> str:
     """SHA-256 over effective installed skill contents (not archive bytes).
 
-    The caller computes this after injecting DeerFlow's shared guidance, so the
+    The caller computes this after injecting SynapseAI's shared guidance, so the
     digest covers both official extracted files and the guidance users/agents
     actually read. It remains stable across GitHub re-packs of identical
     content. Paths and bytes are hashed in sorted order for determinism.
@@ -1812,7 +1812,7 @@ def _install_lark_skills_from_archive_locked(
             archive_version = version or _infer_lark_archive_version(zf)
             extracted = _extract_lark_skills(zf, staging_target)
         _validate_extracted_lark_skills(staging_target, extracted)
-        _append_deerflow_lark_shared_guidance(staging_target)
+        _append_SynapseAI_lark_shared_guidance(staging_target)
         content_sha = _content_sha256(staging_target, extracted)
         _write_manifest(staging_target, extracted, version=archive_version, content_sha256=content_sha)
         make_skill_tree_sandbox_readable(staging_target)
@@ -1912,22 +1912,22 @@ def _validate_extracted_lark_skills(root: Path, extracted: set[str]) -> None:
             raise ValueError(f"Lark skill directory {skill_name!r} declares name {parsed.name!r}")
 
 
-def _append_deerflow_lark_shared_guidance(root: Path) -> None:
+def _append_SynapseAI_lark_shared_guidance(root: Path) -> None:
     skill_file = root / "lark-shared" / SKILL_MD_FILE
     content = skill_file.read_text(encoding="utf-8")
-    if _DEERFLOW_LARK_SHARED_GUIDANCE_MARKER in content:
+    if _SynapseAI_LARK_SHARED_GUIDANCE_MARKER in content:
         return
-    for legacy_marker in _DEERFLOW_LARK_SHARED_GUIDANCE_LEGACY_MARKERS:
+    for legacy_marker in _SynapseAI_LARK_SHARED_GUIDANCE_LEGACY_MARKERS:
         if legacy_marker in content:
             content = content.split(legacy_marker, maxsplit=1)[0].rstrip()
             break
     guidance = f"""
 
-{_DEERFLOW_LARK_SHARED_GUIDANCE_MARKER}
+{_SynapseAI_LARK_SHARED_GUIDANCE_MARKER}
 
-## DeerFlow 授权入口
+## SynapseAI 授权入口
 
-在 DeerFlow 中，如果 `lark-cli auth status` 或业务命令提示未配置、未登录、token 过期或缺少用户授权：
+在 SynapseAI 中，如果 `lark-cli auth status` 或业务命令提示未配置、未登录、token 过期或缺少用户授权：
 
 1. 不要要求用户在终端执行 `lark-cli config init`、`lark-cli auth login` 或 `lark-cli auth login --device-code`。
 2. 回复用户这个可点击链接：[打开飞书授权设置](?settings=integrations)。

@@ -14,14 +14,14 @@ from typing import Any
 from sqlalchemy import case, or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
-from deerflow.persistence.run.model import RunRow
-from deerflow.runtime.runs.store.base import (
+from SynapseAI.persistence.run.model import RunRow
+from SynapseAI.runtime.runs.store.base import (
     LeaseRenewal,
     RunStore,
     StatusFinalization,
 )
-from deerflow.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
-from deerflow.utils.time import coerce_iso
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel, resolve_user_id
+from SynapseAI.utils.time import coerce_iso
 
 
 def _lease_expired_or_null(lease_col, cutoff: datetime):
@@ -700,7 +700,7 @@ class RunRepository(RunStore):
         Returns:
             Tuple of ``(new_run_dict, claimed_run_dicts)``.
         """
-        from deerflow.runtime.runs.manager import ConflictError
+        from SynapseAI.runtime.runs.manager import ConflictError
 
         resolved_user_id = resolve_user_id(user_id or AUTO, method_name="RunRepository.create_thread_operation_atomic")
         now = datetime.now(UTC)

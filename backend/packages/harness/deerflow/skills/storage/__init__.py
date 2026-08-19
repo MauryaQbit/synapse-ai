@@ -1,6 +1,6 @@
 """SkillStorage singleton + reflection-based factory.
 
-Mirrors the pattern used by ``deerflow/sandbox/sandbox_provider.py``.
+Mirrors the pattern used by ``SynapseAI/sandbox/sandbox_provider.py``.
 """
 
 from __future__ import annotations
@@ -9,10 +9,10 @@ import logging
 import threading
 from collections import OrderedDict
 
-from deerflow.skills.storage.local_skill_storage import LocalSkillStorage
-from deerflow.skills.storage.skill_storage import SkillStorage
-from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
-from deerflow.skills.types import SkillCategory
+from SynapseAI.skills.storage.local_skill_storage import LocalSkillStorage
+from SynapseAI.skills.storage.skill_storage import SkillStorage
+from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+from SynapseAI.skills.types import SkillCategory
 
 logger = logging.getLogger(__name__)
 
@@ -52,11 +52,11 @@ def get_or_new_skill_storage(**kwargs) -> SkillStorage:
     """
     global _default_skill_storage, _default_skill_storage_config
 
-    from deerflow.config import get_app_config
-    from deerflow.config.skills_config import SkillsConfig
+    from SynapseAI.config import get_app_config
+    from SynapseAI.config.skills_config import SkillsConfig
 
     def _make_storage(skills_config: SkillsConfig, *, host_path: str | None = None, **kwargs) -> SkillStorage:
-        from deerflow.reflection import resolve_class
+        from SynapseAI.reflection import resolve_class
 
         cls = resolve_class(skills_config.use, SkillStorage)
         return cls(
@@ -73,7 +73,7 @@ def get_or_new_skill_storage(**kwargs) -> SkillStorage:
             return _make_storage(app_config.skills, host_path=str(skills_path), **kwargs)
         # No app_config: use a default SkillsConfig so we never need to read config.yaml
         # when the caller has already supplied an explicit host path.
-        from deerflow.config.skills_config import SkillsConfig
+        from SynapseAI.config.skills_config import SkillsConfig
 
         return _make_storage(SkillsConfig(), host_path=str(skills_path), **kwargs)
 
@@ -118,7 +118,7 @@ def get_or_new_user_skill_storage(user_id: str, **kwargs) -> SkillStorage:
     ``_MAX_USER_SCOPED_STORAGES``, the least-recently-accessed entry is
     evicted (true LRU, not FIFO).
     """
-    from deerflow.config.paths import make_safe_user_id
+    from SynapseAI.config.paths import make_safe_user_id
 
     safe_id = make_safe_user_id(user_id)
 
@@ -151,7 +151,7 @@ def user_should_see_legacy_skills(user_id: str, **kwargs) -> bool:
     follow the same visibility rule.
     """
     if kwargs:
-        from deerflow.config.paths import make_safe_user_id
+        from SynapseAI.config.paths import make_safe_user_id
 
         storage = UserScopedSkillStorage(make_safe_user_id(user_id), **kwargs)
     else:
@@ -181,7 +181,7 @@ def reset_user_skill_storage(user_id: str | None = None) -> None:
         user_id: If provided, remove only that user's cached storage.
             If ``None``, clear the entire per-user cache.
     """
-    from deerflow.config.paths import make_safe_user_id
+    from SynapseAI.config.paths import make_safe_user_id
 
     with _user_scoped_storage_lock:
         if user_id is not None:

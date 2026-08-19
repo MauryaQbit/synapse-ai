@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from enum import Flag, StrEnum, auto
 from typing import Any
 
-from deerflow_extension_api.contracts import HostPolicySnapshot
+from SynapseAI_extension_api.contracts import HostPolicySnapshot
 
 
 class Placement(StrEnum):

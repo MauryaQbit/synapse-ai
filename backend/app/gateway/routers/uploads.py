@@ -13,11 +13,11 @@ from pydantic import BaseModel, Field
 
 from app.gateway.authz import require_permission
 from app.gateway.deps import get_config
-from deerflow.config.app_config import AppConfig
-from deerflow.config.paths import get_paths
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.sandbox.sandbox_provider import SandboxProvider, get_sandbox_provider
-from deerflow.uploads.manager import (
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.paths import get_paths
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.sandbox.sandbox_provider import SandboxProvider, get_sandbox_provider
+from SynapseAI.uploads.manager import (
     UPLOAD_STAGING_PREFIX,
     UPLOAD_STAGING_SUFFIX,
     PathTraversalError,
@@ -33,9 +33,9 @@ from deerflow.uploads.manager import (
     upload_virtual_path,
     validate_upload_destination,
 )
-from deerflow.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
-from deerflow.utils.file_io import run_file_io
-from deerflow.utils.thread_id import ThreadId
+from SynapseAI.utils.file_conversion import CONVERTIBLE_EXTENSIONS, convert_file_to_markdown
+from SynapseAI.utils.file_io import run_file_io
+from SynapseAI.utils.thread_id import ThreadId
 
 logger = logging.getLogger(__name__)
 

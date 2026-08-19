@@ -12,12 +12,12 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.agents.memory import MemoryCorruptionError
-from deerflow.agents.memory.backends.deermem.deer_mem import DeerMem
-from deerflow.agents.memory.backends.deermem.deermem.config import DeerMemConfig
-from deerflow.agents.memory.backends.deermem.deermem.core import storage as storage_module
-from deerflow.agents.memory.backends.deermem.deermem.core.paths import fact_file_path
-from deerflow.agents.memory.backends.deermem.deermem.core.storage import (
+from SynapseAI.agents.memory import MemoryCorruptionError
+from SynapseAI.agents.memory.backends.deermem.deer_mem import DeerMem
+from SynapseAI.agents.memory.backends.deermem.deermem.config import DeerMemConfig
+from SynapseAI.agents.memory.backends.deermem.deermem.core import storage as storage_module
+from SynapseAI.agents.memory.backends.deermem.deermem.core.paths import fact_file_path
+from SynapseAI.agents.memory.backends.deermem.deermem.core.storage import (
     FileMemoryStorage,
     MemoryFactRevisionConflict,
     MemoryManifestRevisionConflict,

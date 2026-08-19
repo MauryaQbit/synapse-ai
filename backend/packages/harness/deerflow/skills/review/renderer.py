@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import UTC, datetime
 from typing import Any, Literal
 
-from deerflow.skills.review.models import REPORT_SCHEMA_VERSION
+from SynapseAI.skills.review.models import REPORT_SCHEMA_VERSION
 
 Readiness = Literal["blocked", "revise", "publish_candidate"]
 Assurance = Literal["static_only", "trigger_checked", "behavior_verified", "regression_verified"]
@@ -93,7 +93,7 @@ def build_static_report(
         },
         "review": {
             "scope": scope,
-            "profile": facts.get("profile", "deerflow"),
+            "profile": facts.get("profile", "SynapseAI"),
             "facts_schema_version": facts.get("schema_version"),
             "reviewer_model": reviewer_model,
             "completed_at": completed_at or datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),

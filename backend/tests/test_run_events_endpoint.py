@@ -12,9 +12,9 @@ from unittest import mock
 import pytest
 from langchain_core.messages import HumanMessage
 
-from deerflow.agents.middlewares.dynamic_context_middleware import DynamicContextMiddleware
-from deerflow.runtime.events.store.memory import MemoryRunEventStore
-from deerflow.runtime.journal import RunJournal
+from SynapseAI.agents.middlewares.dynamic_context_middleware import DynamicContextMiddleware
+from SynapseAI.runtime.events.store.memory import MemoryRunEventStore
+from SynapseAI.runtime.journal import RunJournal
 
 
 @pytest.mark.anyio
@@ -36,7 +36,7 @@ async def test_list_run_events_forwards_task_id_and_after_seq():
 
     class FakeRequest:
         app = FakeApp()
-        _deerflow_test_bypass_auth = True
+        _SynapseAI_test_bypass_auth = True
 
     result = await list_run_events(
         thread_id="t1",
@@ -80,7 +80,7 @@ async def test_list_run_events_redacts_historical_run_start_metadata():
 
     class FakeRequest:
         app = FakeApp()
-        _deerflow_test_bypass_auth = True
+        _SynapseAI_test_bypass_auth = True
 
     events = await list_run_events(
         thread_id="legacy-thread",
@@ -111,8 +111,8 @@ async def test_effective_memory_flows_from_injection_to_the_existing_debug_api()
     memory = "<memory>\nUser prefers Python.\n</memory>\n"
 
     with (
-        mock.patch("deerflow.agents.lead_agent.prompt._get_memory_context", return_value=memory),
-        mock.patch("deerflow.agents.middlewares.dynamic_context_middleware.datetime") as mock_dt,
+        mock.patch("SynapseAI.agents.lead_agent.prompt._get_memory_context", return_value=memory),
+        mock.patch("SynapseAI.agents.middlewares.dynamic_context_middleware.datetime") as mock_dt,
     ):
         mock_dt.now.return_value.strftime.return_value = "2026-05-08, Friday"
         update = DynamicContextMiddleware().before_agent(
@@ -129,7 +129,7 @@ async def test_effective_memory_flows_from_injection_to_the_existing_debug_api()
 
     class FakeRequest:
         app = FakeApp()
-        _deerflow_test_bypass_auth = True
+        _SynapseAI_test_bypass_auth = True
 
     events = await list_run_events(
         thread_id="t1",

@@ -9,8 +9,8 @@ from typing import get_type_hints
 
 import pytest
 
-from deerflow.agents import thread_state as thread_state_module
-from deerflow.agents.thread_state import (
+from SynapseAI.agents import thread_state as thread_state_module
+from SynapseAI.agents.thread_state import (
     _SKILL_CONTEXT_MAX_ENTRIES,
     TERMINAL_STATUSES,
     THREAD_STATE_REDUCER_FIELDS,
@@ -24,7 +24,7 @@ from deerflow.agents.thread_state import (
     merge_todos,
     merge_viewed_images,
 )
-from deerflow.subagents.status_contract import SUBAGENT_STATUS_VALUES
+from SynapseAI.subagents.status_contract import SUBAGENT_STATUS_VALUES
 
 
 class TestMergeSandbox:

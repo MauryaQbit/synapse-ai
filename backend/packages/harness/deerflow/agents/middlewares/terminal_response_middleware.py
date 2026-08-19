@@ -12,7 +12,7 @@ from langchain.agents.middleware.types import ModelCallResult, ModelRequest, Mod
 from langchain_core.messages import AIMessage, HumanMessage, RemoveMessage, ToolMessage
 from langgraph.runtime import Runtime
 
-from deerflow.agents.middlewares._bounded_dict import BoundedDict
+from SynapseAI.agents.middlewares._bounded_dict import BoundedDict
 
 _RECOVERY_PROMPT = (
     "<system_reminder>\n"
@@ -136,7 +136,7 @@ class TerminalResponseMiddleware(AgentMiddleware[AgentState]):
         additional_kwargs = dict(last.additional_kwargs or {})
         additional_kwargs.update(
             {
-                "deerflow_error_fallback": True,
+                "SynapseAI_error_fallback": True,
                 "error_reason": "Model returned an empty terminal response after one retry",
             }
         )

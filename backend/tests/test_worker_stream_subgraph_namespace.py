@@ -22,15 +22,15 @@ import pytest
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 from packaging.version import Version
 
-from deerflow.runtime.runs import worker
-from deerflow.runtime.runs.manager import RunRecord, RunStartOutcome
-from deerflow.runtime.runs.schemas import DisconnectMode, RunStatus
-from deerflow.runtime.runs.worker import (
+from SynapseAI.runtime.runs import worker
+from SynapseAI.runtime.runs.manager import RunRecord, RunStartOutcome
+from SynapseAI.runtime.runs.schemas import DisconnectMode, RunStatus
+from SynapseAI.runtime.runs.worker import (
     _compose_sse_event,
     _publish_stream_item,
     _unpack_stream_item,
 )
-from deerflow.runtime.stream_bridge.memory import MemoryStreamBridge
+from SynapseAI.runtime.stream_bridge.memory import MemoryStreamBridge
 
 SUBAGENT_NS = ("tools:call_subagent_1",)
 
@@ -275,27 +275,27 @@ _THREAD_ID = "thread-subgraph-stream-integration"
 def real_executor_module():
     """Swap the conftest MagicMock for the real subagent executor module.
 
-    conftest.py mocks ``deerflow.subagents.executor`` to break a package-init
-    import cycle; by the time this fixture runs every other deerflow module is
+    conftest.py mocks ``SynapseAI.subagents.executor`` to break a package-init
+    import cycle; by the time this fixture runs every other SynapseAI module is
     already imported, so a fresh import of the real module is safe.
     """
-    original = sys.modules.get("deerflow.subagents.executor")
-    sys.modules.pop("deerflow.subagents.executor", None)
-    subagents_pkg = sys.modules.get("deerflow.subagents")
+    original = sys.modules.get("SynapseAI.subagents.executor")
+    sys.modules.pop("SynapseAI.subagents.executor", None)
+    subagents_pkg = sys.modules.get("SynapseAI.subagents")
     if subagents_pkg is not None and hasattr(subagents_pkg, "executor"):
         delattr(subagents_pkg, "executor")
 
-    module = importlib.import_module("deerflow.subagents.executor")
+    module = importlib.import_module("SynapseAI.subagents.executor")
     # Hermetic in CI (no config.yaml) — same defaults as test_subagent_executor.
     module.get_app_config = lambda: SimpleNamespace(tool_search=SimpleNamespace(enabled=False))
     module.build_tracing_callbacks = lambda: []
     yield module
 
     if original is not None:
-        sys.modules["deerflow.subagents.executor"] = original
+        sys.modules["SynapseAI.subagents.executor"] = original
     else:
-        sys.modules.pop("deerflow.subagents.executor", None)
-    subagents_pkg = sys.modules.get("deerflow.subagents")
+        sys.modules.pop("SynapseAI.subagents.executor", None)
+    subagents_pkg = sys.modules.get("SynapseAI.subagents")
     if subagents_pkg is not None and hasattr(subagents_pkg, "executor"):
         delattr(subagents_pkg, "executor")
 
@@ -368,14 +368,14 @@ def _build_delegating_parent_graph(executor_module, monkeypatch, *, child_emits_
     production task tool does (root-graph ``get_stream_writer``).
 
     With ``child_emits_error_fallback`` the child stream contains an assistant
-    message carrying the ``deerflow_error_fallback`` marker (not as its final
+    message carrying the ``SynapseAI_error_fallback`` marker (not as its final
     message, so the delegation itself still completes) — the shape whose leak
     would mark the *parent* run as errored (#4399).
     """
     from langgraph.config import get_stream_writer
     from langgraph.graph import END, START, MessagesState, StateGraph
 
-    from deerflow.subagents.config import SubagentConfig
+    from SynapseAI.subagents.config import SubagentConfig
 
     child_builder = StateGraph(MessagesState)
     child_builder.add_node(
@@ -401,7 +401,7 @@ def _build_delegating_parent_graph(executor_module, monkeypatch, *, child_emits_
                 AIMessage(
                     content="child provider failed after retries",
                     id="child-fallback-sentinel",
-                    additional_kwargs={"deerflow_error_fallback": True},
+                    additional_kwargs={"SynapseAI_error_fallback": True},
                 )
             ]
         },

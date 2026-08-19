@@ -1,6 +1,6 @@
 # Guardrails: Pre-Tool-Call Authorization
 
-> **Context:** [Issue #1213](https://github.com/bytedance/deer-flow/issues/1213) — DeerFlow has Docker sandboxing and human approval via `ask_clarification`, but no deterministic, policy-driven authorization layer for tool calls. An agent running autonomous multi-step tasks can execute any loaded tool with any arguments. Guardrails add a middleware that evaluates every tool call against a policy **before** execution.
+> **Context:** [Issue #1213](https://github.com/bytedance/synapse-ai/issues/1213) — SynapseAI has Docker sandboxing and human approval via `ask_clarification`, but no deterministic, policy-driven authorization layer for tool calls. An agent running autonomous multi-step tasks can execute any loaded tool with any arguments. Guardrails add a middleware that evaluates every tool call against a policy **before** execution.
 
 ## Why Guardrails
 
@@ -82,14 +82,14 @@ The `GuardrailMiddleware` implements `wrap_tool_call` / `awrap_tool_call` (the s
 
 ### Option 1: Built-in AllowlistProvider (Zero Dependencies)
 
-The simplest option. Ships with DeerFlow. Block or allow tools by name. No external packages, no passport, no network.
+The simplest option. Ships with SynapseAI. Block or allow tools by name. No external packages, no passport, no network.
 
 **config.yaml:**
 ```yaml
 guardrails:
   enabled: true
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: SynapseAI.guardrails.builtin:AllowlistProvider
     config:
       denied_tools: ["bash", "write_file"]
 ```
@@ -101,20 +101,20 @@ You can also use an allowlist (only these tools are permitted):
 guardrails:
   enabled: true
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: SynapseAI.guardrails.builtin:AllowlistProvider
     config:
       allowed_tools: ["web_search", "read_file", "ls"]
 ```
 
 **Try it:**
 1. Add the config above to your `config.yaml`
-2. Start DeerFlow: `make dev`
+2. Start SynapseAI: `make dev`
 3. Ask the agent: "Use bash to run echo hello"
 4. The agent sees: `Guardrail denied: tool 'bash' was blocked (oap.tool_not_allowed)`
 
 ### Option 2: OAP Passport Provider (Policy-Based)
 
-For policy enforcement based on the [Open Agent Passport (OAP)](https://github.com/aporthq/aport-spec) open standard. An OAP passport is a JSON document that declares an agent's identity, capabilities, and operational limits. Any provider that reads an OAP passport and returns OAP-compliant decisions works with DeerFlow.
+For policy enforcement based on the [Open Agent Passport (OAP)](https://github.com/aporthq/aport-spec) open standard. An OAP passport is a JSON document that declares an agent's identity, capabilities, and operational limits. Any provider that reads an OAP passport and returns OAP-compliant decisions works with SynapseAI.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -156,12 +156,12 @@ An OAP passport is just a JSON file. You can create one by hand following the [O
 
 ```bash
 pip install aport-agent-guardrails
-aport setup --framework deerflow
+aport setup --framework SynapseAI
 ```
 
 This creates:
-- `~/.aport/deerflow/config.yaml` -- evaluator config (local or API mode)
-- `~/.aport/deerflow/aport/passport.json` -- OAP passport with capabilities and limits
+- `~/.aport/SynapseAI/config.yaml` -- evaluator config (local or API mode)
+- `~/.aport/SynapseAI/aport/passport.json` -- OAP passport with capabilities and limits
 
 **config.yaml (using APort as the provider):**
 ```yaml
@@ -181,7 +181,7 @@ guardrails:
       passport_path: ./my-passport.json
 ```
 
-Any provider that accepts `framework` as a kwarg and implements `evaluate`/`aevaluate` works. The OAP standard defines the passport format and decision codes; DeerFlow doesn't care which provider reads them.
+Any provider that accepts `framework` as a kwarg and implements `evaluate`/`aevaluate` works. The OAP standard defines the passport format and decision codes; SynapseAI doesn't care which provider reads them.
 
 **What the passport controls:**
 
@@ -201,11 +201,11 @@ OAP providers may support different evaluation modes. For example, the APort ref
 | **Local** | Evaluates passport locally (bash script). | None | ~300ms |
 | **API** | Sends passport + context to a hosted evaluator. Signed decisions. | Yes | ~65ms |
 
-A custom OAP provider can implement any evaluation strategy -- the DeerFlow middleware doesn't care how the provider reaches its decision.
+A custom OAP provider can implement any evaluation strategy -- the SynapseAI middleware doesn't care how the provider reaches its decision.
 
 **Try it:**
 1. Install and set up as above
-2. Start DeerFlow and ask: "Create a file called test.txt with content hello"
+2. Start SynapseAI and ask: "Create a file called test.txt with content hello"
 3. Then ask: "Now delete it using bash rm -rf"
 4. Guardrail blocks it: `oap.blocked_pattern: Command contains blocked pattern: rm -rf`
 
@@ -220,7 +220,7 @@ class MyGuardrailProvider:
     name = "my-company"
 
     def evaluate(self, request):
-        from deerflow.guardrails.provider import GuardrailDecision, GuardrailReason
+        from SynapseAI.guardrails.provider import GuardrailDecision, GuardrailReason
 
         # Example: block any bash command containing "delete"
         if request.tool_name == "bash" and "delete" in str(request.tool_input):
@@ -250,7 +250,7 @@ Make sure `my_guardrail.py` is on the Python path (e.g. in the backend directory
 **Try it:**
 1. Create `my_guardrail.py` in the backend directory
 2. Add the config
-3. Start DeerFlow and ask: "Use bash to delete test.txt"
+3. Start SynapseAI and ask: "Use bash to delete test.txt"
 4. Your provider blocks it
 
 #### Optional: Runtime Attribution
@@ -259,7 +259,7 @@ Runtime attribution fields are optional. Providers that need richer policy conte
 
 | Field | Example use |
 |---|---|
-| `user_id` | Attach the authenticated DeerFlow user to a provider-side policy or audit record |
+| `user_id` | Attach the authenticated SynapseAI user to a provider-side policy or audit record |
 | `user_role` | Apply simple role-based policy, such as allowing an admin-only tool. Sourced from the authenticated user's `system_role` (renamed for the guardrail-facing surface, not a separate field) |
 | `oauth_provider` | Link a decision to an external identity provider, when present |
 | `oauth_id` | Link a decision to the external provider's subject/user id, when present |
@@ -278,7 +278,7 @@ import asyncio
 import json
 from pathlib import Path
 
-from deerflow.guardrails.provider import GuardrailDecision, GuardrailReason
+from SynapseAI.guardrails.provider import GuardrailDecision, GuardrailReason
 
 
 class ContextAwareGuardrailProvider:
@@ -301,7 +301,7 @@ class ContextAwareGuardrailProvider:
     async def aevaluate(self, request):
         # ``_decide`` is in-memory policy work; the audit write is blocking
         # file I/O, so offload it off the event loop with ``asyncio.to_thread``
-        # (DeerFlow enforces a blocking-IO gate in CI). If your policy
+        # (SynapseAI enforces a blocking-IO gate in CI). If your policy
         # evaluation itself does blocking I/O — external policy service, file
         # read per call — move that behind ``asyncio.to_thread`` too, or
         # implement a native async evaluator and await it here.
@@ -310,7 +310,7 @@ class ContextAwareGuardrailProvider:
         return decision
 
     def _decide(self, request):
-        # 1. Normalize DeerFlow request data into policy context.
+        # 1. Normalize SynapseAI request data into policy context.
         context = {
             "tool_name": request.tool_name,
             "tool_input": request.tool_input,
@@ -333,7 +333,7 @@ class ContextAwareGuardrailProvider:
         # 2. Evaluate the provider-defined policy schema.
         result = self._evaluate_policy(self.policy, context)
 
-        # 3. Convert the policy result back to DeerFlow's decision object.
+        # 3. Convert the policy result back to SynapseAI's decision object.
         return GuardrailDecision(
             allow=result["allow"],
             reasons=[
@@ -469,7 +469,7 @@ defaults:
                                 └──────────────────────────┘
 ```
 
-### DeerFlow Tool Names
+### SynapseAI Tool Names
 
 These are the tool names your provider will see in `request.tool_name`:
 
@@ -505,14 +505,14 @@ Standard codes used by the [OAP specification](https://github.com/aporthq/aport-
 
 ### Provider Loading
 
-DeerFlow loads providers via `resolve_variable()` -- the same mechanism used for models, tools, and sandbox providers. The `use:` field is a Python class path: `package.module:ClassName`.
+SynapseAI loads providers via `resolve_variable()` -- the same mechanism used for models, tools, and sandbox providers. The `use:` field is a Python class path: `package.module:ClassName`.
 
-The provider is instantiated with `**config` kwargs if `config:` is set, plus `framework="deerflow"` is always injected. Accept `**kwargs` to stay forward-compatible:
+The provider is instantiated with `**config` kwargs if `config:` is set, plus `framework="SynapseAI"` is always injected. Accept `**kwargs` to stay forward-compatible:
 
 ```python
 class YourProvider:
     def __init__(self, framework: str = "generic", **kwargs):
-        # framework="deerflow" tells you which config dir to use
+        # framework="SynapseAI" tells you which config dir to use
         ...
 ```
 
@@ -532,7 +532,7 @@ guardrails:
 
   # Provider: loaded by class path via resolve_variable
   provider:
-    use: deerflow.guardrails.builtin:AllowlistProvider
+    use: SynapseAI.guardrails.builtin:AllowlistProvider
     config:  # optional kwargs passed to provider.__init__
       denied_tools: ["bash"]
 ```
@@ -554,16 +554,16 @@ uv run python -m pytest tests/test_guardrail_middleware.py -v
 ## Files
 
 ```
-packages/harness/deerflow/guardrails/
+packages/harness/SynapseAI/guardrails/
     __init__.py              # Public exports
     provider.py              # GuardrailProvider protocol, GuardrailRequest, GuardrailDecision
     middleware.py             # GuardrailMiddleware (AgentMiddleware subclass)
     builtin.py               # AllowlistProvider (zero deps)
 
-packages/harness/deerflow/config/
+packages/harness/SynapseAI/config/
     guardrails_config.py     # GuardrailsConfig Pydantic model + singleton
 
-packages/harness/deerflow/agents/middlewares/
+packages/harness/SynapseAI/agents/middlewares/
     tool_error_handling_middleware.py  # Registers GuardrailMiddleware in chain
 
 config.example.yaml          # Three provider options documented

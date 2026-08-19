@@ -14,7 +14,7 @@ import importlib.resources
 import inspect
 
 import pytest
-from deerflow_extension_api import (
+from SynapseAI_extension_api import (
     API_VERSION,
     AgentBuildContext,
     AgentScope,
@@ -36,7 +36,7 @@ from deerflow_extension_api import (
     TaskOutcome,
     extension,
 )
-from deerflow_extension_api.runtime_bridge import (
+from SynapseAI_extension_api.runtime_bridge import (
     EXTENSION_TASK_STORE_KEY,
     task_store_from_runtime,
 )
@@ -200,17 +200,17 @@ def test_system_model_request_normalizes_messages_into_an_immutable_sequence():
 
 
 def test_gateway_contribution_points_are_part_of_the_public_surface():
-    import deerflow_extension_api
+    import SynapseAI_extension_api
 
     for name in (
         "ExtensionRuntimeDeps",
         "ExtensionService",
     ):
-        assert name in deerflow_extension_api.__all__
-        assert hasattr(deerflow_extension_api, name)
+        assert name in SynapseAI_extension_api.__all__
+        assert hasattr(SynapseAI_extension_api, name)
     assert callable(ExtensionRegistry.service)
     assert callable(ExtensionRegistry.routers)
-    assert not hasattr(deerflow_extension_api, "RouterContributor")
+    assert not hasattr(SynapseAI_extension_api, "RouterContributor")
 
 
 def test_task_store_from_runtime_reads_the_host_key():
@@ -238,8 +238,8 @@ def test_extension_decorator_stamps_api_requirement():
     def install(registry, config):
         return None
 
-    assert install.__deerflow_api__ == "0.1"
-    assert install.__deerflow_name__ == "demo"
+    assert install.__SynapseAI_api__ == "0.1"
+    assert install.__SynapseAI_name__ == "demo"
 
 
 def test_task_outcome_members():
@@ -256,16 +256,16 @@ def test_registry_and_install_alias_are_part_of_the_public_surface():
     them to the harness release cadence and advertise host-only machinery."""
     import typing
 
-    import deerflow_extension_api
+    import SynapseAI_extension_api
 
-    assert "ExtensionRegistry" in deerflow_extension_api.__all__
-    assert "ExtensionInstall" in deerflow_extension_api.__all__
+    assert "ExtensionRegistry" in SynapseAI_extension_api.__all__
+    assert "ExtensionInstall" in SynapseAI_extension_api.__all__
     parameters, return_type = typing.get_args(ExtensionInstall)
     assert parameters[0] is ExtensionRegistry, "install()'s first argument must be the public registry contract"
 
 
 def test_distribution_marks_the_contract_package_as_typed():
-    marker = importlib.resources.files("deerflow_extension_api").joinpath("py.typed")
+    marker = importlib.resources.files("SynapseAI_extension_api").joinpath("py.typed")
     assert marker.is_file()
 
 
@@ -294,10 +294,10 @@ def test_harness_pins_the_contract_package_exactly():
 
     pyproject = Path(__file__).parent.parent / "packages" / "harness" / "pyproject.toml"
     dependencies = tomllib.loads(pyproject.read_text())["project"]["dependencies"]
-    requirement = next(Requirement(dep) for dep in dependencies if Requirement(dep).name == "deerflow-extension-api")
+    requirement = next(Requirement(dep) for dep in dependencies if Requirement(dep).name == "SynapseAI-extension-api")
 
-    expected = f"=={version('deerflow-extension-api')}"
-    assert str(requirement.specifier) == expected, f"the host must pin deerflow-extension-api exactly ({expected}); a range lets pip resolve a contract newer than the host implements"
+    expected = f"=={version('SynapseAI-extension-api')}"
+    assert str(requirement.specifier) == expected, f"the host must pin SynapseAI-extension-api exactly ({expected}); a range lets pip resolve a contract newer than the host implements"
 
 
 def test_runtime_api_version_matches_the_installed_contract_package():
@@ -305,7 +305,7 @@ def test_runtime_api_version_matches_the_installed_contract_package():
     from importlib.metadata import version
 
     assert API_VERSION == "0.1.2"
-    assert API_VERSION == version("deerflow-extension-api")
+    assert API_VERSION == version("SynapseAI-extension-api")
 
 
 def test_extension_service_contract_is_public_and_defaults_to_noop():

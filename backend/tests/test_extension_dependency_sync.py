@@ -54,18 +54,18 @@ def test_root_makefile_exposes_extension_management_commands() -> None:
     makefile = REPO_ROOT / "Makefile"
 
     install = _make_recipe(makefile, "extension-install")
-    assert "deerflow extensions install" in install
-    assert "--source-env __deerflow_extension_source__" in install
-    assert "DEER_FLOW_EXTENSION_SOURCE" not in install
+    assert "SynapseAI extensions install" in install
+    assert "--source-env __SynapseAI_extension_source__" in install
+    assert "SYNAPSE_EXTENSION_SOURCE" not in install
     assert "$(SOURCE)" not in install
     assert "uv run --frozen --no-group extensions" in install
     assert "--yes" not in install
 
     for target, command in (
-        ("extension-list", "deerflow extensions list"),
-        ("extension-enable", "deerflow extensions enable"),
-        ("extension-disable", "deerflow extensions disable"),
-        ("extension-remove", "deerflow extensions remove"),
+        ("extension-list", "SynapseAI extensions list"),
+        ("extension-enable", "SynapseAI extensions enable"),
+        ("extension-disable", "SynapseAI extensions disable"),
+        ("extension-remove", "SynapseAI extensions remove"),
     ):
         recipe = _make_recipe(makefile, target)
         assert command in recipe
@@ -186,10 +186,10 @@ def test_root_extension_shortcuts_reject_ambient_environment_arguments() -> None
 @pytest.mark.parametrize(
     ("target", "variable", "env_option"),
     [
-        ("extension-install", "SOURCE", "--source-env __deerflow_extension_source__"),
-        ("extension-enable", "NAME", "--name-env __deerflow_extension_name__"),
-        ("extension-disable", "NAME", "--name-env __deerflow_extension_name__"),
-        ("extension-remove", "NAME", "--name-env __deerflow_extension_name__"),
+        ("extension-install", "SOURCE", "--source-env __SynapseAI_extension_source__"),
+        ("extension-enable", "NAME", "--name-env __SynapseAI_extension_name__"),
+        ("extension-disable", "NAME", "--name-env __SynapseAI_extension_name__"),
+        ("extension-remove", "NAME", "--name-env __SynapseAI_extension_name__"),
     ],
 )
 def test_root_extension_shortcuts_keep_command_line_arguments_out_of_the_shell_recipe(
@@ -211,17 +211,17 @@ def test_root_extension_shortcuts_keep_command_line_arguments_out_of_the_shell_r
     assert result.returncode == 0, result.stderr
     assert marker not in result.stdout
     assert env_option in result.stdout
-    assert "$DEER_FLOW_EXTENSION_" not in result.stdout
-    assert "%DEER_FLOW_EXTENSION_" not in result.stdout
+    assert "$SYNAPSE_EXTENSION_" not in result.stdout
+    assert "%SYNAPSE_EXTENSION_" not in result.stdout
 
 
 @pytest.mark.parametrize(
     ("target", "variable", "env_option"),
     [
-        ("extension-install", "SOURCE", "--source-env __deerflow_extension_source__"),
-        ("extension-enable", "NAME", "--name-env __deerflow_extension_name__"),
-        ("extension-disable", "NAME", "--name-env __deerflow_extension_name__"),
-        ("extension-remove", "NAME", "--name-env __deerflow_extension_name__"),
+        ("extension-install", "SOURCE", "--source-env __SynapseAI_extension_source__"),
+        ("extension-enable", "NAME", "--name-env __SynapseAI_extension_name__"),
+        ("extension-disable", "NAME", "--name-env __SynapseAI_extension_name__"),
+        ("extension-remove", "NAME", "--name-env __SynapseAI_extension_name__"),
     ],
 )
 def test_root_extension_shortcuts_keep_values_out_of_the_cmd_recipe_on_windows(
@@ -250,8 +250,8 @@ def test_root_extension_shortcuts_keep_values_out_of_the_cmd_recipe_on_windows(
     assert result.returncode == 0, result.stderr
     assert marker not in result.stdout
     assert env_option in result.stdout
-    assert "$DEER_FLOW_EXTENSION_" not in result.stdout
-    assert "%DEER_FLOW_EXTENSION_" not in result.stdout
+    assert "$SYNAPSE_EXTENSION_" not in result.stdout
+    assert "%SYNAPSE_EXTENSION_" not in result.stdout
 
 
 def test_docker_dev_entrypoint_syncs_the_lock_before_runtime() -> None:

@@ -167,7 +167,7 @@ async def init_engine(
             finally:
                 cursor.close()
     elif backend == "postgres":
-        from deerflow.persistence.postgres_schema import build_asyncpg_connect_args
+        from SynapseAI.persistence.postgres_schema import build_asyncpg_connect_args
 
         pg_connect_args = build_asyncpg_connect_args(postgres_schema)
         _engine = create_async_engine(
@@ -193,8 +193,8 @@ async def init_engine(
     # in-process asyncio.Lock plus a 30s PRAGMA busy_timeout (also set on
     # alembic's own connections in env.py) -- multi-process SQLite bootstrap
     # is best-effort, gated by SQLite's natural file-level write lock.
-    # See deerflow.persistence.bootstrap for the full state machine.
-    from deerflow.persistence.bootstrap import bootstrap_schema
+    # See SynapseAI.persistence.bootstrap for the full state machine.
+    from SynapseAI.persistence.bootstrap import bootstrap_schema
 
     async def _ensure_postgres_schema() -> None:
         # CREATE SCHEMA is DDL and is unaffected by search_path, so it is

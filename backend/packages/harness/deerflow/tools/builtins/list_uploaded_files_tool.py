@@ -15,12 +15,12 @@ from typing import Annotated, Any
 from langchain.tools import tool
 from langgraph.config import get_config
 
-from deerflow.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
-from deerflow.config.paths import get_paths
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.tools.types import Runtime
-from deerflow.uploads.manager import is_upload_staging_file
-from deerflow.utils.file_outline import extract_outline_for_file
+from SynapseAI.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
+from SynapseAI.config.paths import get_paths
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.tools.types import Runtime
+from SynapseAI.uploads.manager import is_upload_staging_file
+from SynapseAI.utils.file_outline import extract_outline_for_file
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ def _resolve_thread_id(runtime: Runtime) -> str | None:
 
 def _resolve_user_id(runtime: Runtime) -> str:
     """Resolve the current user id."""
-    from deerflow.runtime.user_context import resolve_runtime_user_id
+    from SynapseAI.runtime.user_context import resolve_runtime_user_id
 
     return resolve_runtime_user_id(runtime) or get_effective_user_id()
 

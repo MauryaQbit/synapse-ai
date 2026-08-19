@@ -8,12 +8,12 @@ import uuid
 from dataclasses import replace
 from datetime import UTC, datetime, timedelta
 
-from deerflow.constants import (
+from SynapseAI.constants import (
     MCP_TASK_POLL_AFTER_MAX_SECONDS,
     MCP_TASK_REMOTE_ID_MAX_LENGTH,
     MCP_TASK_RESULT_ARTIFACT_MAX_BYTES,
 )
-from deerflow.mcp.tasks import (
+from SynapseAI.mcp.tasks import (
     McpTaskDriverRegistry,
     McpTaskProtocolError,
     TaskReference,
@@ -21,7 +21,7 @@ from deerflow.mcp.tasks import (
     TaskStatus,
     TaskSubmitRequest,
 )
-from deerflow.persistence.mcp_tasks import DuplicateMcpRemoteTaskError
+from SynapseAI.persistence.mcp_tasks import DuplicateMcpRemoteTaskError
 
 logger = logging.getLogger(__name__)
 
@@ -301,7 +301,7 @@ class McpTaskService:
         if self._task is not None:
             return
         self._stop.clear()
-        self._task = asyncio.create_task(self._run_loop(), name="deerflow-mcp-task-poller")
+        self._task = asyncio.create_task(self._run_loop(), name="SynapseAI-mcp-task-poller")
 
     async def stop(self) -> None:
         task = self._task

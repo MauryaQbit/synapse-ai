@@ -25,11 +25,11 @@ from langgraph.graph import StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.types import Overwrite
 
-from deerflow.agents.thread_state import merge_message_writes
-from deerflow.runtime.checkpoint_state import CheckpointStateAccessor, build_state_mutation_graph
-from deerflow.runtime.runs.manager import RunManager
-from deerflow.runtime.runs.schemas import RunStatus
-from deerflow.runtime.runs.worker import RunContext, _checkpoint_thread_lock, _linearize_delta_checkpoint_resume, run_agent
+from SynapseAI.agents.thread_state import merge_message_writes
+from SynapseAI.runtime.checkpoint_state import CheckpointStateAccessor, build_state_mutation_graph
+from SynapseAI.runtime.runs.manager import RunManager
+from SynapseAI.runtime.runs.schemas import RunStatus
+from SynapseAI.runtime.runs.worker import RunContext, _checkpoint_thread_lock, _linearize_delta_checkpoint_resume, run_agent
 
 pytestmark = pytest.mark.anyio
 
@@ -326,8 +326,8 @@ async def test_run_agent_serializes_resume_preparation_with_checkpoint_writes(mo
         startup_calls.append("linearize")
         return None
 
-    monkeypatch.setattr("deerflow.runtime.runs.worker._capture_rollback_point", capture_rollback_point)
-    monkeypatch.setattr("deerflow.runtime.runs.worker._linearize_delta_checkpoint_resume", linearize_resume)
+    monkeypatch.setattr("SynapseAI.runtime.runs.worker._capture_rollback_point", capture_rollback_point)
+    monkeypatch.setattr("SynapseAI.runtime.runs.worker._linearize_delta_checkpoint_resume", linearize_resume)
 
     async with _checkpoint_thread_lock("worker-lock"):
         run_task = asyncio.create_task(

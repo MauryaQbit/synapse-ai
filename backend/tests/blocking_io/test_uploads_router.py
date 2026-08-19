@@ -12,8 +12,8 @@ from _router_auth_helpers import call_unwrapped
 from fastapi import UploadFile
 
 from app.gateway.routers import uploads
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.uploads.manager import ensure_uploads_dir, get_uploads_dir
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.uploads.manager import ensure_uploads_dir, get_uploads_dir
 
 pytestmark = pytest.mark.asyncio
 
@@ -60,9 +60,9 @@ class _RemoteProvider:
 
 
 def _reset_paths(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setenv("DEER_FLOW_HOME", str(tmp_path))
+    monkeypatch.setenv("SYNAPSE_HOME", str(tmp_path))
 
-    import deerflow.config.paths as paths_mod
+    import SynapseAI.config.paths as paths_mod
 
     monkeypatch.setattr(paths_mod, "_paths", None)
 

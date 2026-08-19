@@ -5,15 +5,15 @@ import pytest
 import pytest_asyncio
 
 from app.mcp_tasks import McpTaskService
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.mcp.tasks import (
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.mcp.tasks import (
     ORDINARY_MCP_TASK_DRIVER,
     McpTaskDriverRegistry,
     OrdinaryMcpTaskDriver,
     TaskSubmitRequest,
 )
-from deerflow.persistence.engine import close_engine, get_session_factory, init_engine_from_config
-from deerflow.persistence.mcp_tasks import McpTaskRepository
+from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine_from_config
+from SynapseAI.persistence.mcp_tasks import McpTaskRepository
 
 
 @pytest_asyncio.fixture(autouse=True)

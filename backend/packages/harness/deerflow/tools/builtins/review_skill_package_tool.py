@@ -9,15 +9,15 @@ from langchain_core.messages import ToolMessage
 from langchain_core.tools import tool
 from langgraph.types import Command
 
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.skills.review.analyzer import analyze_skill_package
-from deerflow.skills.review.models import stable_json_dumps
-from deerflow.skills.review.readers import ArchivePackageReader, InstalledSkillReader, LocalDirectoryReader, build_inline_snapshot
-from deerflow.skills.review.renderer import build_static_report, render_report_markdown
-from deerflow.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
-from deerflow.tools.types import Runtime
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.skills.review.analyzer import analyze_skill_package
+from SynapseAI.skills.review.models import stable_json_dumps
+from SynapseAI.skills.review.readers import ArchivePackageReader, InstalledSkillReader, LocalDirectoryReader, build_inline_snapshot
+from SynapseAI.skills.review.renderer import build_static_report, render_report_markdown
+from SynapseAI.skills.storage import get_or_new_skill_storage, get_or_new_user_skill_storage
+from SynapseAI.tools.types import Runtime
 
-Profile = Literal["deerflow", "agentskills"]
+Profile = Literal["SynapseAI", "agentskills"]
 IncludeContent = Literal["none", "facts-only", "semantic-review"]
 
 _MAX_SEMANTIC_ARTIFACT_CHARS = 80_000
@@ -27,7 +27,7 @@ _MAX_SEMANTIC_ARTIFACT_CHARS = 80_000
 def review_skill_package(
     target: str,
     runtime: Runtime,
-    profile: Profile = "deerflow",
+    profile: Profile = "SynapseAI",
     include_content: IncludeContent = "semantic-review",
     scope: list[str] | None = None,
     inline_content: str | None = None,
@@ -153,7 +153,7 @@ def _tool_message_content_payload(payload: dict) -> dict:
 
 
 def _neutralize_review_content(content: str) -> str:
-    from deerflow.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
+    from SynapseAI.agents.middlewares.input_sanitization_middleware import neutralize_untrusted_tags
 
     return neutralize_untrusted_tags(content)
 

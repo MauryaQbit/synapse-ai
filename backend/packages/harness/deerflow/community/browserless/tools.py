@@ -11,12 +11,12 @@ from langchain.tools import InjectedToolCallId, tool
 from langchain_core.messages import ToolMessage
 from langgraph.types import Command
 
-from deerflow.community.url_safety import resolve_host_addresses as _resolve_host_addresses
-from deerflow.community.url_safety import validate_public_http_url
-from deerflow.config import get_app_config
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.tools.types import Runtime
-from deerflow.utils.readability import ReadabilityExtractor
+from SynapseAI.community.url_safety import resolve_host_addresses as _resolve_host_addresses
+from SynapseAI.community.url_safety import validate_public_http_url
+from SynapseAI.config import get_app_config
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.tools.types import Runtime
+from SynapseAI.utils.readability import ReadabilityExtractor
 
 from .browserless_client import BrowserlessClient, BrowserlessFetchResult, BrowserlessScreenshotResult
 
@@ -293,7 +293,7 @@ async def web_capture_tool(
     """Capture a rendered webpage screenshot and present it as an artifact.
 
     Use this tool when you need a visual capture of a public webpage, especially JavaScript-heavy pages, UI states, dashboards, or visual evidence for a report.
-    Only capture exact URLs provided by the user or discovered through other tools. Do not use this for private pages behind login unless the user has explicitly configured Browserless outside DeerFlow.
+    Only capture exact URLs provided by the user or discovered through other tools. Do not use this for private pages behind login unless the user has explicitly configured Browserless outside SynapseAI.
     URLs must include the schema: https://example.com is valid while example.com is invalid.
 
     Args:

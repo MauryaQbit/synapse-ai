@@ -1,10 +1,10 @@
-"""BoxLite micro-VM backend for DeerFlow sandboxes.
+"""BoxLite micro-VM backend for SynapseAI sandboxes.
 
 Integrates `BoxLite <https://github.com/boxlite-ai/boxlite>`_ — a daemonless,
 OCI-native micro-VM runtime (libkrun/KVM on Linux, Hypervisor.framework on
-macOS) — behind DeerFlow's :class:`Sandbox` / :class:`SandboxProvider` contract.
+macOS) — behind SynapseAI's :class:`Sandbox` / :class:`SandboxProvider` contract.
 Each sandbox is a hardware-isolated VM with its own kernel that runs any OCI
-image unchanged. See https://github.com/bytedance/deer-flow/issues/3936.
+image unchanged. See https://github.com/bytedance/synapse-ai/issues/3936.
 
 The full contract is implemented: ``execute_command`` plus ``read_file`` /
 ``write_file`` / ``update_file`` / ``download_file`` / ``list_dir`` / ``glob`` /
@@ -13,7 +13,7 @@ The full contract is implemented: ``execute_command`` plus ``read_file`` /
 Configuration example (``config.yaml``)::
 
     sandbox:
-      use: deerflow.community.boxlite:BoxliteProvider
+      use: SynapseAI.community.boxlite:BoxliteProvider
       image: python:3.12-slim      # any OCI image; runs unchanged
       memory_mib: 1024             # per-box memory cap (optional)
       cpus: 2                      # per-box vCPUs (optional)
@@ -24,10 +24,10 @@ Configuration example (``config.yaml``)::
 
 Install the optional runtime before selecting this provider::
 
-    pip install "deerflow-harness[boxlite]"
+    pip install "SynapseAI-harness[boxlite]"
 
 Host requirement: BoxLite boots micro-VMs, so a Linux host needs KVM (nested
-virtualization when DeerFlow itself runs inside a cloud VM); macOS uses
+virtualization when SynapseAI itself runs inside a cloud VM); macOS uses
 Hypervisor.framework.
 """
 

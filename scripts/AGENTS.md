@@ -9,9 +9,9 @@ success; failures print Compose status and recent Gateway logs.
 ## Backend Static Analysis Commands
 
 The root `detect-thread-boundaries` target statically inventories execution
-boundaries under `backend/app/` and `backend/packages/harness/deerflow/`. It
+boundaries under `backend/app/` and `backend/packages/harness/SynapseAI/`. It
 prints a concise count by execution domain and writes the complete, versioned
-JSON payload to `.deer-flow/thread-boundary-inventory.json`. Every finding has
+JSON payload to `.synapse-ai/thread-boundary-inventory.json`. Every finding has
 a stable `boundary_kind`: `asyncio_default_executor`, `dedicated_executor`,
 `anyio_worker_thread`, `direct_event_loop_blocking`, `separate_event_loop`, or
 `unresolved_dynamic_boundary`.
@@ -29,7 +29,7 @@ To supplement the static scan with configured runtime types, run:
 ```bash
 python scripts/detect_thread_boundaries.py \
   --runtime-config config.yaml \
-  --json-output .deer-flow/thread-boundary-inventory.json
+  --json-output .synapse-ai/thread-boundary-inventory.json
 ```
 
 Runtime inspection imports configured tool objects and model classes so it can
@@ -40,12 +40,12 @@ models, or call external services; import failures remain in the JSON as
 coverage live in `tests/support/detectors/thread_boundaries.py` and
 `tests/test_detect_thread_boundaries.py`.
 
-The `detect-blocking-io` target parses `app/`, `packages/harness/deerflow/`,
+The `detect-blocking-io` target parses `app/`, `packages/harness/SynapseAI/`,
 and `scripts/` with AST. By default it reports only blocking IO candidates that
 are inside async code, reachable from async code in the same file, or reachable
 from sync-only `AgentMiddleware` before/after hooks that LangGraph can execute
 on the async graph path. It prints a concise summary and writes complete JSON
-findings to `.deer-flow/blocking-io-findings.json` at the repository root
+findings to `.synapse-ai/blocking-io-findings.json` at the repository root
 (both `make detect-blocking-io` from the repo root and `cd backend && make
 detect-blocking-io` resolve to the same repo-root path). JSON findings include
 `priority`, `location`, `blocking_call`, `event_loop_exposure`, `reason`, and
@@ -147,9 +147,9 @@ Regression tests related to Docker/provisioner behavior:
 
 Blocking-IO runtime gate (`tests/blocking_io/`):
 - Wraps every item under `tests/blocking_io/` with a strict Blockbuster
-  context scoped to `app.*` and `deerflow.*` (see
+  context scoped to `app.*` and `SynapseAI.*` (see
   `tests/support/detectors/blocking_io_runtime.py`). Any sync blocking IO
-  call whose stack passes through DeerFlow business code while running on
+  call whose stack passes through SynapseAI business code while running on
   the asyncio event loop raises `BlockingError` and fails the test.
 - Regression anchors live there: `test_skills_load.py` (locks the
   `asyncio.to_thread` offload around `LocalSkillStorage.load_skills`, fix
@@ -188,7 +188,7 @@ Blocking-IO runtime gate (`tests/blocking_io/`):
   hard-fail.
 
 Boundary check (harness → app import firewall):
-- `tests/test_harness_boundary.py` — ensures `packages/harness/deerflow/` never imports from `app.*`
+- `tests/test_harness_boundary.py` — ensures `packages/harness/SynapseAI/` never imports from `app.*`
 
 Memory backend async boundary:
 - `MemoryMiddleware.aafter_agent` calls `MemoryManager.aadd`; network-backed

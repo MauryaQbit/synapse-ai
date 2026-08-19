@@ -5,15 +5,15 @@ from datetime import UTC, datetime, timedelta
 import pytest
 
 from app.mcp_tasks.service import McpTaskService
-from deerflow.mcp.tasks import (
+from SynapseAI.mcp.tasks import (
     McpTaskDriverRegistry,
     TaskSnapshot,
     TaskStatus,
     TaskSubmission,
     TaskSubmitRequest,
 )
-from deerflow.mcp.tasks.ordinary import McpTaskProtocolError
-from deerflow.persistence.mcp_tasks import DuplicateMcpRemoteTaskError
+from SynapseAI.mcp.tasks.ordinary import McpTaskProtocolError
+from SynapseAI.persistence.mcp_tasks import DuplicateMcpRemoteTaskError
 
 
 class FakeRepository:

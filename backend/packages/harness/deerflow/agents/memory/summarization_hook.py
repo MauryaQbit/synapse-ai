@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from deerflow.agents.memory import get_memory_manager
-from deerflow.agents.middlewares.summarization_middleware import SummarizationEvent
-from deerflow.config.memory_config import get_memory_config
-from deerflow.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.agents.memory import get_memory_manager
+from SynapseAI.agents.middlewares.summarization_middleware import SummarizationEvent
+from SynapseAI.config.memory_config import get_memory_config
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
 
 
 def memory_flush_hook(event: SummarizationEvent) -> None:

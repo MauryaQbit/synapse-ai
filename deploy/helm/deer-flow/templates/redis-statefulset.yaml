@@ -3,25 +3,25 @@
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
-  name: {{ include "deer-flow.redisFullname" . }}
-  namespace: {{ include "deer-flow.namespace" . }}
+  name: {{ include "synapse-ai.redisFullname" . }}
+  namespace: {{ include "synapse-ai.namespace" . }}
   labels:
-    {{- include "deer-flow.labels" . | nindent 4 }}
+    {{- include "synapse-ai.labels" . | nindent 4 }}
     app.kubernetes.io/component: redis
 spec:
-  serviceName: {{ include "deer-flow.redisFullname" . }}
+  serviceName: {{ include "synapse-ai.redisFullname" . }}
   replicas: 1
   selector:
     matchLabels:
-      {{- include "deer-flow.selectorLabels" . | nindent 6 }}
+      {{- include "synapse-ai.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: redis
   template:
     metadata:
       labels:
-        {{- include "deer-flow.selectorLabels" . | nindent 8 }}
+        {{- include "synapse-ai.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: redis
     spec:
-      {{- include "deer-flow.imagePullSecrets" . | nindent 6 }}
+      {{- include "synapse-ai.imagePullSecrets" . | nindent 6 }}
       securityContext:
         # Non-root: redis:7-alpine ships a `redis` user (uid 999). The official
         # entrypoint detects non-root and skips the gosu dance. fsGroup 999
@@ -51,7 +51,7 @@ spec:
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "deer-flow.redisUrlSecret" . }}
+                  name: {{ include "synapse-ai.redisUrlSecret" . }}
                   key: redis-password
           {{- end }}
           command: ["sh", "-c"]
@@ -91,7 +91,7 @@ spec:
     - metadata:
         name: data
         labels:
-          {{- include "deer-flow.labels" . | nindent 10 }}
+          {{- include "synapse-ai.labels" . | nindent 10 }}
           app.kubernetes.io/component: redis
       spec:
         accessModes:

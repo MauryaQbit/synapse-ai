@@ -13,7 +13,7 @@ PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 DOCKER_DIR="$PROJECT_ROOT/docker"
 
 # Docker Compose command with project name
-COMPOSE_CMD="docker compose -p deer-flow-dev -f docker-compose-dev.yaml"
+COMPOSE_CMD="docker compose -p synapse-ai-dev -f docker-compose-dev.yaml"
 
 load_proxy_env_from_dotenv() {
     local env_file="$PROJECT_ROOT/.env"
@@ -73,9 +73,9 @@ detect_sandbox_mode() {
         }
     ' "$config_file")
 
-    if [[ "$sandbox_use" == *"deerflow.sandbox.local:LocalSandboxProvider"* ]]; then
+    if [[ "$sandbox_use" == *"synapse.sandbox.local:LocalSandboxProvider"* ]]; then
         echo "local"
-    elif [[ "$sandbox_use" == *"deerflow.community.aio_sandbox:AioSandboxProvider"* ]]; then
+    elif [[ "$sandbox_use" == *"synapse.community.aio_sandbox:AioSandboxProvider"* ]]; then
         if [ -n "$provisioner_url" ]; then
             echo "provisioner"
         else
@@ -113,7 +113,7 @@ docker_available() {
 # Initialize: pre-pull the sandbox image so first Pod startup is fast
 init() {
     echo "=========================================="
-    echo "  DeerFlow Init — Pull Sandbox Image"
+    echo "  SynapseAI Init — Pull Sandbox Image"
     echo "=========================================="
     echo ""
 
@@ -185,7 +185,7 @@ start() {
     fi
 
     echo "=========================================="
-    echo "  Starting DeerFlow Docker Development"
+    echo "  Starting SynapseAI Docker Development"
     echo "=========================================="
     echo ""
 
@@ -201,7 +201,7 @@ start() {
     # the default (local) and provisioner modes never expose the host daemon.
     # Mounting the socket = root-equivalent host control; see SECURITY.md.
     if [ "$sandbox_mode" = "aio" ]; then
-        local docker_socket="${DEER_FLOW_DOCKER_SOCKET:-/var/run/docker.sock}"
+        local docker_socket="${SYNAPSE_DOCKER_SOCKET:-/var/run/docker.sock}"
         if [ ! -S "$docker_socket" ]; then
             echo -e "${YELLOW}⚠ Docker socket not found at $docker_socket — AioSandboxProvider (DooD) will not work.${NC}"
             exit 1
@@ -219,10 +219,10 @@ start() {
     fi
     echo ""
     
-    # Set DEER_FLOW_ROOT for provisioner if not already set
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
-        echo -e "${BLUE}Setting DEER_FLOW_ROOT=$DEER_FLOW_ROOT${NC}"
+    # Set SYNAPSE_ROOT for provisioner if not already set
+    if [ -z "$SYNAPSE_ROOT" ]; then
+        export SYNAPSE_ROOT="$PROJECT_ROOT"
+        echo -e "${BLUE}Setting SYNAPSE_ROOT=$SYNAPSE_ROOT${NC}"
         echo ""
     fi
     
@@ -234,7 +234,7 @@ start() {
             echo -e "${YELLOW}============================================================${NC}"
             echo -e "${YELLOW}  config.yaml has been created from config.example.yaml.${NC}"
             echo -e "${YELLOW}  Please edit config.yaml to set your API keys and model   ${NC}"
-            echo -e "${YELLOW}  configuration before starting DeerFlow.                  ${NC}"
+            echo -e "${YELLOW}  configuration before starting SynapseAI.                  ${NC}"
             echo -e "${YELLOW}============================================================${NC}"
             echo ""
             echo -e "${YELLOW}  Recommended: run 'make setup' before starting Docker.    ${NC}"
@@ -266,7 +266,7 @@ start() {
     cd "$DOCKER_DIR" && $COMPOSE_CMD up --build -d --remove-orphans $services
     echo ""
     echo "=========================================="
-    echo "  DeerFlow Docker is starting!"
+    echo "  SynapseAI Docker is starting!"
     echo "=========================================="
     echo ""
     echo "  🌐 Application: http://localhost:2026"
@@ -283,10 +283,10 @@ start() {
 logs() {
     local service=""
 
-    # DEER_FLOW_ROOT is referenced in docker-compose-dev.yaml; set it before
+    # SYNAPSE_ROOT is referenced in docker-compose-dev.yaml; set it before
     # reading logs so Compose does not resolve mounted paths from an empty root.
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    if [ -z "$SYNAPSE_ROOT" ]; then
+        export SYNAPSE_ROOT="$PROJECT_ROOT"
     fi
     
     case "$1" in
@@ -325,27 +325,27 @@ logs() {
 
 # Stop Docker development environment
 stop() {
-    # DEER_FLOW_ROOT is referenced in docker-compose-dev.yaml; set it before
+    # SYNAPSE_ROOT is referenced in docker-compose-dev.yaml; set it before
     # running compose down to suppress "variable is not set" warnings.
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    if [ -z "$SYNAPSE_ROOT" ]; then
+        export SYNAPSE_ROOT="$PROJECT_ROOT"
     fi
     echo "Stopping Docker development services..."
     cd "$DOCKER_DIR" && $COMPOSE_CMD down
     echo "Cleaning up sandbox containers..."
-    "$SCRIPT_DIR/cleanup-containers.sh" deer-flow-sandbox 2>/dev/null || true
+    "$SCRIPT_DIR/cleanup-containers.sh" synapse-ai-sandbox 2>/dev/null || true
     echo -e "${GREEN}✓ Docker services stopped${NC}"
 }
 
 # Restart Docker development environment
 restart() {
-    # DEER_FLOW_ROOT is referenced in docker-compose-dev.yaml; set it before
+    # SYNAPSE_ROOT is referenced in docker-compose-dev.yaml; set it before
     # restarting services so Compose resolves mounted paths from this checkout.
-    if [ -z "$DEER_FLOW_ROOT" ]; then
-        export DEER_FLOW_ROOT="$PROJECT_ROOT"
+    if [ -z "$SYNAPSE_ROOT" ]; then
+        export SYNAPSE_ROOT="$PROJECT_ROOT"
     fi
     echo "========================================"
-    echo "  Restarting DeerFlow Docker Services"
+    echo "  Restarting SynapseAI Docker Services"
     echo "========================================"
     echo ""
     echo -e "${BLUE}Restarting containers...${NC}"
@@ -360,7 +360,7 @@ restart() {
 
 # Show help
 help() {
-    echo "DeerFlow Docker Management Script"
+    echo "SynapseAI Docker Management Script"
     echo ""
     echo "Usage: $0 <command> [options]"
     echo ""

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from deerflow.extensions.isolation import IsolatedMiddleware
-from deerflow.extensions.ordering import OrderingConstraint, assert_ordering
+from SynapseAI.extensions.isolation import IsolatedMiddleware
+from SynapseAI.extensions.ordering import OrderingConstraint, assert_ordering
 
 
 class _Outer:
@@ -91,9 +91,9 @@ def test_every_duplicate_participant_must_satisfy_the_constraint():
 
 
 def test_core_constraints_are_declared():
-    from deerflow.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
-    from deerflow.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
-    from deerflow.extensions.ordering import core_ordering_constraints
+    from SynapseAI.agents.middlewares.tool_error_handling_middleware import ToolErrorHandlingMiddleware
+    from SynapseAI.agents.middlewares.tool_progress_middleware import ToolProgressMiddleware
+    from SynapseAI.extensions.ordering import core_ordering_constraints
 
     pairs = {(c.outer, c.inner) for c in core_ordering_constraints()}
     assert (ToolProgressMiddleware, ToolErrorHandlingMiddleware) in pairs
@@ -109,7 +109,7 @@ def test_core_constraints_are_a_plain_tuple():
     very tuples tests substitute for it — while iteration yielded the real
     constraints.
     """
-    from deerflow.extensions.ordering import core_ordering_constraints
+    from SynapseAI.extensions.ordering import core_ordering_constraints
 
     constraints = core_ordering_constraints()
     iterated = list(constraints)
@@ -142,8 +142,8 @@ def test_resolution_stays_deferred_until_first_use():
     env = {**os.environ, "PYTHONPATH": os.pathsep.join([str(backend_root), str(backend_root / "packages" / "harness"), os.environ.get("PYTHONPATH", "")])}
     probe = (
         "import sys\n"
-        "from deerflow.extensions import ordering\n"
-        "targets = ('deerflow.agents.middlewares.tool_progress_middleware', 'deerflow.agents.middlewares.tool_error_handling_middleware')\n"
+        "from SynapseAI.extensions import ordering\n"
+        "targets = ('SynapseAI.agents.middlewares.tool_progress_middleware', 'SynapseAI.agents.middlewares.tool_error_handling_middleware')\n"
         "print('after_import', [t for t in targets if t in sys.modules])\n"
         "ordering.core_ordering_constraints()\n"
         "print('after_call', sorted(t for t in targets if t in sys.modules))\n"
@@ -152,4 +152,4 @@ def test_resolution_stays_deferred_until_first_use():
 
     assert result.returncode == 0, result.stderr
     assert "after_import []" in result.stdout, "importing extensions.ordering must not load the middleware layer"
-    assert "after_call ['deerflow.agents.middlewares.tool_error_handling_middleware', 'deerflow.agents.middlewares.tool_progress_middleware']" in result.stdout
+    assert "after_call ['SynapseAI.agents.middlewares.tool_error_handling_middleware', 'SynapseAI.agents.middlewares.tool_progress_middleware']" in result.stdout

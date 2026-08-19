@@ -32,10 +32,10 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
-import deerflow.persistence.models  # noqa: F401  -- registers ORM models
-from deerflow.persistence.base import Base
-from deerflow.persistence.engine import close_engine, init_engine
-from deerflow.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
+import SynapseAI.persistence.models  # noqa: F401  -- registers ORM models
+from SynapseAI.persistence.base import Base
+from SynapseAI.persistence.engine import close_engine, init_engine
+from SynapseAI.persistence.scheduled_task_runs.model import ScheduledTaskRunRow
 
 pytestmark = pytest.mark.asyncio
 

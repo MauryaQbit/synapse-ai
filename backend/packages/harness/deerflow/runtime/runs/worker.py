@@ -33,23 +33,23 @@ from typing import Any, Literal, cast
 from langgraph.checkpoint.base import empty_checkpoint
 from langgraph.types import Overwrite
 
-from deerflow.agents.goal_state import GoalEvaluation, GoalState
-from deerflow.config.app_config import AppConfig
-from deerflow.config.database_config import CheckpointChannelMode
-from deerflow.constants import TOOL_RESULTS_DIRNAME
-from deerflow.runtime.checkpoint_mode import (
+from SynapseAI.agents.goal_state import GoalEvaluation, GoalState
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.database_config import CheckpointChannelMode
+from SynapseAI.constants import TOOL_RESULTS_DIRNAME
+from SynapseAI.runtime.checkpoint_mode import (
     aensure_checkpoint_mode_compatible,
     inject_checkpoint_mode,
 )
-from deerflow.runtime.checkpoint_state import (
+from SynapseAI.runtime.checkpoint_state import (
     CheckpointStateAccessor,
     build_state_mutation_graph,
     graph_reducer_channels,
     graph_state_schema,
     graph_writable_channels,
 )
-from deerflow.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
-from deerflow.runtime.goal import (
+from SynapseAI.runtime.context_keys import CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY
+from SynapseAI.runtime.goal import (
     DEFAULT_MAX_GOAL_CONTINUATIONS,
     DEFAULT_MAX_NO_PROGRESS_CONTINUATIONS,
     GoalWriteConflict,
@@ -68,19 +68,19 @@ from deerflow.runtime.goal import (
     visible_conversation_signature,
     write_thread_goal,
 )
-from deerflow.runtime.serialization import serialize
-from deerflow.runtime.stream_bridge import StreamBridge
-from deerflow.runtime.stream_modes import normalize_stream_modes, to_langgraph_stream_modes
-from deerflow.runtime.user_context import get_effective_user_id, resolve_runtime_user_id
-from deerflow.trace_context import (
-    DEERFLOW_TRACE_METADATA_KEY,
+from SynapseAI.runtime.serialization import serialize
+from SynapseAI.runtime.stream_bridge import StreamBridge
+from SynapseAI.runtime.stream_modes import normalize_stream_modes, to_langgraph_stream_modes
+from SynapseAI.runtime.user_context import get_effective_user_id, resolve_runtime_user_id
+from SynapseAI.trace_context import (
+    SynapseAI_TRACE_METADATA_KEY,
     is_trace_id_from_request_header,
-    resolve_deerflow_trace_id,
+    resolve_SynapseAI_trace_id,
 )
-from deerflow.tracing import inject_langfuse_metadata
-from deerflow.utils.messages import message_to_text
-from deerflow.workspace_changes import capture_workspace_snapshot, get_changed_output_paths, record_workspace_changes
-from deerflow.workspace_changes.types import WorkspaceSnapshot
+from SynapseAI.tracing import inject_langfuse_metadata
+from SynapseAI.utils.messages import message_to_text
+from SynapseAI.workspace_changes import capture_workspace_snapshot, get_changed_output_paths, record_workspace_changes
+from SynapseAI.workspace_changes.types import WorkspaceSnapshot
 
 from .manager import RunManager, RunRecord, RunStartOutcome
 from .naming import resolve_root_run_name
@@ -394,7 +394,7 @@ def _build_runtime_context(
     if app_config is not None:
         runtime_ctx["app_config"] = app_config
     if task_store is not None:
-        from deerflow_extension_api import EXTENSION_TASK_STORE_KEY
+        from SynapseAI_extension_api import EXTENSION_TASK_STORE_KEY
 
         runtime_ctx[EXTENSION_TASK_STORE_KEY] = task_store
     # Publish the run's extension snapshot so work dispatched during graph
@@ -402,7 +402,7 @@ def _build_runtime_context(
     # built with, instead of re-reading a singleton that may have been replaced
     # mid-run. Written after the caller merge and popped when absent, because a
     # caller-supplied value for this host-internal key is never authoritative.
-    from deerflow.extensions import EXTENSION_SNAPSHOT_CONTEXT_KEY
+    from SynapseAI.extensions import EXTENSION_SNAPSHOT_CONTEXT_KEY
 
     if extensions is not None:
         runtime_ctx[EXTENSION_SNAPSHOT_CONTEXT_KEY] = extensions
@@ -439,8 +439,8 @@ def _install_runtime_context(config: dict, runtime_context: dict[str, Any]) -> N
     if isinstance(existing_context, dict):
         existing_context.setdefault("thread_id", runtime_context["thread_id"])
         existing_context.setdefault("run_id", runtime_context["run_id"])
-        if DEERFLOW_TRACE_METADATA_KEY in runtime_context:
-            existing_context.setdefault(DEERFLOW_TRACE_METADATA_KEY, runtime_context[DEERFLOW_TRACE_METADATA_KEY])
+        if SynapseAI_TRACE_METADATA_KEY in runtime_context:
+            existing_context.setdefault(SynapseAI_TRACE_METADATA_KEY, runtime_context[SynapseAI_TRACE_METADATA_KEY])
         if "app_config" in runtime_context:
             existing_context["app_config"] = runtime_context["app_config"]
         if CURRENT_RUN_PRE_EXISTING_MESSAGE_IDS_KEY in runtime_context:
@@ -504,11 +504,11 @@ class _SubagentEventBuffer:
         """Buffer one custom stream chunk; flush on a terminal event or threshold."""
         if self._event_store is None:
             return
-        # Lazy import: importing deerflow.subagents at module load triggers its
+        # Lazy import: importing SynapseAI.subagents at module load triggers its
         # package __init__ (executor → agents → tools → task_tool), which imports
-        # back from deerflow.subagents and deadlocks at gateway startup. Deferring
+        # back from SynapseAI.subagents and deadlocks at gateway startup. Deferring
         # it to call time (after all modules are loaded) breaks that cycle.
-        from deerflow.subagents.step_events import subagent_run_event
+        from SynapseAI.subagents.step_events import subagent_run_event
 
         record = subagent_run_event(chunk)
         if record is None:
@@ -559,10 +559,10 @@ async def run_agent(
     run_id = record.run_id
     thread_id = record.thread_id
 
-    from deerflow_extension_api import ExtensionData, TaskInfo
+    from SynapseAI_extension_api import ExtensionData, TaskInfo
 
-    from deerflow.extensions import get_loaded_extensions
-    from deerflow.extensions.notify import (
+    from SynapseAI.extensions import get_loaded_extensions
+    from SynapseAI.extensions.notify import (
         lead_task_id,
         lead_task_outcome,
         notify_task_start,
@@ -581,7 +581,7 @@ async def run_agent(
     llm_error_fallback_message: str | None = None
     checkpoint_rollback_completed = False
     # Message ids checkpointed *before* this run started. The stream loop uses
-    # this set to mask out ``deerflow_error_fallback`` markers that belong to
+    # this set to mask out ``SynapseAI_error_fallback`` markers that belong to
     # earlier runs on the same thread — without it, one stale fallback in
     # history would mark every subsequent run on this thread as ``error``.
     pre_existing_message_ids: set[str] = set()
@@ -660,7 +660,7 @@ async def run_agent(
         # receipt, including checkpoint validation failures and cancellation
         # while waiting for an earlier run to finish finalizing.
         if event_store is not None:
-            from deerflow.runtime.journal import RunJournal
+            from SynapseAI.runtime.journal import RunJournal
 
             journal = RunJournal(
                 run_id=run_id,
@@ -787,12 +787,12 @@ async def run_agent(
             extensions,
         )
         incoming_metadata = config.get("metadata") if isinstance(config.get("metadata"), dict) else {}
-        deerflow_trace_id = resolve_deerflow_trace_id(incoming_metadata.get(DEERFLOW_TRACE_METADATA_KEY))
-        if deerflow_trace_id:
-            runtime_ctx[DEERFLOW_TRACE_METADATA_KEY] = deerflow_trace_id
+        SynapseAI_trace_id = resolve_SynapseAI_trace_id(incoming_metadata.get(SynapseAI_TRACE_METADATA_KEY))
+        if SynapseAI_trace_id:
+            runtime_ctx[SynapseAI_TRACE_METADATA_KEY] = SynapseAI_trace_id
             if is_trace_id_from_request_header():
                 merged_metadata = dict(incoming_metadata)
-                merged_metadata[DEERFLOW_TRACE_METADATA_KEY] = deerflow_trace_id
+                merged_metadata[SynapseAI_TRACE_METADATA_KEY] = SynapseAI_trace_id
                 config["metadata"] = merged_metadata
         # Expose the run-scoped journal under a sentinel key so middleware can
         # write audit events (e.g. SafetyFinishReasonMiddleware recording
@@ -811,7 +811,7 @@ async def run_agent(
 
         # Inject Langfuse trace-attribute metadata so the langchain CallbackHandler
         # can lift session_id / user_id / trace_name / tags onto the root trace.
-        # Shared helper with ``DeerFlowClient.stream`` so both entry points stay
+        # Shared helper with ``SynapseAIClient.stream`` so both entry points stay
         # in sync; caller-provided metadata wins via setdefault inside the helper.
         inject_langfuse_metadata(
             config,
@@ -819,8 +819,8 @@ async def run_agent(
             user_id=resolve_runtime_user_id(runtime),
             assistant_id=record.assistant_id,
             model_name=record.model_name,
-            environment=os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT"),
-            deerflow_trace_id=deerflow_trace_id,
+            environment=os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT"),
+            SynapseAI_trace_id=SynapseAI_trace_id,
         )
 
         # Resolve after runtime context installation so context/configurable reflect
@@ -840,7 +840,7 @@ async def run_agent(
         agent_factory_kwargs: dict[str, Any] = {"config": initial_runnable_config}
         if ctx.app_config is not None and _agent_factory_supports_app_config(agent_factory):
             agent_factory_kwargs["app_config"] = ctx.app_config
-        from deerflow.extensions import bind_agent_build_extensions
+        from SynapseAI.extensions import bind_agent_build_extensions
 
         with bind_agent_build_extensions(extensions):
             agent = agent_factory(**agent_factory_kwargs)
@@ -1015,7 +1015,7 @@ async def run_agent(
                 evaluator_model_factory=_get_goal_evaluator_model,
                 abort_event=record.abort_event,
                 user_id=resolve_runtime_user_id(runtime),
-                deerflow_trace_id=deerflow_trace_id,
+                SynapseAI_trace_id=SynapseAI_trace_id,
                 task_store=task_store,
                 extensions=extensions,
             )
@@ -1469,7 +1469,7 @@ async def _prepare_goal_continuation_input(
     evaluator_model_factory: Any | None = None,
     abort_event: asyncio.Event | None = None,
     user_id: str | None = None,
-    deerflow_trace_id: str | None = None,
+    SynapseAI_trace_id: str | None = None,
     task_store: Any | None = None,
     extensions: Any | None = None,
 ) -> dict[str, Any] | None:
@@ -1551,7 +1551,7 @@ async def _prepare_goal_continuation_input(
             app_config=app_config,
             thread_id=thread_id,
             user_id=user_id,
-            deerflow_trace_id=deerflow_trace_id,
+            SynapseAI_trace_id=SynapseAI_trace_id,
             task_store=task_store,
             extensions=extensions,
         )
@@ -2135,7 +2135,7 @@ async def _ensure_interrupted_title(*, checkpointer: Any, thread_id: str, app_co
     Idempotent: re-invoking against a checkpoint that already carries a title
     short-circuits without writing a new checkpoint.
     """
-    from deerflow.agents.middlewares.title_middleware import TitleMiddleware
+    from SynapseAI.agents.middlewares.title_middleware import TitleMiddleware
 
     middleware = TitleMiddleware(app_config=app_config) if app_config is not None else TitleMiddleware()
     ckpt_config = {"configurable": {"thread_id": thread_id, "checkpoint_ns": ""}}
@@ -2264,12 +2264,12 @@ def _try_extract_from_message(obj: Any, pre_existing_ids: set[str] | None = None
             return None
 
     additional_kwargs = getattr(obj, "additional_kwargs", None)
-    if isinstance(additional_kwargs, dict) and additional_kwargs.get("deerflow_error_fallback"):
+    if isinstance(additional_kwargs, dict) and additional_kwargs.get("SynapseAI_error_fallback"):
         return _error_fallback_message_from_metadata(additional_kwargs, getattr(obj, "content", None))
 
     if isinstance(obj, dict):
         nested_kwargs = obj.get("additional_kwargs")
-        if isinstance(nested_kwargs, dict) and nested_kwargs.get("deerflow_error_fallback"):
+        if isinstance(nested_kwargs, dict) and nested_kwargs.get("SynapseAI_error_fallback"):
             return _error_fallback_message_from_metadata(nested_kwargs, obj.get("content"))
     return None
 

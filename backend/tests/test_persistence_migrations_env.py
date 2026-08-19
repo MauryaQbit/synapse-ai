@@ -1,7 +1,7 @@
 """Tests for the ``include_object`` filter used by ``migrations/env.py``.
 
 LangGraph checkpointer tables (``checkpoints`` and friends) live alongside
-DeerFlow's own tables in the same database. Alembic must NEVER emit DDL for
+SynapseAI's own tables in the same database. Alembic must NEVER emit DDL for
 them or a future ``alembic revision --autogenerate`` would propose
 ``drop_table('checkpoints')`` whenever LangGraph's tables are reflected from
 a live DB.
@@ -15,7 +15,7 @@ from __future__ import annotations
 
 import sqlalchemy as sa
 
-from deerflow.persistence.migrations._env_filters import (
+from SynapseAI.persistence.migrations._env_filters import (
     LANGGRAPH_OWNED_TABLES,
     include_object,
 )
@@ -35,7 +35,7 @@ def test_filter_excludes_langgraph_checkpoint_tables() -> None:
         assert include_object(_table(owned), owned, "table", True, None) is False
 
 
-def test_filter_includes_deerflow_tables() -> None:
+def test_filter_includes_SynapseAI_tables() -> None:
     for owned in ("runs", "threads_meta", "feedback", "users", "channel_connections"):
         assert include_object(_table(owned), owned, "table", True, None) is True
 
@@ -50,7 +50,7 @@ def test_filter_excludes_indexes_on_langgraph_tables() -> None:
     assert include_object(idx, idx.name, "index", True, None) is False
 
 
-def test_filter_includes_indexes_on_deerflow_tables() -> None:
+def test_filter_includes_indexes_on_SynapseAI_tables() -> None:
     md = sa.MetaData()
     parent = sa.Table("runs", md, sa.Column("run_id", sa.String, primary_key=True))
     idx = sa.Index("ix_runs_something", parent.c.run_id)
@@ -83,7 +83,7 @@ def test_env_module_wires_busy_timeout_for_sqlite() -> None:
     """
     from pathlib import Path  # noqa: PLC0415
 
-    env_path = Path(__file__).resolve().parents[1] / "packages/harness/deerflow/persistence/migrations/env.py"
+    env_path = Path(__file__).resolve().parents[1] / "packages/harness/SynapseAI/persistence/migrations/env.py"
     src = env_path.read_text(encoding="utf-8")
     assert "PRAGMA busy_timeout=30000" in src or "PRAGMA busy_timeout = 30000" in src, (
         "env.py must set busy_timeout on its alembic-spawned engine; without it, cross-process bootstrap on SQLite fails fast instead of waiting for the file lock"

@@ -1,5 +1,5 @@
-from deerflow.config.app_config import AppConfig
-from deerflow.persistence.models import ScheduledTaskRow, ScheduledTaskRunRow
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.persistence.models import ScheduledTaskRow, ScheduledTaskRunRow
 
 
 def test_app_config_exposes_scheduler_section():

@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.skills.catalog import MAX_RESULTS, SkillCatalog
-from deerflow.skills.types import Skill, SkillCategory
+from SynapseAI.skills.catalog import MAX_RESULTS, SkillCatalog
+from SynapseAI.skills.types import Skill, SkillCategory
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
 

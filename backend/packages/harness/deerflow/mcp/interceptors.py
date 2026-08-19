@@ -5,9 +5,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.mcp.oauth import build_oauth_tool_interceptor
-from deerflow.reflection import resolve_variable
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.mcp.oauth import build_oauth_tool_interceptor
+from SynapseAI.reflection import resolve_variable
 
 logger = logging.getLogger(__name__)
 

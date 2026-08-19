@@ -63,7 +63,7 @@ class RedisStreamBridge(StreamBridge):
         *,
         redis_url: str,
         queue_maxsize: int = 256,
-        key_prefix: str = "deerflow:stream_bridge",
+        key_prefix: str = "SynapseAI:stream_bridge",
         max_connections: int | None = None,
         stream_ttl_seconds: int | None = 86400,
         client: Redis | None = None,

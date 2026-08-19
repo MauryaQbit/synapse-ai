@@ -2,11 +2,11 @@ from datetime import UTC, datetime, timedelta
 
 import pytest
 
-from deerflow.config.database_config import DatabaseConfig
-from deerflow.persistence.engine import close_engine, get_session_factory, init_engine_from_config
-from deerflow.persistence.run import RunRepository
-from deerflow.persistence.scheduled_task_runs import ActiveScheduledRunConflict, ScheduledTaskRunRepository
-from deerflow.persistence.scheduled_tasks import ScheduledTaskRepository
+from SynapseAI.config.database_config import DatabaseConfig
+from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine_from_config
+from SynapseAI.persistence.run import RunRepository
+from SynapseAI.persistence.scheduled_task_runs import ActiveScheduledRunConflict, ScheduledTaskRunRepository
+from SynapseAI.persistence.scheduled_tasks import ScheduledTaskRepository
 
 
 @pytest.mark.asyncio
@@ -817,7 +817,7 @@ async def test_update_after_launch_rejects_stale_lease_owner(tmp_path, caplog):
             },
         )
 
-        with caplog.at_level("WARNING", logger="deerflow.persistence.scheduled_tasks.sql"):
+        with caplog.at_level("WARNING", logger="SynapseAI.persistence.scheduled_tasks.sql"):
             updated = await repo.update_after_launch(
                 "task-fenced",
                 status="enabled",

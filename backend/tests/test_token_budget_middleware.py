@@ -2,8 +2,8 @@ from unittest.mock import MagicMock
 
 from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-from deerflow.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
-from deerflow.config.token_budget_config import TokenBudgetConfig
+from SynapseAI.agents.middlewares.token_budget_middleware import TokenBudgetMiddleware
+from SynapseAI.config.token_budget_config import TokenBudgetConfig
 
 
 def _make_runtime(thread_id="test-thread", run_id="test-run"):

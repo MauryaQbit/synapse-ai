@@ -8,15 +8,15 @@ import threading
 
 from e2b_code_interpreter import Sandbox as E2BClientSandbox
 
-from deerflow.config.paths import VIRTUAL_PATH_PREFIX
-from deerflow.sandbox.sandbox import Sandbox, _validate_extra_env
-from deerflow.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
+from SynapseAI.config.paths import VIRTUAL_PATH_PREFIX
+from SynapseAI.sandbox.sandbox import Sandbox, _validate_extra_env
+from SynapseAI.sandbox.search import GrepMatch, path_matches, should_ignore_path, truncate_line
 
 logger = logging.getLogger(__name__)
 
 _MAX_DOWNLOAD_SIZE = 100 * 1024 * 1024  # 100 MB
 
-# Where DeerFlow's ``/mnt/user-data`` virtual prefix is materialised inside
+# Where SynapseAI's ``/mnt/user-data`` virtual prefix is materialised inside
 # the e2b sandbox.  e2b code-interpreter templates default to ``/home/user``
 # as the working directory.
 DEFAULT_E2B_HOME_DIR = "/home/user"
@@ -34,10 +34,10 @@ def _is_sandbox_gone_error(exc: BaseException) -> bool:
 
 
 class E2BSandbox(Sandbox):
-    """DeerFlow Sandbox adapter that delegates to an e2b cloud sandbox.
+    """SynapseAI Sandbox adapter that delegates to an e2b cloud sandbox.
 
     Args:
-        id: DeerFlow-side sandbox id (used as cache key in the provider).
+        id: SynapseAI-side sandbox id (used as cache key in the provider).
         client: A live ``e2b_code_interpreter.Sandbox`` (sync) instance.
             The caller owns the connection and is responsible for ``kill()``;
             this wrapper only calls ``close()`` on its host-side HTTP client
@@ -73,7 +73,7 @@ class E2BSandbox(Sandbox):
 
     @property
     def sandbox_id(self) -> str:
-        """e2b-side sandbox id (different from DeerFlow's ``self.id`` cache key)."""
+        """e2b-side sandbox id (different from SynapseAI's ``self.id`` cache key)."""
         return getattr(self._client, "sandbox_id", None) or self.id
 
     def close(self) -> None:
@@ -99,7 +99,7 @@ class E2BSandbox(Sandbox):
                 return
 
     def _resolve_path(self, path: str) -> str:
-        """Map DeerFlow virtual paths into the e2b sandbox filesystem.
+        """Map SynapseAI virtual paths into the e2b sandbox filesystem.
 
         ``VIRTUAL_PATH_PREFIX`` (``/mnt/user-data``) is rewritten under
         :attr:`home_dir`, mirroring how ``LocalContainerBackend`` bind-mounts

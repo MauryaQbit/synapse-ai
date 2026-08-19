@@ -80,7 +80,7 @@ def _running_studio_server(
                 "http": {"app": "./auth_shim.py:langgraph_app"},
                 "env": {
                     "AUTH_JWT_SECRET": "test-secret-key-for-langgraph-route-tests-min-32",
-                    "DEER_FLOW_AUTH_DISABLED": "1",
+                    "SYNAPSE_AUTH_DISABLED": "1",
                     "LANGSMITH_TRACING": "false",
                 },
             }
@@ -160,7 +160,7 @@ def _running_studio_server(
 
 @pytest.fixture(scope="module")
 def studio_client(tmp_path_factory: pytest.TempPathFactory) -> Iterator[httpx.Client]:
-    """Run the locked dev server with a tiny graph and DeerFlow's real auth."""
+    """Run the locked dev server with a tiny graph and SynapseAI's real auth."""
     runtime_dir = tmp_path_factory.mktemp("langgraph-studio-routes")
     with _running_studio_server(
         runtime_dir,

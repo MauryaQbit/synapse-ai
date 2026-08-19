@@ -1,6 +1,6 @@
 """The anchor table and the single composition entry point.
 
-This is where DeerFlow's stack shape is encoded. Two structural facts drive it:
+This is where SynapseAI's stack shape is encoded. Two structural facts drive it:
 
 * The stack is built at two nested points — `build_lead_runtime_middlewares()`
   produces the base, then `build_middlewares()` appends ~18 lead-specific
@@ -14,9 +14,9 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from deerflow_extension_api import AgentBuildContext, AgentScope, Placement
+from SynapseAI_extension_api import AgentBuildContext, AgentScope, Placement
 
-from deerflow.extensions.anchors import (
+from SynapseAI.extensions.anchors import (
     PlacementAnchor,
     inner_of_last,
     inner_of_last_after,
@@ -25,16 +25,16 @@ from deerflow.extensions.anchors import (
     outer_of_last,
     outermost,
 )
-from deerflow.extensions.injection import inject_middlewares
-from deerflow.extensions.ordering import assert_ordering
-from deerflow.extensions.registry import LoadedExtensions
+from SynapseAI.extensions.injection import inject_middlewares
+from SynapseAI.extensions.ordering import assert_ordering
+from SynapseAI.extensions.registry import LoadedExtensions
 
 
 def _anchors() -> dict[Placement, PlacementAnchor]:
-    from deerflow.agents.middlewares.clarification_middleware import ClarificationMiddleware
-    from deerflow.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
-    from deerflow.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
-    from deerflow.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
+    from SynapseAI.agents.middlewares.clarification_middleware import ClarificationMiddleware
+    from SynapseAI.agents.middlewares.llm_error_handling_middleware import LLMErrorHandlingMiddleware
+    from SynapseAI.agents.middlewares.safety_finish_reason_middleware import SafetyFinishReasonMiddleware
+    from SynapseAI.agents.middlewares.terminal_response_middleware import TerminalResponseMiddleware
 
     return {
         # Outer of the retry loop, so one logical decision stays one event even
@@ -121,7 +121,7 @@ def _placement_anchors_for_scope(scope: AgentScope) -> dict[Placement, Placement
     if scope != AgentScope.SUBAGENT:
         return PLACEMENT_ANCHORS
 
-    from deerflow.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
+    from SynapseAI.agents.middlewares.system_message_coalescing_middleware import SystemMessageCoalescingMiddleware
 
     anchors = PLACEMENT_ANCHORS.snapshot()
     anchors[Placement.MODEL_PHYSICAL] = PlacementAnchor.of(
@@ -143,7 +143,7 @@ def compose_with_extensions(
     base builder would place MODEL_PHYSICAL contributions above the ~18
     lead-specific middlewares appended afterwards.
     """
-    from deerflow.extensions import get_agent_build_extensions, record_runtime_diagnostic
+    from SynapseAI.extensions import get_agent_build_extensions, record_runtime_diagnostic
 
     resolved = extensions if extensions is not None else get_agent_build_extensions()
 
@@ -172,7 +172,7 @@ def compose_with_extensions(
 def _record_diagnostics(diagnostics) -> None:
     """Diagnostics raised while building a stack are logged by their producers;
     this hook exists so the Gateway can also surface them on app.state."""
-    from deerflow.extensions import record_runtime_diagnostics
+    from SynapseAI.extensions import record_runtime_diagnostics
 
     record_runtime_diagnostics(diagnostics)
 

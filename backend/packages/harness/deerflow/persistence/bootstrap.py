@@ -1,4 +1,4 @@
-"""Hybrid schema bootstrap for DeerFlow's application tables.
+"""Hybrid schema bootstrap for SynapseAI's application tables.
 
 Replaces the unconditional ``Base.metadata.create_all`` at Gateway startup.
 Combines two ideas:
@@ -15,12 +15,12 @@ Three-branch decision (see ``_decide_state``)
 
 | DB state                              | Action                                  |
 |---------------------------------------|-----------------------------------------|
-| empty (no DeerFlow tables)            | ``create_all`` + ``alembic stamp head`` |
-| legacy (DeerFlow tables, no alembic)  | ``create_all`` (baseline tables only, as backfill) + ``stamp 0001_baseline`` + ``upgrade head`` |
+| empty (no SynapseAI tables)            | ``create_all`` + ``alembic stamp head`` |
+| legacy (SynapseAI tables, no alembic)  | ``create_all`` (baseline tables only, as backfill) + ``stamp 0001_baseline`` + ``upgrade head`` |
 | versioned (``alembic_version`` row)   | ``alembic upgrade head``                |
 
 The legacy branch handles pre-alembic databases that already have at least one
-DeerFlow-owned table. ``create_all`` runs first because stamping at
+SynapseAI-owned table. ``create_all`` runs first because stamping at
 ``0001_baseline`` makes alembic skip the baseline's own ``create_table`` DDL on
 the subsequent upgrade -- so any baseline table introduced into
 ``Base.metadata`` after the user's DB was first provisioned (e.g. the
@@ -241,7 +241,7 @@ def _get_alembic_config(engine: AsyncEngine, *, postgres_schema: str = "") -> Al
     depend on a working-directory-relative file lookup. The ``script_location``
     is anchored at the package path on disk.
 
-    When *postgres_schema* is set it is forwarded as the ``deerflow_pg_schema``
+    When *postgres_schema* is set it is forwarded as the ``SynapseAI_pg_schema``
     main option so ``env.py`` can pin its alembic-spawned engine's
     ``search_path`` to the same schema the app engine uses. Without it,
     alembic's own engine -- built from the bare URL -- would create
@@ -252,7 +252,7 @@ def _get_alembic_config(engine: AsyncEngine, *, postgres_schema: str = "") -> Al
     cfg.set_main_option("script_location", str(_MIGRATIONS_DIR))
     cfg.set_main_option("sqlalchemy.url", _alembic_safe_url(engine))
     if postgres_schema:
-        cfg.set_main_option("deerflow_pg_schema", postgres_schema)
+        cfg.set_main_option("SynapseAI_pg_schema", postgres_schema)
     return cfg
 
 
@@ -274,26 +274,26 @@ def _reflect_state(sync_conn: Any) -> dict[str, bool]:
     """Inspect *sync_conn* (sync connection inside ``run_sync``) and return:
 
     - ``has_alembic_version``: bool
-    - ``has_deerflow_tables``: True iff at least one table that ``Base.metadata``
+    - ``has_SynapseAI_tables``: True iff at least one table that ``Base.metadata``
       knows about is present in the DB. Computed as ``reflected ∩ metadata`` so
       the bootstrap layer never hardcodes a specific table or column name --
       adding a new ORM model only changes ``Base.metadata``, not this module.
     """
-    from deerflow.persistence.base import Base
+    from SynapseAI.persistence.base import Base
 
     # Make sure every ORM model is imported, otherwise ``Base.metadata.tables``
     # may miss tables registered by submodules that haven't been imported yet.
     try:
-        import deerflow.persistence.models  # noqa: F401
+        import SynapseAI.persistence.models  # noqa: F401
     except ImportError:
-        logger.debug("deerflow.persistence.models not found; metadata may be incomplete")
+        logger.debug("SynapseAI.persistence.models not found; metadata may be incomplete")
 
     insp = sa_inspect(sync_conn)
     reflected = set(insp.get_table_names())
     metadata_tables = set(Base.metadata.tables)
     return {
         "has_alembic_version": "alembic_version" in reflected,
-        "has_deerflow_tables": bool(reflected & metadata_tables),
+        "has_SynapseAI_tables": bool(reflected & metadata_tables),
     }
 
 
@@ -307,7 +307,7 @@ def _decide_state(state: dict[str, bool]) -> str:
     """
     if state["has_alembic_version"]:
         return "versioned"
-    if not state["has_deerflow_tables"]:
+    if not state["has_SynapseAI_tables"]:
         # Either a brand-new DB or a DB containing only tables we don't own
         # (e.g. LangGraph's checkpointer tables on a fresh deployment). The
         # empty branch provisions the tables alembic owns, then stamps head.
@@ -316,14 +316,14 @@ def _decide_state(state: dict[str, bool]) -> str:
 
 
 def _run_create_all_sync(sync_conn: Any) -> None:
-    """Create all DeerFlow-owned tables on *sync_conn*."""
+    """Create all SynapseAI-owned tables on *sync_conn*."""
     # Import here to ensure all model classes are registered with Base.metadata.
-    from deerflow.persistence.base import Base
+    from SynapseAI.persistence.base import Base
 
     try:
-        import deerflow.persistence.models  # noqa: F401
+        import SynapseAI.persistence.models  # noqa: F401
     except ImportError:
-        logger.debug("deerflow.persistence.models not found; bootstrap will create empty schema")
+        logger.debug("SynapseAI.persistence.models not found; bootstrap will create empty schema")
 
     Base.metadata.create_all(sync_conn)
 
@@ -337,12 +337,12 @@ def _run_baseline_create_all_sync(sync_conn: Any) -> None:
     tables introduced by later revisions, which would then collide with
     those revisions' ``op.create_table`` calls when alembic ran upgrade.
     """
-    from deerflow.persistence.base import Base
+    from SynapseAI.persistence.base import Base
 
     try:
-        import deerflow.persistence.models  # noqa: F401
+        import SynapseAI.persistence.models  # noqa: F401
     except ImportError:
-        logger.debug("deerflow.persistence.models not found; baseline backfill may be incomplete")
+        logger.debug("SynapseAI.persistence.models not found; baseline backfill may be incomplete")
 
     baseline_tables = [Base.metadata.tables[name] for name in _BASELINE_TABLE_NAMES if name in Base.metadata.tables]
     Base.metadata.create_all(sync_conn, tables=baseline_tables, checkfirst=True)
@@ -453,7 +453,7 @@ async def _sqlite_lock(engine: AsyncEngine):
     Why not a cross-process OS file lock? It would work, but it adds a hard
     dependency on platform-specific ``fcntl`` / ``msvcrt`` calls for a
     deployment shape (multi-process SQLite) that's already discouraged for
-    DeerFlow. The 30s ``busy_timeout`` plus idempotent revisions cover the
+    SynapseAI. The 30s ``busy_timeout`` plus idempotent revisions cover the
     realistic case; truly multi-instance deployments should use Postgres.
 
     Note: the 30s ``busy_timeout`` is set by the engine event hooks in

@@ -5,7 +5,7 @@ from datetime import UTC, datetime
 from sqlalchemy import JSON, DateTime, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column
 
-from deerflow.persistence.base import Base
+from SynapseAI.persistence.base import Base
 
 
 class ScheduledTaskRow(Base):

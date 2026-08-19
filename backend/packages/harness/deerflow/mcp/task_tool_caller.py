@@ -8,12 +8,12 @@ from collections.abc import Mapping
 from datetime import timedelta
 from typing import Any
 
-from deerflow.config.extensions_config import ExtensionsConfig
-from deerflow.config.paths import get_paths
-from deerflow.mcp.client import build_server_params
-from deerflow.mcp.interceptors import build_mcp_tool_interceptors
-from deerflow.mcp.oauth import OAuthTokenManager, build_oauth_tool_interceptor
-from deerflow.mcp.session_pool import get_session_pool
+from SynapseAI.config.extensions_config import ExtensionsConfig
+from SynapseAI.config.paths import get_paths
+from SynapseAI.mcp.client import build_server_params
+from SynapseAI.mcp.interceptors import build_mcp_tool_interceptors
+from SynapseAI.mcp.oauth import OAuthTokenManager, build_oauth_tool_interceptor
+from SynapseAI.mcp.session_pool import get_session_pool
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ Combines the existing thread-local filesystem cleanup with LangGraph
 Platform-compatible thread management backed by the checkpointer.
 
 Channel values returned in state responses are serialized through
-:func:`deerflow.runtime.serialization.serialize_channel_values` to
+:func:`SynapseAI.runtime.serialization.serialize_channel_values` to
 ensure LangChain message objects are converted to JSON-safe dicts
 matching the LangGraph Platform wire format expected by the
 ``useStream`` React hook.
@@ -42,34 +42,34 @@ from app.gateway.services import (
     reserve_checkpoint_write,
 )
 from app.gateway.utils import sanitize_log_param
-from deerflow.agents.thread_state import THREAD_STATE_REDUCER_FIELDS
-from deerflow.config.paths import Paths, get_paths
-from deerflow.config.summarization_config import ContextSize
-from deerflow.persistence.thread_meta import THREAD_PINNED_METADATA_KEY
-from deerflow.runtime import serialize_channel_values_for_api
-from deerflow.runtime.checkpoint_mode import CheckpointModeMismatchError, CheckpointModeReconfigurationError
-from deerflow.runtime.checkpoint_state import graph_reducer_channels, graph_state_schema, graph_writable_channels
-from deerflow.runtime.context_compaction import (
+from SynapseAI.agents.thread_state import THREAD_STATE_REDUCER_FIELDS
+from SynapseAI.config.paths import Paths, get_paths
+from SynapseAI.config.summarization_config import ContextSize
+from SynapseAI.persistence.thread_meta import THREAD_PINNED_METADATA_KEY
+from SynapseAI.runtime import serialize_channel_values_for_api
+from SynapseAI.runtime.checkpoint_mode import CheckpointModeMismatchError, CheckpointModeReconfigurationError
+from SynapseAI.runtime.checkpoint_state import graph_reducer_channels, graph_state_schema, graph_writable_channels
+from SynapseAI.runtime.context_compaction import (
     ContextCompactionDisabled,
     ContextCompactionFailed,
     ThreadCompactionResult,
     compact_thread_context,
 )
-from deerflow.runtime.goal import (
+from SynapseAI.runtime.goal import (
     DEFAULT_MAX_GOAL_CONTINUATIONS,
     build_goal_state,
     ensure_thread_checkpoint,
     read_thread_goal,
     write_thread_goal,
 )
-from deerflow.runtime.journal import build_branch_history_seed_events
-from deerflow.runtime.runs.manager import ConflictError
-from deerflow.runtime.runs.worker import valid_duration_entry
-from deerflow.runtime.secret_context import redact_metadata_secrets
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.utils.file_io import run_file_io
-from deerflow.utils.thread_id import ThreadId, resolve_thread_id, validate_thread_id
-from deerflow.utils.time import coerce_iso, now_iso
+from SynapseAI.runtime.journal import build_branch_history_seed_events
+from SynapseAI.runtime.runs.manager import ConflictError
+from SynapseAI.runtime.runs.worker import valid_duration_entry
+from SynapseAI.runtime.secret_context import redact_metadata_secrets
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.utils.file_io import run_file_io
+from SynapseAI.utils.thread_id import ThreadId, resolve_thread_id, validate_thread_id
+from SynapseAI.utils.time import coerce_iso, now_iso
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/threads", tags=["threads"])
@@ -98,8 +98,8 @@ def _checkpoint_mode_http_error(exc: Exception, thread_id: str) -> HTTPException
 # row-level invariant is still ``threads_meta.user_id`` populated from
 # the auth contextvar; this list closes the metadata-blob echo gap.
 _SERVER_RESERVED_METADATA_KEYS: frozenset[str] = frozenset({"owner_id", "user_id"})
-_SIDECAR_METADATA_KEY = "deerflow_sidecar"
-_BRANCH_METADATA_KEY = "deerflow_branch"
+_SIDECAR_METADATA_KEY = "SynapseAI_sidecar"
+_BRANCH_METADATA_KEY = "SynapseAI_branch"
 # Thread-scoped runtime channels a branch must NOT inherit from its parent:
 # ``sandbox.sandbox_id`` binds path mappings and the release lifecycle to the
 # *parent* thread, so copying it would make the branch read/write the parent's
@@ -394,11 +394,11 @@ class ThreadSearchRequest(BaseModel):
         """Reject filter entries the SQL backend cannot compile.
 
         Enforces consistent behaviour across SQL and memory backends.
-        See ``deerflow.persistence.json_compat`` for the shared validators.
+        See ``SynapseAI.persistence.json_compat`` for the shared validators.
         """
         if not v:
             return v
-        from deerflow.persistence.json_compat import validate_metadata_filter_key, validate_metadata_filter_value
+        from SynapseAI.persistence.json_compat import validate_metadata_filter_key, validate_metadata_filter_value
 
         bad_entries: list[str] = []
         for key, value in v.items():
@@ -622,7 +622,7 @@ async def _ensure_thread_for_goal(thread_id: str, request: Request) -> None:
 async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteResponse:
     """Delete local persisted filesystem data for a thread.
 
-    Cleans DeerFlow-managed thread directories, removes checkpoint data,
+    Cleans SynapseAI-managed thread directories, removes checkpoint data,
     and removes the thread_meta row from the configured ThreadMetaStore
     (sqlite or memory).
     """
@@ -662,7 +662,7 @@ async def delete_thread_data(thread_id: str, request: Request) -> ThreadDeleteRe
     # by thread_id, so leaving one alive after the owner deletes the thread lets
     # a later caller who guesses the id reuse the retained page/cookies.
     try:
-        from deerflow.community.browser_automation import get_browser_session_manager
+        from SynapseAI.community.browser_automation import get_browser_session_manager
 
         await get_browser_session_manager().close_session(thread_id)
     except ImportError:
@@ -957,7 +957,7 @@ async def search_threads(body: ThreadSearchRequest, request: Request) -> list[Th
     (SQL-backed for sqlite/postgres, Store-backed for memory mode).
     """
     from app.gateway.deps import get_thread_store
-    from deerflow.persistence.thread_meta import InvalidMetadataFilterError
+    from SynapseAI.persistence.thread_meta import InvalidMetadataFilterError
 
     repo = get_thread_store(request)
     try:
@@ -1415,7 +1415,7 @@ async def get_thread_history(
                         if missing_run_ids:
                             from app.gateway.deps import get_run_event_store, get_run_manager
                             from app.gateway.routers.thread_runs import compute_run_durations
-                            from deerflow.runtime.runs.worker import persist_run_durations
+                            from SynapseAI.runtime.runs.worker import persist_run_durations
 
                             run_mgr = get_run_manager(request)
                             event_store = get_run_event_store(request)

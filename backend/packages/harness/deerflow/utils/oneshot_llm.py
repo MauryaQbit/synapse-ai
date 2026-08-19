@@ -19,15 +19,15 @@ import os
 
 from langchain_core.messages import HumanMessage, SystemMessage
 
-from deerflow.config.app_config import AppConfig
-from deerflow.models import create_chat_model
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.tracing import inject_langfuse_metadata
-from deerflow.utils.llm_text import extract_response_text
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.models import create_chat_model
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.tracing import inject_langfuse_metadata
+from SynapseAI.utils.llm_text import extract_response_text
 
 
 def _resolve_environment() -> str | None:
-    return os.environ.get("DEER_FLOW_ENV") or os.environ.get("ENVIRONMENT")
+    return os.environ.get("SYNAPSE_ENV") or os.environ.get("ENVIRONMENT")
 
 
 async def run_oneshot_llm(

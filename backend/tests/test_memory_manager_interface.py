@@ -18,9 +18,9 @@ import asyncio
 import pytest
 from pydantic import PrivateAttr
 
-from deerflow.agents.memory import MemoryManager, get_memory_manager, reset_memory_manager
-from deerflow.agents.memory.manager import MemoryCallbacks
-from deerflow.config.memory_config import MemoryConfig, get_memory_config, set_memory_config
+from SynapseAI.agents.memory import MemoryManager, get_memory_manager, reset_memory_manager
+from SynapseAI.agents.memory.manager import MemoryCallbacks
+from SynapseAI.config.memory_config import MemoryConfig, get_memory_config, set_memory_config
 
 
 class _MinimalBackend(MemoryManager):

@@ -21,9 +21,9 @@ import logging
 
 from langchain.tools import tool
 
-from deerflow.agents.memory.manager import get_memory_manager
-from deerflow.runtime.user_context import resolve_runtime_user_id
-from deerflow.tools.types import Runtime
+from SynapseAI.agents.memory.manager import get_memory_manager
+from SynapseAI.runtime.user_context import resolve_runtime_user_id
+from SynapseAI.tools.types import Runtime
 
 logger = logging.getLogger(__name__)
 

@@ -11,14 +11,14 @@ from types import SimpleNamespace
 import pytest
 
 from app.gateway.auth_disabled import AUTH_SOURCE_INTERNAL
-from deerflow.config.app_config import AppConfig, reset_app_config, set_app_config
-from deerflow.runtime.events.store.memory import MemoryRunEventStore
+from SynapseAI.config.app_config import AppConfig, reset_app_config, set_app_config
+from SynapseAI.runtime.events.store.memory import MemoryRunEventStore
 
 
 @pytest.fixture
 def _stub_app_config():
     """Keep run-context tests independent from a developer-local config.yaml."""
-    set_app_config(AppConfig.model_validate({"sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"}}))
+    set_app_config(AppConfig.model_validate({"sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"}}))
     yield
     reset_app_config()
 
@@ -27,7 +27,7 @@ def _make_start_run_request(run_manager, *, thread_store=None, auth_source=None)
     from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.store.memory import InMemoryStore
 
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
 
     store = InMemoryStore()
     return SimpleNamespace(
@@ -91,7 +91,7 @@ def test_format_sse_no_event_id():
 async def test_sse_consumer_emits_gap_without_cancelling_run():
     """A replay gap is a recovery boundary, not a client disconnect."""
     from app.gateway.services import sse_consumer
-    from deerflow.runtime import DisconnectMode, MemoryStreamBridge, RunManager, RunStatus
+    from SynapseAI.runtime import DisconnectMode, MemoryStreamBridge, RunManager, RunStatus
 
     bridge = MemoryStreamBridge(queue_maxsize=2)
     run_manager = RunManager()
@@ -199,7 +199,7 @@ def test_normalize_stream_modes_rejects_unsupported_modes(raw):
     ],
 )
 def test_to_langgraph_stream_modes_maps_alias_and_deduplicates(raw, expected):
-    from deerflow.runtime.stream_modes import to_langgraph_stream_modes
+    from SynapseAI.runtime.stream_modes import to_langgraph_stream_modes
 
     assert to_langgraph_stream_modes(raw) == expected
 
@@ -264,7 +264,7 @@ def test_normalize_input_preserves_additional_kwargs_and_id():
 )
 def test_normalize_input_strips_external_original_user_content(forged_original):
     from app.gateway.services import normalize_input
-    from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+    from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
     result = normalize_input(
         {
@@ -287,7 +287,7 @@ def test_normalize_input_strips_external_original_user_content(forged_original):
 def test_normalize_input_strips_external_dynamic_context_metadata():
     """External callers cannot mark their own messages as server-injected context."""
     from app.gateway.services import normalize_input
-    from deerflow.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
+    from SynapseAI.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
 
     result = normalize_input(
         {
@@ -313,7 +313,7 @@ def test_normalize_input_strips_external_dynamic_context_metadata():
 
 def test_normalize_input_strips_external_view_image_context_marker():
     from app.gateway.services import normalize_input
-    from deerflow.agents.middlewares.view_image_middleware import _IMAGE_CONTEXT_MESSAGE_MARKER_KEY
+    from SynapseAI.agents.middlewares.view_image_middleware import _IMAGE_CONTEXT_MESSAGE_MARKER_KEY
 
     result = normalize_input(
         {
@@ -338,8 +338,8 @@ def test_normalize_input_strips_external_view_image_context_marker():
 
 def test_normalize_input_preserves_trusted_internal_original_user_content():
     from app.gateway.services import normalize_input
-    from deerflow.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
-    from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+    from SynapseAI.agents.middlewares.dynamic_context_middleware import _DYNAMIC_CONTEXT_REMINDER_KEY, _REMINDER_DATE_KEY
+    from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
     result = normalize_input(
         {
@@ -487,7 +487,7 @@ def test_build_run_config_route_thread_id_overrides_client_configurable():
 @pytest.mark.parametrize("section", ["configurable", "context"])
 def test_build_run_config_strips_external_checkpoint_mode_override(section):
     from app.gateway.services import build_run_config
-    from deerflow.runtime.checkpoint_mode import INTERNAL_CHECKPOINT_MODE_KEY
+    from SynapseAI.runtime.checkpoint_mode import INTERNAL_CHECKPOINT_MODE_KEY
 
     config = build_run_config(
         "thread-1",
@@ -531,9 +531,9 @@ def test_build_run_config_clamps_excessive_recursion_limit(_stub_app_config):
 def test_build_run_config_ceiling_is_configurable(_stub_app_config):
     """The clamp ceiling comes from AppConfig.max_recursion_limit, not a hardcoded value."""
     from app.gateway.services import build_run_config
-    from deerflow.config.app_config import AppConfig, reset_app_config, set_app_config
+    from SynapseAI.config.app_config import AppConfig, reset_app_config, set_app_config
 
-    set_app_config(AppConfig.model_validate({"sandbox": {"use": "deerflow.sandbox.local:LocalSandboxProvider"}, "max_recursion_limit": 300}))
+    set_app_config(AppConfig.model_validate({"sandbox": {"use": "SynapseAI.sandbox.local:LocalSandboxProvider"}, "max_recursion_limit": 300}))
     try:
         config = build_run_config("thread-1", {"recursion_limit": 100_000_000}, None)
         assert config["recursion_limit"] == 300
@@ -649,7 +649,7 @@ def test_build_run_config_context_custom_agent_injects_agent_name():
 def test_resolve_agent_factory_returns_make_lead_agent():
     """resolve_agent_factory always returns make_lead_agent regardless of assistant_id."""
     from app.gateway.services import resolve_agent_factory
-    from deerflow.agents.lead_agent.agent import make_lead_agent
+    from SynapseAI.agents.lead_agent.agent import make_lead_agent
 
     assert resolve_agent_factory(None) is make_lead_agent
     assert resolve_agent_factory("lead_agent") is make_lead_agent
@@ -670,8 +670,8 @@ def test_build_checkpoint_state_accessor_uses_frozen_mode_and_binds_runtime_pers
     from unittest.mock import patch
 
     from app.gateway.services import build_checkpoint_state_accessor
-    from deerflow.config.app_config import get_app_config
-    from deerflow.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY, INTERNAL_CHECKPOINT_MODE_KEY
+    from SynapseAI.config.app_config import get_app_config
+    from SynapseAI.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY, INTERNAL_CHECKPOINT_MODE_KEY
 
     class FakeGraph:
         checkpointer = None
@@ -1070,7 +1070,7 @@ async def test_checkpoint_history_seed_guard_tolerates_missing_user_context():
     from unittest.mock import AsyncMock
 
     from app.gateway.services import ensure_checkpoint_history_seeded
-    from deerflow.runtime.user_context import AUTO, _AutoSentinel
+    from SynapseAI.runtime.user_context import AUTO, _AutoSentinel
 
     captured: dict[str, object] = {}
 
@@ -1111,7 +1111,7 @@ async def test_checkpoint_history_seed_guard_is_thread_scoped_under_user_context
     from unittest.mock import AsyncMock, patch
 
     from app.gateway.services import ensure_checkpoint_history_seeded
-    from deerflow.runtime.user_context import AUTO
+    from SynapseAI.runtime.user_context import AUTO
 
     captured: dict[str, object] = {}
 
@@ -1148,9 +1148,9 @@ async def test_checkpoint_history_seed_runs_exactly_once_across_principals(tmp_p
     from langchain_core.messages import AIMessage, HumanMessage
 
     from app.gateway.services import ensure_checkpoint_history_seeded
-    from deerflow.persistence.engine import close_engine, get_session_factory, init_engine
-    from deerflow.runtime.events.store.db import DbRunEventStore
-    from deerflow.runtime.user_context import reset_current_user, set_current_user
+    from SynapseAI.persistence.engine import close_engine, get_session_factory, init_engine
+    from SynapseAI.runtime.events.store.db import DbRunEventStore
+    from SynapseAI.runtime.user_context import reset_current_user, set_current_user
 
     url = f"sqlite+aiosqlite:///{tmp_path / 'events.db'}"
     await init_engine("sqlite", url=url, sqlite_dir=str(tmp_path))
@@ -1235,8 +1235,8 @@ async def test_start_run_checkpoint_validation_failure_does_not_admit_run(_stub_
     from fastapi import HTTPException
 
     from app.gateway.services import start_run
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     thread_id = "thread-invalid-checkpoint"
     run_store = MemoryRunStore()
@@ -1261,8 +1261,8 @@ async def test_pending_cancel_bypasses_thread_metadata_and_logs_failure(_stub_ap
     from unittest.mock import AsyncMock, patch
 
     from app.gateway.services import start_run
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     metadata_started = asyncio.Event()
 
@@ -1307,10 +1307,10 @@ async def test_thread_metadata_timeout_logs_and_run_still_starts(_stub_app_confi
 
     import app.gateway.services as services
     from app.gateway.services import start_run
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.manager import RunStartOutcome
-    from deerflow.runtime.runs.schemas import RunStatus
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.manager import RunStartOutcome
+    from SynapseAI.runtime.runs.schemas import RunStatus
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     metadata_started = asyncio.Event()
     run_agent_called = asyncio.Event()
@@ -1625,9 +1625,9 @@ async def _capture_start_run_graph_input(body, *, auth_source=None):
     from langgraph.store.memory import InMemoryStore
 
     from app.gateway.services import start_run
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     run_manager = RunManager(store=MemoryRunStore())
     state = SimpleNamespace(
@@ -1665,9 +1665,9 @@ def _make_start_run_persistence_context():
     from langgraph.checkpoint.memory import InMemorySaver
     from langgraph.store.memory import InMemoryStore
 
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     run_store = MemoryRunStore()
     thread_store = MemoryThreadMetaStore(InMemoryStore())
@@ -1853,7 +1853,7 @@ def test_start_run_strips_external_original_user_content(_stub_app_config):
     import asyncio
 
     from app.gateway.routers.thread_runs import RunCreateRequest
-    from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+    from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
     graph_input = asyncio.run(
         _capture_start_run_graph_input(
@@ -1880,7 +1880,7 @@ def test_start_run_preserves_internal_original_user_content(_stub_app_config):
 
     from app.gateway.auth_disabled import AUTH_SOURCE_INTERNAL
     from app.gateway.routers.thread_runs import RunCreateRequest
-    from deerflow.utils.messages import ORIGINAL_USER_CONTENT_KEY
+    from SynapseAI.utils.messages import ORIGINAL_USER_CONTENT_KEY
 
     graph_input = asyncio.run(
         _capture_start_run_graph_input(
@@ -1914,10 +1914,10 @@ def test_start_run_uses_internal_owner_header_for_persistence(_stub_app_config):
     from app.gateway.auth_disabled import AUTH_SOURCE_INTERNAL
     from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME, INTERNAL_SYSTEM_ROLE
     from app.gateway.services import start_run
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
-    from deerflow.runtime.user_context import get_effective_user_id
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.runtime.user_context import get_effective_user_id
 
     async def _scenario():
         run_store = MemoryRunStore()
@@ -1995,9 +1995,9 @@ def test_start_run_stamps_internal_owner_guardrail_attribution(_stub_app_config)
     from app.gateway.auth_disabled import AUTH_SOURCE_INTERNAL
     from app.gateway.internal_auth import INTERNAL_OWNER_USER_ID_HEADER_NAME, INTERNAL_SYSTEM_ROLE
     from app.gateway.services import start_run
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     class _Provider:
         async def get_user(self, user_id: str):
@@ -2087,9 +2087,9 @@ def test_start_run_session_caller_anti_forgery(_stub_app_config):
     from langgraph.store.memory import InMemoryStore
 
     from app.gateway.services import start_run
-    from deerflow.persistence.thread_meta.memory import MemoryThreadMetaStore
-    from deerflow.runtime import RunManager
-    from deerflow.runtime.runs.store.memory import MemoryRunStore
+    from SynapseAI.persistence.thread_meta.memory import MemoryThreadMetaStore
+    from SynapseAI.runtime import RunManager
+    from SynapseAI.runtime.runs.store.memory import MemoryRunStore
 
     async def _scenario():
         thread_store = MemoryThreadMetaStore(InMemoryStore())
@@ -2534,9 +2534,9 @@ async def test_run_agent_invalid_stream_mode_finalizes_run_before_graph_invocati
     from types import SimpleNamespace
     from unittest.mock import AsyncMock, MagicMock
 
-    from deerflow.runtime.runs.manager import RunManager
-    from deerflow.runtime.runs.schemas import RunStatus
-    from deerflow.runtime.runs.worker import RunContext, run_agent
+    from SynapseAI.runtime.runs.manager import RunManager
+    from SynapseAI.runtime.runs.schemas import RunStatus
+    from SynapseAI.runtime.runs.worker import RunContext, run_agent
 
     run_manager = RunManager()
     record = await run_manager.create("thread-invalid-stream-mode")
@@ -2582,13 +2582,13 @@ async def test_run_agent_full_mode_rejects_delta_before_graph_invocation():
     from types import SimpleNamespace
     from unittest.mock import AsyncMock, MagicMock
 
-    from deerflow.runtime.checkpoint_mode import (
+    from SynapseAI.runtime.checkpoint_mode import (
         CHECKPOINT_MODE_METADATA_KEY,
         INTERNAL_CHECKPOINT_MODE_KEY,
     )
-    from deerflow.runtime.runs.manager import RunRecord, RunStartOutcome
-    from deerflow.runtime.runs.schemas import DisconnectMode, RunStatus
-    from deerflow.runtime.runs.worker import RunContext, run_agent
+    from SynapseAI.runtime.runs.manager import RunRecord, RunStartOutcome
+    from SynapseAI.runtime.runs.schemas import DisconnectMode, RunStatus
+    from SynapseAI.runtime.runs.worker import RunContext, run_agent
 
     checkpointer = AsyncMock()
     checkpointer.aget_tuple.return_value = SimpleNamespace(
@@ -2658,10 +2658,10 @@ async def test_run_agent_full_mode_checks_selected_checkpoint_before_graph():
     from types import SimpleNamespace
     from unittest.mock import AsyncMock, MagicMock, call
 
-    from deerflow.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY
-    from deerflow.runtime.runs.manager import RunRecord, RunStartOutcome
-    from deerflow.runtime.runs.schemas import DisconnectMode, RunStatus
-    from deerflow.runtime.runs.worker import RunContext, run_agent
+    from SynapseAI.runtime.checkpoint_mode import CHECKPOINT_MODE_METADATA_KEY
+    from SynapseAI.runtime.runs.manager import RunRecord, RunStartOutcome
+    from SynapseAI.runtime.runs.schemas import DisconnectMode, RunStatus
+    from SynapseAI.runtime.runs.worker import RunContext, run_agent
 
     checkpointer = AsyncMock()
     checkpointer.aget_tuple.side_effect = [

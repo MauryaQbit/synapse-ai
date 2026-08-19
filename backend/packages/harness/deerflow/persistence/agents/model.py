@@ -1,7 +1,7 @@
 """ORM model for custom agent definitions.
 
 One row per ``(user_id, name)`` custom agent. ``config`` holds the full
-:class:`~deerflow.config.agents_config.AgentConfig` document *minus* ``name``
+:class:`~SynapseAI.config.agents_config.AgentConfig` document *minus* ``name``
 (which is the natural key, carried by the ``name`` column). Storing the config
 as a single JSON document — rather than a column per field — is deliberate: the
 codebase already declares, via ``preserve_non_managed_fields``, that any field
@@ -18,7 +18,7 @@ from datetime import UTC, datetime
 from sqlalchemy import JSON, DateTime, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
-from deerflow.persistence.base import Base
+from SynapseAI.persistence.base import Base
 
 
 class AgentRow(Base):

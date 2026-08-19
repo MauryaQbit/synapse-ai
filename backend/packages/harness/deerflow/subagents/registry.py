@@ -4,16 +4,16 @@ import logging
 from dataclasses import replace
 from typing import Any
 
-from deerflow.sandbox.security import is_host_bash_allowed
-from deerflow.subagents.builtins import BUILTIN_SUBAGENTS
-from deerflow.subagents.config import SubagentConfig
+from SynapseAI.sandbox.security import is_host_bash_allowed
+from SynapseAI.subagents.builtins import BUILTIN_SUBAGENTS
+from SynapseAI.subagents.config import SubagentConfig
 
 logger = logging.getLogger(__name__)
 
 
 def _resolve_subagents_app_config(app_config: Any | None = None):
     if app_config is None:
-        from deerflow.config.subagents_config import get_subagents_app_config
+        from SynapseAI.config.subagents_config import get_subagents_app_config
 
         return get_subagents_app_config()
     return getattr(app_config, "subagents", app_config)

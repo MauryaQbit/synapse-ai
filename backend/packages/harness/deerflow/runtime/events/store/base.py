@@ -14,7 +14,7 @@ from __future__ import annotations
 
 import abc
 
-from deerflow.runtime.user_context import AUTO, _AutoSentinel
+from SynapseAI.runtime.user_context import AUTO, _AutoSentinel
 
 
 class RunEventStore(abc.ABC):

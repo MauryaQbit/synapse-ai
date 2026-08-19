@@ -2,8 +2,8 @@
 
 from rich.console import Console
 
-from deerflow.tui.command_registry import build_registry
-from deerflow.tui.render import render_palette
+from SynapseAI.tui.command_registry import build_registry
+from SynapseAI.tui.render import render_palette
 
 
 def _text(renderable) -> str:

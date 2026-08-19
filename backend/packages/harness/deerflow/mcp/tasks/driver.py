@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Protocol
 
-from deerflow.mcp.tasks.models import TaskReference, TaskSnapshot, TaskSubmission, TaskSubmitRequest
+from SynapseAI.mcp.tasks.models import TaskReference, TaskSnapshot, TaskSubmission, TaskSubmitRequest
 
 
 class McpTaskDriver(Protocol):

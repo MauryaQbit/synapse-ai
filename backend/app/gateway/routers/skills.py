@@ -9,9 +9,9 @@ from pydantic import BaseModel, Field
 
 from app.gateway.deps import get_config, require_admin_user
 from app.gateway.path_utils import resolve_thread_virtual_path
-from deerflow.agents.lead_agent.prompt import clear_skills_system_prompt_cache, refresh_skills_system_prompt_cache_async, refresh_user_skills_system_prompt_cache_async
-from deerflow.config.app_config import AppConfig
-from deerflow.config.extensions_config import (
+from SynapseAI.agents.lead_agent.prompt import clear_skills_system_prompt_cache, refresh_skills_system_prompt_cache_async, refresh_user_skills_system_prompt_cache_async
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.config.extensions_config import (
     ExtensionsConfig,
     SkillStateConfig,
     atomic_write_extensions_config,
@@ -19,19 +19,19 @@ from deerflow.config.extensions_config import (
     get_extensions_config,
     reload_extensions_config,
 )
-from deerflow.runtime.user_context import get_effective_user_id
-from deerflow.skills import Skill
-from deerflow.skills.installer import SkillAlreadyExistsError, SkillSecurityScanError
-from deerflow.skills.security_scanner import scan_skill_content
-from deerflow.skills.security_static_scanner import (
+from SynapseAI.runtime.user_context import get_effective_user_id
+from SynapseAI.skills import Skill
+from SynapseAI.skills.installer import SkillAlreadyExistsError, SkillSecurityScanError
+from SynapseAI.skills.security_scanner import scan_skill_content
+from SynapseAI.skills.security_static_scanner import (
     StaticFinding,
     StaticScanBlockedError,
     StaticScannerError,
     enforce_static_scan,
 )
-from deerflow.skills.storage import SkillStorage, get_or_new_user_skill_storage
-from deerflow.skills.types import SKILL_MD_FILE, SkillCategory
-from deerflow.utils.thread_id import ThreadId
+from SynapseAI.skills.storage import SkillStorage, get_or_new_user_skill_storage
+from SynapseAI.skills.types import SKILL_MD_FILE, SkillCategory
+from SynapseAI.utils.thread_id import ThreadId
 
 logger = logging.getLogger(__name__)
 
@@ -447,8 +447,8 @@ def _write_extensions_skill_state(
     """
     from contextlib import nullcontext
 
-    from deerflow.skills.projection import skill_projection_mutation
-    from deerflow.skills.storage.local_skill_storage import LocalSkillStorage
+    from SynapseAI.skills.projection import skill_projection_mutation
+    from SynapseAI.skills.storage.local_skill_storage import LocalSkillStorage
 
     removal_names = (skill_name,) if not enabled else ()
     projection_update = skill_projection_mutation(storage, "public", remove_names=removal_names) if rebuild_public_projection and isinstance(storage, LocalSkillStorage) else nullcontext()
@@ -512,7 +512,7 @@ async def update_skill(skill_name: str, body: SkillUpdateRequest, request: Reque
             )
         else:
             # CUSTOM / LEGACY: write per-user state
-            from deerflow.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
+            from SynapseAI.skills.storage.user_scoped_skill_storage import UserScopedSkillStorage
 
             if isinstance(storage, UserScopedSkillStorage):
                 await asyncio.to_thread(storage.set_skill_enabled_state, skill_name, body.enabled)

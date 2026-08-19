@@ -12,7 +12,7 @@ SynapseAI is a simplified AI agent orchestration platform built on LangGraph. It
 - **Nginx** (port 2026): Unified reverse proxy entry point
 
 **Key Principles**:
-1. **Simplicity First**: Reduced complexity from DeerFlow's 42 middlewares to 15 essential ones
+1. **Simplicity First**: Reduced complexity from SynapseAI's 42 middlewares to 15 essential ones
 2. **Developer Experience**: Clean APIs, minimal configuration
 3. **Modular Design**: Easy to extend and customize
 4. **Production Ready**: Built-in security, monitoring, and scaling
@@ -158,4 +158,4 @@ See `config.yaml` for all options. Key sections:
 
 MIT License - see LICENSE file for details.
 
-**Attribution**: This project is based on DeerFlow by ByteDance, used under MIT License.
+**Attribution**: This project is based on SynapseAI by ByteDance, used under MIT License.

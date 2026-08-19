@@ -1,8 +1,8 @@
-"""Tests for DeerFlowClient's graph-root tracing wiring.
+"""Tests for SynapseAIClient's graph-root tracing wiring.
 
 Regression coverage for the Copilot review on PR #2944: when the title
 and summarization middlewares request ``attach_tracing=False`` we must
-make sure ``DeerFlowClient`` injects the tracing callbacks at the graph
+make sure ``SynapseAIClient`` injects the tracing callbacks at the graph
 invocation root instead, otherwise those middlewares produce untraced
 LLM calls.
 """
@@ -14,9 +14,9 @@ from typing import Any
 
 import pytest
 
-from deerflow.client import DeerFlowClient
-from deerflow.config.authorization_config import AuthorizationConfig
-from deerflow.trace_context import DEERFLOW_TRACE_METADATA_KEY, request_trace_context
+from SynapseAI.client import SynapseAIClient
+from SynapseAI.config.authorization_config import AuthorizationConfig
+from SynapseAI.trace_context import SynapseAI_TRACE_METADATA_KEY, request_trace_context
 
 
 class _FakeAgent:
@@ -34,7 +34,7 @@ class _FakeAgent:
 
 @pytest.fixture(autouse=True)
 def _clear_langfuse_env(monkeypatch):
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     for name in ("LANGFUSE_TRACING", "LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_BASE_URL"):
         monkeypatch.delenv(name, raising=False)
@@ -56,16 +56,16 @@ def _stub_agent_creation(monkeypatch, fake_agent: _FakeAgent) -> dict[str, Any]:
         self._agent = fake_agent
         self._agent_config_key = ("stub",)
 
-    monkeypatch.setattr(DeerFlowClient, "_ensure_agent", _stub_ensure_agent)
+    monkeypatch.setattr(SynapseAIClient, "_ensure_agent", _stub_ensure_agent)
     return captured
 
 
-def _make_client(_monkeypatch, *, enhance_enabled: bool = True) -> DeerFlowClient:
+def _make_client(_monkeypatch, *, enhance_enabled: bool = True) -> SynapseAIClient:
     """Build a client without going through ``__init__`` so we never load
     config.yaml or perform any other side-effectful startup work.
 
     ``enhance_enabled`` seeds the ``logging.enhance.enabled`` flag that
-    :func:`DeerFlowClient.stream` consults to gate request-trace binding
+    :func:`SynapseAIClient.stream` consults to gate request-trace binding
     (mirrors the Gateway ``TraceMiddleware`` startup snapshot).
     """
     fake_app_config = SimpleNamespace(
@@ -73,7 +73,7 @@ def _make_client(_monkeypatch, *, enhance_enabled: bool = True) -> DeerFlowClien
         logging=SimpleNamespace(enhance=SimpleNamespace(enabled=enhance_enabled)),
         authorization=AuthorizationConfig(enabled=False),
     )
-    client = DeerFlowClient.__new__(DeerFlowClient)
+    client = SynapseAIClient.__new__(SynapseAIClient)
     client._app_config = fake_app_config
     client._checkpoint_channel_mode = "full"
     client._extensions_config = None
@@ -95,7 +95,7 @@ def test_stream_injects_langfuse_metadata_when_enabled(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
 
@@ -103,7 +103,7 @@ def test_stream_injects_langfuse_metadata_when_enabled(monkeypatch):
         pass
 
     sentinel = _SentinelHandler()
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [sentinel])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [sentinel])
 
     fake_agent = _FakeAgent()
     captured = _stub_agent_creation(monkeypatch, fake_agent)
@@ -115,7 +115,7 @@ def test_stream_injects_langfuse_metadata_when_enabled(monkeypatch):
     metadata = config.get("metadata") or {}
     assert metadata.get("langfuse_session_id") == "thread-client-1"
     assert metadata.get("langfuse_trace_name") == "lead-agent"
-    assert metadata.get(DEERFLOW_TRACE_METADATA_KEY)
+    assert metadata.get(SynapseAI_TRACE_METADATA_KEY)
     # Default no-auth context falls back to ``"default"`` user.
     assert metadata.get("langfuse_user_id") in {"default", "test-user-autouse"}
     callbacks = config.get("callbacks") or []
@@ -123,7 +123,7 @@ def test_stream_injects_langfuse_metadata_when_enabled(monkeypatch):
 
 
 def test_stream_is_inert_when_langfuse_disabled(monkeypatch):
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     fake_agent = _FakeAgent()
     captured = _stub_agent_creation(monkeypatch, fake_agent)
@@ -142,10 +142,10 @@ def test_stream_preserves_caller_metadata_overrides(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     fake_agent = _FakeAgent()
     captured = _stub_agent_creation(monkeypatch, fake_agent)
@@ -153,43 +153,43 @@ def test_stream_preserves_caller_metadata_overrides(monkeypatch):
 
     # Drive stream with a pre-populated metadata so the worker-equivalent
     # ``setdefault`` semantics are exercised.
-    original_get_config = DeerFlowClient._get_runnable_config
+    original_get_config = SynapseAIClient._get_runnable_config
 
     def patched_get_runnable_config(self, thread_id, **overrides):
         cfg = original_get_config(self, thread_id, **overrides)
         cfg["metadata"] = {
-            DEERFLOW_TRACE_METADATA_KEY: "explicit-client-trace",
+            SynapseAI_TRACE_METADATA_KEY: "explicit-client-trace",
             "langfuse_session_id": "explicit-session-override",
             "langfuse_user_id": "explicit-user",
         }
         return cfg
 
-    monkeypatch.setattr(DeerFlowClient, "_get_runnable_config", patched_get_runnable_config)
+    monkeypatch.setattr(SynapseAIClient, "_get_runnable_config", patched_get_runnable_config)
     with request_trace_context("client-trace-3"):
         list(client.stream("hi", thread_id="thread-client-3"))
 
     metadata = captured["config"].get("metadata") or {}
     assert metadata["langfuse_session_id"] == "explicit-session-override"
     assert metadata["langfuse_user_id"] == "explicit-user"
-    assert metadata[DEERFLOW_TRACE_METADATA_KEY] == "explicit-client-trace"
+    assert metadata[SynapseAI_TRACE_METADATA_KEY] == "explicit-client-trace"
     # ``trace_name`` was not supplied by caller so the worker still fills it.
     assert metadata["langfuse_trace_name"] == "lead-agent"
 
 
-def test_stream_omits_deerflow_trace_id_when_enhance_disabled(monkeypatch):
+def test_stream_omits_SynapseAI_trace_id_when_enhance_disabled(monkeypatch):
     """With ``logging.enhance.enabled=false`` the embedded client must not
     forge a fresh request trace id. Otherwise embedded / TUI callers on the
-    default config would silently gain a new indexed ``deerflow_trace_id``
+    default config would silently gain a new indexed ``SynapseAI_trace_id``
     key on every Langfuse trace they emit — the exact schema change the
     enhancement flag exists to opt into.
     """
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     fake_agent = _FakeAgent()
     captured = _stub_agent_creation(monkeypatch, fake_agent)
@@ -203,7 +203,7 @@ def test_stream_omits_deerflow_trace_id_when_enhance_disabled(monkeypatch):
     assert metadata.get("langfuse_session_id") == "thread-client-disabled"
     assert metadata.get("langfuse_trace_name") == "lead-agent"
     # The gated key stays out of metadata.
-    assert DEERFLOW_TRACE_METADATA_KEY not in metadata
+    assert SynapseAI_TRACE_METADATA_KEY not in metadata
 
 
 def test_stream_respects_caller_bound_trace_when_enhance_disabled(monkeypatch):
@@ -214,10 +214,10 @@ def test_stream_respects_caller_bound_trace_when_enhance_disabled(monkeypatch):
     monkeypatch.setenv("LANGFUSE_TRACING", "true")
     monkeypatch.setenv("LANGFUSE_PUBLIC_KEY", "pk-lf-test")
     monkeypatch.setenv("LANGFUSE_SECRET_KEY", "sk-lf-test")
-    from deerflow.config.tracing_config import reset_tracing_config
+    from SynapseAI.config.tracing_config import reset_tracing_config
 
     reset_tracing_config()
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     fake_agent = _FakeAgent()
     captured = _stub_agent_creation(monkeypatch, fake_agent)
@@ -227,7 +227,7 @@ def test_stream_respects_caller_bound_trace_when_enhance_disabled(monkeypatch):
         list(client.stream("hi", thread_id="thread-client-opt-in"))
 
     metadata = captured["config"].get("metadata") or {}
-    assert metadata.get(DEERFLOW_TRACE_METADATA_KEY) == "caller-opt-in"
+    assert metadata.get(SynapseAI_TRACE_METADATA_KEY) == "caller-opt-in"
 
 
 def test_stream_does_not_leak_trace_id_to_caller_context_between_yields(monkeypatch):
@@ -241,7 +241,7 @@ def test_stream_does_not_leak_trace_id_to_caller_context_between_yields(monkeypa
     state. Per-step set/reset keeps the caller's context clean at every
     yield boundary.
     """
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     class _TwoEventAgent:
         def __init__(self) -> None:
@@ -255,7 +255,7 @@ def test_stream_does_not_leak_trace_id_to_caller_context_between_yields(monkeypa
     _stub_agent_creation(monkeypatch, _TwoEventAgent())
     client = _make_client(monkeypatch, enhance_enabled=True)
 
-    from deerflow.trace_context import get_current_trace_id
+    from SynapseAI.trace_context import get_current_trace_id
 
     # Caller's context starts with no trace id bound.
     assert get_current_trace_id() is None
@@ -283,7 +283,7 @@ def test_stream_abandoned_generator_close_does_not_raise_cross_context(monkeypat
     with a cross-context reset. Per-step set/reset never leaves a Token
     outstanding across yield boundaries.
     """
-    monkeypatch.setattr("deerflow.client.build_tracing_callbacks", lambda: [])
+    monkeypatch.setattr("SynapseAI.client.build_tracing_callbacks", lambda: [])
 
     class _InfiniteAgent:
         def __init__(self) -> None:

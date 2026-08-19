@@ -19,9 +19,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from deerflow.agents.thread_state import get_thread_state_schema
-from deerflow.config.database_config import CheckpointChannelMode
-from deerflow.runtime.checkpoint_mode import (
+from SynapseAI.agents.thread_state import get_thread_state_schema
+from SynapseAI.config.database_config import CheckpointChannelMode
+from SynapseAI.runtime.checkpoint_mode import (
     aensure_checkpoint_mode_compatible,
     ensure_checkpoint_mode_compatible,
     inject_checkpoint_mode,

@@ -1,6 +1,6 @@
 """Tests for the slash-command registry (pure)."""
 
-from deerflow.tui.command_registry import (
+from SynapseAI.tui.command_registry import (
     BUILTIN_COMMANDS,
     build_registry,
     filter_commands,

@@ -5,10 +5,10 @@ from typing import TYPE_CHECKING
 
 from langchain.agents.middleware import AgentMiddleware
 
-from deerflow.reflection import resolve_class
+from SynapseAI.reflection import resolve_class
 
 if TYPE_CHECKING:
-    from deerflow.config.app_config import AppConfig
+    from SynapseAI.config.app_config import AppConfig
 
 logger = logging.getLogger(__name__)
 

@@ -9,13 +9,13 @@ import os
 from collections.abc import AsyncIterator
 from typing import Any
 
-from deerflow.config.app_config import AppConfig
-from deerflow.runtime.checkpoint_cache.base import CACHE_FORMAT_VERSION, CheckpointHistoryCache
-from deerflow.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
+from SynapseAI.config.app_config import AppConfig
+from SynapseAI.runtime.checkpoint_cache.base import CACHE_FORMAT_VERSION, CheckpointHistoryCache
+from SynapseAI.runtime.checkpoint_cache.memory import MemoryCheckpointHistoryCache
 
 logger = logging.getLogger(__name__)
 
-_ENV_REDIS_URL = "DEER_FLOW_CHECKPOINT_CACHE_REDIS_URL"
+_ENV_REDIS_URL = "SYNAPSE_CHECKPOINT_CACHE_REDIS_URL"
 
 
 def _resolve_redis_url(config: Any) -> str:
@@ -84,7 +84,7 @@ async def make_checkpoint_cache(
         return
 
     if config.type == "redis":
-        from deerflow.runtime.checkpoint_cache.redis import RedisCheckpointHistoryCache
+        from SynapseAI.runtime.checkpoint_cache.redis import RedisCheckpointHistoryCache
 
         cache = RedisCheckpointHistoryCache(
             _resolve_redis_url(config),

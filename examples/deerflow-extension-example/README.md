@@ -1,8 +1,8 @@
-# DeerFlow extension example
+# SynapseAI extension example
 
-This directory is a compact, standalone Python package showing all five DeerFlow
+This directory is a compact, standalone Python package showing all five SynapseAI
 extension contribution kinds. It depends on the public
-`deerflow-extension-api` contract and never imports `deerflow.*` or `app.*`.
+`SynapseAI-extension-api` contract and never imports `SynapseAI.*` or `app.*`.
 
 The contract package intentionally has no framework dependencies. An extension
 must therefore declare every framework it imports itself; this example explicitly
@@ -14,7 +14,7 @@ depends on FastAPI, LangChain, and LangGraph in `pyproject.toml`.
 | --- | --- |
 | Middleware | Counts tool calls through one `TOOL_VISIBLE` middleware for lead agents and subagents |
 | Task lifecycle | Creates task-scoped stats on start and folds them into app scope on stop |
-| System-model observer | Counts DeerFlow-owned model calls, including failures |
+| System-model observer | Counts SynapseAI-owned model calls, including failures |
 | Service | Binds `ExtensionRuntimeDeps` only while the Gateway is running |
 | Router | Eagerly declares `GET /api/extension-example/stats` during `install()` |
 
@@ -26,11 +26,11 @@ topology stable while runtime capabilities arrive later.
 
 ## Run the package tests
 
-`deerflow-extension-api` is currently sourced from this checkout. Install it
+`SynapseAI-extension-api` is currently sourced from this checkout. Install it
 first, then install this independent package:
 
 ```bash
-cd examples/deerflow-extension-example
+cd examples/SynapseAI-extension-example
 uv venv --python 3.12
 uv pip install -e ../../backend/packages/extension-api
 uv pip install -e ".[dev]"
@@ -40,23 +40,23 @@ uv run --no-project ruff format --check .
 ```
 
 The tests use only the public contract plus this package's declared dependencies;
-the DeerFlow harness and Gateway application are not imported.
+the SynapseAI harness and Gateway application are not imported.
 
-## Install and load it in DeerFlow
+## Install and load it in SynapseAI
 
-From the DeerFlow checkout root, install this directory through the extension
+From the SynapseAI checkout root, install this directory through the extension
 manager. Use an absolute path because the Make wrapper invokes the manager from
 `backend/`:
 
 ```bash
-make extension-install SOURCE="$PWD/examples/deerflow-extension-example"
+make extension-install SOURCE="$PWD/examples/SynapseAI-extension-example"
 make extension-list
 ```
 
 After the trust prompt is accepted, the manager:
 
 - copies a deployable snapshot to
-  `backend/extensions/sources/deerflow-extension-example/`;
+  `backend/extensions/sources/SynapseAI-extension-example/`;
 - adds that snapshot to `backend/pyproject.toml`'s `extensions` dependency
   group and updates `backend/uv.lock`;
 - installs the locked environment; and
@@ -65,14 +65,14 @@ After the trust prompt is accepted, the manager:
 ```yaml
 plugins:
   - name: example
-    package: deerflow-extension-example
-    use: deerflow_extension_example:install
+    package: SynapseAI-extension-example
+    use: SynapseAI_extension_example:install
     enabled: true
     required: false
     config: {}
 ```
 
-Start or restart DeerFlow after installation:
+Start or restart SynapseAI after installation:
 
 ```bash
 make dev
@@ -93,11 +93,11 @@ URL. SSH Git URLs are rejected because the stock Docker builder does not
 forward host SSH credentials. The direct CLI surface, run from `backend/`, is:
 
 ```text
-uv run --frozen --no-group extensions deerflow extensions install <source> [--yes] [--required]
-uv run --frozen --no-group extensions deerflow extensions list
-uv run --frozen --no-group extensions deerflow extensions enable <name>
-uv run --frozen --no-group extensions deerflow extensions disable <name>
-uv run --frozen --no-group extensions deerflow extensions remove <name>
+uv run --frozen --no-group extensions SynapseAI extensions install <source> [--yes] [--required]
+uv run --frozen --no-group extensions SynapseAI extensions list
+uv run --frozen --no-group extensions SynapseAI extensions enable <name>
+uv run --frozen --no-group extensions SynapseAI extensions disable <name>
+uv run --frozen --no-group extensions SynapseAI extensions remove <name>
 ```
 
 `--yes` is intended only for automation that has already reviewed and trusted
@@ -126,11 +126,11 @@ authenticated browser session when authentication is enabled.
 ## Packaging entry point
 
 Managed packages expose exactly one standard PEP 621 entry point in the
-`deerflow.extensions` group. This example declares:
+`SynapseAI.extensions` group. This example declares:
 
 ```toml
-[project.entry-points."deerflow.extensions"]
-example = "deerflow_extension_example:install"
+[project.entry-points."SynapseAI.extensions"]
+example = "SynapseAI_extension_example:install"
 ```
 
 The entry-point name (`example`) is the stable operator-facing name accepted by
@@ -140,7 +140,7 @@ name or the `module:install` value.
 ## Package layout
 
 ```text
-deerflow_extension_example/
+SynapseAI_extension_example/
 ├── __init__.py  # version-stamped install() entry point
 └── plugin.py    # state plus all five small contribution implementations
 tests/

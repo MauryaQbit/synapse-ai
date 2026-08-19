@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from deerflow.config import extensions_config as extensions_config_module
-from deerflow.config.extensions_config import atomic_write_extensions_config
+from SynapseAI.config import extensions_config as extensions_config_module
+from SynapseAI.config.extensions_config import atomic_write_extensions_config
 
 
 def _temporary_files_for(path: Path) -> list[Path]:

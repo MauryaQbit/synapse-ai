@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Core Features
 
-- **Simplified Architecture**: Reduced from DeerFlow's 42 middlewares to 15 essential components
+- **Simplified Architecture**: Reduced from SynapseAI's 42 middlewares to 15 essential components
 - **Developer-Friendly Configuration**: Single `config.yaml` with ~200 lines instead of 1100+ line YAML
 - **Clean Project Structure**: Reorganized for better maintainability
 
@@ -64,9 +64,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Architecture Overview**: System design and component descriptions
 - **Contributing Guidelines**: Clear contribution workflow
 
-### Improved Over DeerFlow
+### Improved Over SynapseAI
 
-| Aspect | DeerFlow 2.1.0 | SynapseAI 1.0.0 |
+| Aspect | SynapseAI 2.1.0 | SynapseAI 1.0.0 |
 |--------|----------------|-----------------|
 | Configuration | 46 modules, 1100+ lines | Single file, ~200 lines |
 | Middlewares | 42 components | 15 essential components |
@@ -87,10 +87,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Credits
 
-This project is a derivative work based on [DeerFlow](https://github.com/bytedance/deer-flow) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
+This project is a derivative work based on [SynapseAI](https://github.com/bytedance/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
 
 ---
 
-## Previous DeerFlow Versions
+## Previous SynapseAI Versions
 
-For the original DeerFlow changelog, see [DeerFlow CHANGELOG.md](https://github.com/bytedance/deer-flow/blob/main/CHANGELOG.md).
+For the original SynapseAI changelog, see [SynapseAI CHANGELOG.md](https://github.com/bytedance/synapse-ai/blob/main/CHANGELOG.md).

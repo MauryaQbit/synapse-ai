@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from deerflow.authz.provider import (
+from SynapseAI.authz.provider import (
     AuthzDecision,
     AuthzReason,
     AuthzRequest,

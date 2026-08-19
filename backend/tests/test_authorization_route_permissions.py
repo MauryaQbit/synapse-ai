@@ -16,9 +16,9 @@ from app.gateway.authz import (
     require_permission,
     resolve_route_permissions,
 )
-from deerflow.authz.provider import AuthzDecision, AuthzReason
-from deerflow.authz.rbac import RbacAuthorizationProvider
-from deerflow.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
+from SynapseAI.authz.provider import AuthzDecision, AuthzReason
+from SynapseAI.authz.rbac import RbacAuthorizationProvider
+from SynapseAI.config.authorization_config import AuthorizationConfig, AuthorizationProviderConfig
 
 
 class _RecordingProvider:
@@ -241,7 +241,7 @@ def _make_middleware_app() -> FastAPI:
 
 
 def test_auth_middleware_stamps_provider_derived_permissions(monkeypatch):
-    monkeypatch.setenv("DEER_FLOW_AUTH_DISABLED", "1")
+    monkeypatch.setenv("SYNAPSE_AUTH_DISABLED", "1")
     permission_resolver = AsyncMock(return_value=[Permissions.THREADS_READ])
     monkeypatch.setattr("app.gateway.auth_middleware.resolve_route_permissions", permission_resolver)
 
@@ -287,7 +287,7 @@ class TestRouteProviderCache:
         config = AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"routes": {"allow": "*"}}}},
             ),
         )
@@ -308,14 +308,14 @@ class TestRouteProviderCache:
         config1 = AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"routes": {"allow": "*"}}}},
             ),
         )
         config2 = AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"routes": {"allow": []}}}},
             ),
         )
@@ -337,7 +337,7 @@ class TestRouteProviderCache:
         config1 = AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"routes": {"allow": "*"}}}},
             ),
         )
@@ -345,7 +345,7 @@ class TestRouteProviderCache:
         config2 = AuthorizationConfig(
             enabled=True,
             provider=AuthorizationProviderConfig(
-                use="deerflow.authz.rbac:RbacAuthorizationProvider",
+                use="SynapseAI.authz.rbac:RbacAuthorizationProvider",
                 config={"roles": {"user": {"routes": {"allow": "*"}}}},
             ),
         )

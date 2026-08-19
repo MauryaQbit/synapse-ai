@@ -12,14 +12,14 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Any
 
-from deerflow_extension_api import (
+from SynapseAI_extension_api import (
     ExtensionData,
     ExtensionService,
     MiddlewareContributor,
     SystemModelCallObserver,
     TaskLifecycleContributor,
 )
-from deerflow_extension_api import ExtensionRegistry as ExtensionRegistryContract
+from SynapseAI_extension_api import ExtensionRegistry as ExtensionRegistryContract
 
 _Entry = tuple[str, Any]
 
