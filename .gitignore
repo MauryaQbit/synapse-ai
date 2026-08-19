@@ -1,7 +1,7 @@
-# DeerFlow docker image cache
-docker/.cache/
-# oh-my-claudecode state
-.omc/
+# SynapseAI
+.synapse/
+.deer-flow/
+
 # OS generated files
 .DS_Store
 *.local
@@ -20,18 +20,11 @@ __pycache__/
 .venv
 venv/
 
-# Benchmark outputs
-bench_results.jsonl
-bench_optimized.jsonl
-results.jsonl
-backend/scripts/benchmark/*.jsonl
-
 # Environment variables
 .env
 
 # Configuration files
 config.yaml
-mcp_config.json
 extensions_config.json
 
 # IDE
@@ -41,31 +34,26 @@ extensions_config.json
 # Coverage report
 coverage.xml
 coverage/
-.deer-flow/
-.claude/
-skills/custom/*
+
+# Frontend
+frontend/.next/
+frontend/node_modules/
+frontend/.turbo/
+
+# Backend
+backend/.deer-flow/
+backend/sandbox/
+backend/__pycache__/
+
+# Docker
+docker/.cache/
+
+# Logs
 logs/
 log/
 debug.log
 
-# Local git hooks (keep only on this machine, do not push)
-.githooks/
-
-# pnpm
-.pnpm-store
-sandbox_image_cache.tar
-
-# ignore the legacy `web` folder
-web/
-
-# Deployment artifacts
-backend/Dockerfile.langgraph
-config.yaml.bak
-.playwright-mcp
-/frontend/test-results/
-/frontend/playwright-report/
-.gstack/
-.worktrees
-
-# Monocle agent-observability trace output (local file exporter)
-.monocle/
+# Temporary files
+*.tmp
+*.temp
+.cache/

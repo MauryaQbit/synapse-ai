@@ -1,7 +1,8 @@
 MIT License
 
-Copyright (c) 2025 Bytedance Ltd. and/or its affiliates
-Copyright (c) 2025-2026 DeerFlow Authors
+Copyright (c) 2025-2026 SynapseAI Contributors
+Copyright (c) 2025-2026 DeerFlow Authors (Original Work)
+Copyright (c) 2025 Bytedance Ltd. and/or its affiliates (Original Work)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -20,3 +21,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+ATTRIBUTION NOTICE:
+
+This project is a derivative work based on DeerFlow (https://github.com/bytedance/deer-flow)
+by ByteDance, used under the MIT License. The original work has been substantially modified
+and redesigned as SynapseAI. We acknowledge and感谢 the original authors for their
+contributions to the open-source AI agent community.
