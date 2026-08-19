@@ -77,7 +77,7 @@ test.describe("Localized documentation links", () => {
       page.getByRole("link", { name: "Edit this page" }),
     ).toHaveAttribute(
       "href",
-      "https://github.com/bytedance/synapse-ai/tree/main/frontend/src/content/en/application/quick-start.mdx",
+      "https://github.com/MauryaQbit/synapse-ai/tree/main/frontend/src/content/en/application/quick-start.mdx",
     );
   });
 });

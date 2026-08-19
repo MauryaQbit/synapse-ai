@@ -313,7 +313,7 @@ sequenceDiagram
 
 ## 为什么这个设计容易出 bug，以及测试策略
 
-本文档的直接起因是 bytedance/synapse-ai#1969：`SynapseAIClient.stream()` 原本只订阅 `["values", "custom"]`，**漏了 `"messages"`**。结果 `client.stream("hello")` 等价于一次性返回，视觉上和 `chat()` 没区别。
+本文档的直接起因是 MauryaQbit/synapse-ai#1969：`SynapseAIClient.stream()` 原本只订阅 `["values", "custom"]`，**漏了 `"messages"`**。结果 `client.stream("hello")` 等价于一次性返回，视觉上和 `chat()` 没区别。
 
 Custom 事件还有一条独立回归边界：`get_stream_writer()` 产生的 chunk 不会自动成为 `astream_events(version="v2")` 的 `on_custom_event`，而 callback dispatch 也不会自动进入 `stream_mode="custom"`。测试必须使用真实最小 LangGraph 同时锁定两种 API，断言每个消费者各收到一次且 payload 相同；仅 mock 任一函数无法证明协议互操作。
 

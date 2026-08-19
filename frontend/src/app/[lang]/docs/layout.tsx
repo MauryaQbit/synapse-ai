@@ -30,7 +30,7 @@ export default async function DocLayout({ children, params }) {
         />
       }
       pageMap={pageMap}
-      docsRepositoryBase="https://github.com/bytedance/synapse-ai/tree/main/frontend"
+      docsRepositoryBase="https://github.com/MauryaQbit/synapse-ai/tree/main/frontend"
       footer={<Footer className="mt-0" />}
       i18n={i18n}
       // ... Your additional layout options

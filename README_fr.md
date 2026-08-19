@@ -14,7 +14,7 @@ SynapseAI (**D**eep **E**xploration and **E**fficient **R**esearch **Flow**) est
 https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 > [!NOTE]
-> **SynapseAI 2.0 est une réécriture complète.** Il ne partage aucun code avec la v1. Si vous cherchez le framework Deep Research original, il est maintenu sur la [branche `1.x`](https://github.com/bytedance/synapse-ai/tree/main-1.x) — les contributions y sont toujours les bienvenues. Le développement actif a migré vers la 2.0.
+> **SynapseAI 2.0 est une réécriture complète.** Il ne partage aucun code avec la v1. Si vous cherchez le framework Deep Research original, il est maintenu sur la [branche `1.x`](https://github.com/MauryaQbit/synapse-ai/tree/main-1.x) — les contributions y sont toujours les bienvenues. Le développement actif a migré vers la 2.0.
 
 ## Site officiel
 
@@ -90,7 +90,7 @@ SynapseAI intègre désormais le toolkit de recherche et de crawling intelligent
 Si vous utilisez Claude Code, Codex, Cursor, Windsurf ou un autre coding agent, vous pouvez simplement lui envoyer cette phrase :
 
 ```text
-Aide-moi à cloner SynapseAI si nécessaire, puis à initialiser son environnement de développement local en suivant https://raw.githubusercontent.com/bytedance/synapse-ai/main/Install.md
+Aide-moi à cloner SynapseAI si nécessaire, puis à initialiser son environnement de développement local en suivant https://raw.githubusercontent.com/MauryaQbit/synapse-ai/main/Install.md
 ```
 
 Ce prompt est destiné aux coding agents. Il leur demande de cloner le dépôt si nécessaire, de privilégier Docker quand il est disponible, puis de s'arrêter avec la commande exacte pour lancer SynapseAI et la liste des configurations encore manquantes.
@@ -102,7 +102,7 @@ Ce prompt est destiné aux coding agents. Il leur demande de cloner le dépôt s
 1. **Cloner le dépôt SynapseAI**
 
    ```bash
-   git clone https://github.com/bytedance/synapse-ai.git
+   git clone https://github.com/MauryaQbit/synapse-ai.git
    cd synapse-ai
    ```
 
@@ -561,7 +561,7 @@ Le skill `claude-to-SynapseAI` vous permet d'interagir avec une instance Synapse
 **Installer le skill** :
 
 ```bash
-npx skills add https://github.com/bytedance/synapse-ai --skill claude-to-SynapseAI
+npx skills add https://github.com/MauryaQbit/synapse-ai --skill claude-to-SynapseAI
 ```
 
 Assurez-vous ensuite que SynapseAI tourne (par défaut sur `http://localhost:2026`) et utilisez la commande `/claude-to-SynapseAI` dans Claude Code.
@@ -775,4 +775,4 @@ Votre engagement sans faille et votre expertise sont le moteur du succès de Syn
 
 ## Star History
 
-[![Star History Chart](https://star-history.dera.page/svg?repos=bytedance/synapse-ai&type=Date)](https://star-history.dera.page/#bytedance/synapse-ai&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=MauryaQbit/synapse-ai&type=Date)](https://star-history.dera.page/#MauryaQbit/synapse-ai&Date)

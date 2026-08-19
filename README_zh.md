@@ -14,7 +14,7 @@ SynapseAI（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）�
 https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 > [!NOTE]
-> **SynapseAI 2.0 是一次彻底重写。** 它和 v1 没有共用代码。如果你要找的是最初的 Deep Research 框架，可以前往 [`1.x` 分支](https://github.com/bytedance/synapse-ai/tree/main-1.x)。那里仍然欢迎贡献；当前的主要开发已经转向 2.0。
+> **SynapseAI 2.0 是一次彻底重写。** 它和 v1 没有共用代码。如果你要找的是最初的 Deep Research 框架，可以前往 [`1.x` 分支](https://github.com/MauryaQbit/synapse-ai/tree/main-1.x)。那里仍然欢迎贡献；当前的主要开发已经转向 2.0。
 
 ## 官网
 
@@ -90,7 +90,7 @@ SynapseAI 新近集成了 BytePlus 自研的智能搜索与抓取工具集——
 如果你在用 Claude Code、Codex、Cursor、Windsurf 或其他 coding agent，可以直接把下面这句话发给它：
 
 ```text
-如果还没 clone SynapseAI，就先 clone，然后按照 https://raw.githubusercontent.com/bytedance/synapse-ai/main/Install.md 把它的本地开发环境初始化好
+如果还没 clone SynapseAI，就先 clone，然后按照 https://raw.githubusercontent.com/MauryaQbit/synapse-ai/main/Install.md 把它的本地开发环境初始化好
 ```
 
 这条提示词是给 coding agent 用的。它会在需要时先 clone 仓库，优先选择 Docker，完成初始化，并在结束时告诉你下一条启动命令，以及还缺哪些配置需要你补充。
@@ -102,7 +102,7 @@ SynapseAI 新近集成了 BytePlus 自研的智能搜索与抓取工具集——
 1. **克隆 SynapseAI 仓库**
 
    ```bash
-   git clone https://github.com/bytedance/synapse-ai.git
+   git clone https://github.com/MauryaQbit/synapse-ai.git
    cd synapse-ai
    ```
 
@@ -594,7 +594,7 @@ Web UI 支持从已完成的 assistant 回复分叉出一个新的主对话。�
 **安装这个 skill：**
 
 ```bash
-npx skills add https://github.com/bytedance/synapse-ai --skill claude-to-SynapseAI
+npx skills add https://github.com/MauryaQbit/synapse-ai --skill claude-to-SynapseAI
 ```
 
 然后确认 SynapseAI 已经启动（默认地址是 `http://localhost:2026`），在 Claude Code 里使用 `/claude-to-SynapseAI` 命令即可。
@@ -814,4 +814,4 @@ SynapseAI 建立在开源社区大量优秀工作的基础上。所有让 Synaps
 
 ## Star History
 
-[![Star History Chart](https://star-history.dera.page/svg?repos=bytedance/synapse-ai&type=Date)](https://star-history.dera.page/#bytedance/synapse-ai&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=MauryaQbit/synapse-ai&type=Date)](https://star-history.dera.page/#MauryaQbit/synapse-ai&Date)

@@ -328,7 +328,7 @@ describe("MessageGroup", () => {
           {
             id: "call-1",
             name: "browser_navigate",
-            args: { url: "https://github.com/bytedance/synapse-ai" },
+            args: { url: "https://github.com/MauryaQbit/synapse-ai" },
           },
         ],
       } as Message,
@@ -341,7 +341,7 @@ describe("MessageGroup", () => {
         additional_kwargs: {
           browser_view: {
             screenshot: "/mnt/user-data/outputs/browser.png",
-            url: "https://github.com/bytedance/synapse-ai",
+            url: "https://github.com/MauryaQbit/synapse-ai",
           },
         },
       } as Message,

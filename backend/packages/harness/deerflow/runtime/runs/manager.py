@@ -2150,7 +2150,7 @@ class RunManager:
         that put runs in a langgraph-internal task (not on ``run_agent``'s call
         stack), the resulting ``psycopg_pool.PoolClosed`` is not catchable by the
         worker and surfaces as an unhandled exception during ``asyncio.run()``
-        shutdown (bytedance/synapse-ai issue #3373).
+        shutdown (MauryaQbit/synapse-ai issue #3373).
 
         Draining in-flight runs *before* the checkpointer is closed lets each
         run that settles within ``timeout`` flush its final checkpoint while

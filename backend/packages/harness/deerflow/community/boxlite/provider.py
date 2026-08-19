@@ -2,7 +2,7 @@
 
 Integrates `BoxLite <https://github.com/boxlite-ai/boxlite>`_ — a daemonless,
 OCI-native micro-VM runtime — as a SynapseAI sandbox backend. See
-https://github.com/bytedance/synapse-ai/issues/3936.
+https://github.com/MauryaQbit/synapse-ai/issues/3936.
 
 Config is read off :class:`SandboxConfig` (``extra="allow"``), so BoxLite keys
 may appear under ``sandbox:`` in ``config.yaml`` even though they are not declared

@@ -29,7 +29,7 @@ export async function Header({ className, homeURL, locale }: HeaderProps) {
     >
       <div className="flex min-w-0 items-center gap-6">
         <a
-          href={homeURL ?? "https://github.com/bytedance/synapse-ai"}
+          href={homeURL ?? "https://github.com/MauryaQbit/synapse-ai"}
           target={isExternalHome ? "_blank" : "_self"}
           rel={isExternalHome ? "noopener noreferrer" : undefined}
           className="font-serif text-xl whitespace-nowrap"
@@ -66,7 +66,7 @@ export async function Header({ className, homeURL, locale }: HeaderProps) {
           className="group relative z-10"
         >
           <a
-            href="https://github.com/bytedance/synapse-ai"
+            href="https://github.com/MauryaQbit/synapse-ai"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -93,7 +93,7 @@ async function StarCounter() {
 
   try {
     const response = await fetch(
-      "https://api.github.com/repos/bytedance/synapse-ai",
+      "https://api.github.com/repos/MauryaQbit/synapse-ai",
       {
         headers: env.GITHUB_OAUTH_TOKEN
           ? {

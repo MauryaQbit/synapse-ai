@@ -55,7 +55,7 @@ distinguishes it from a release.
    `## [2.1.0] — YYYY-MM-DD` (note the em dash `—`), and add a link reference
    at the bottom of the file:
    ```
-   [2.1.0]: https://github.com/bytedance/synapse-ai/releases/tag/v2.1.0
+   [2.1.0]: https://github.com/MauryaQbit/synapse-ai/releases/tag/v2.1.0
    ```
    Start a fresh `## [Unreleased]` section above it for the next cycle.
 3. **Commit** the version + changelog changes:
@@ -87,7 +87,7 @@ distinguishes it from a release.
 to publish the same three images plus the chart from unreleased `main`. It is
 **not** gated by the version check (there is no `v*` tag) and it does **not**
 touch the `latest` tag, which stays pinned to the last `v*` release. Every job
-is gated on `github.repository == 'bytedance/synapse-ai'`, so it only runs on
+is gated on `github.repository == 'MauryaQbit/synapse-ai'`, so it only runs on
 the upstream repo - a scheduled run or manual dispatch on a fork skips all jobs.
 
 Artifacts (under the running repo's owner, where `<date>` is `YYYYMMDD`):
@@ -122,7 +122,7 @@ the upstream `larksuite/cli` version, so they publish independently via
   or by pushing a `lark-cli-v*` tag (the version is read from after the prefix).
 - Builds multi-arch (`linux/amd64,linux/arm64`) and pushes
   `ghcr.io/<owner>/synapse-ai-{lark-cli-init,lark-cli-broker}:<lark-cli-version>`.
-- Gated on `github.repository == 'bytedance/synapse-ai'`; not tied to the
+- Gated on `github.repository == 'MauryaQbit/synapse-ai'`; not tied to the
   `verify-versions` gate (its version is the lark-cli release, not the SynapseAI
   release), and it never touches `latest`.
 

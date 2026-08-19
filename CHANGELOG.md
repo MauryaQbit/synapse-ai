@@ -87,10 +87,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Credits
 
-This project is a derivative work based on [SynapseAI](https://github.com/bytedance/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
+This project is a derivative work based on [SynapseAI](https://github.com/MauryaQbit/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
 
 ---
 
 ## Previous SynapseAI Versions
 
-For the original SynapseAI changelog, see [SynapseAI CHANGELOG.md](https://github.com/bytedance/synapse-ai/blob/main/CHANGELOG.md).
+For the original SynapseAI changelog, see [SynapseAI CHANGELOG.md](https://github.com/MauryaQbit/synapse-ai/blob/main/CHANGELOG.md).

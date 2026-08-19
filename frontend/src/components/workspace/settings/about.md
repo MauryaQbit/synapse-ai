@@ -1,4 +1,4 @@
-# 🦌 [About SynapseAI 2.0](https://github.com/bytedance/synapse-ai)
+# 🦌 [About SynapseAI 2.0](https://github.com/MauryaQbit/synapse-ai)
 
 > **From Open Source, Back to Open Source**
 
@@ -10,7 +10,7 @@ different levels of tasks that could take minutes to hours.
 
 ## 🌟 GitHub Repository
 
-Explore SynapseAI on GitHub: [github.com/bytedance/synapse-ai](https://github.com/bytedance/synapse-ai)
+Explore SynapseAI on GitHub: [github.com/MauryaQbit/synapse-ai](https://github.com/MauryaQbit/synapse-ai)
 
 ## 🌐 Official Website
 

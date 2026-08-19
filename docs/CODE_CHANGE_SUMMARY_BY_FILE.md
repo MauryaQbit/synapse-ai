@@ -907,7 +907,7 @@ export function MarkdownContent({
 ```diff
 @@ -1,12 +1,3 @@
 -<citations>
--{"id": "cite-1", "title": "SynapseAI GitHub Repository", "url": "https://github.com/bytedance/synapse-ai", "snippet": "..."}
+-{"id": "cite-1", "title": "SynapseAI GitHub Repository", "url": "https://github.com/MauryaQbit/synapse-ai", "snippet": "..."}
 -...（共 7 条 JSONL）
 -</citations>
  # SynapseAI Deep Research Report

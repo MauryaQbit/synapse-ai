@@ -21,7 +21,7 @@ export function CommunitySection() {
       <div className="flex justify-center">
         <Button className="text-xl" size="lg" asChild>
           <Link
-            href="https://github.com/bytedance/synapse-ai"
+            href="https://github.com/MauryaQbit/synapse-ai"
             target="_blank"
             rel="noopener noreferrer"
           >

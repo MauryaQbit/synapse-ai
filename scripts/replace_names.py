@@ -4,7 +4,7 @@ replacements = {
     'SynapseAI': 'SynapseAI',
     'synapse': 'synapse',
     'synapse-ai': 'synapse-ai',
-    'bytedance/synapse-ai': 'MauryaQbit/synapse-ai',
+    'MauryaQbit/synapse-ai': 'MauryaQbit/synapse-ai',
     'synapse.tech': 'synapseai.dev',
     'support@synapse.tech': 'support@synapseai.dev',
     'SYNAPSE': 'SYNAPSE',

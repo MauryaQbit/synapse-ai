@@ -340,4 +340,4 @@ make start
 
 MIT License - see [LICENSE](LICENSE) for details.
 
-**Attribution**: This project is based on [SynapseAI](https://github.com/bytedance/synapse-ai) by ByteDance, used under MIT License.
+**Attribution**: This project is based on [SynapseAI](https://github.com/MauryaQbit/synapse-ai) by ByteDance, used under MIT License.

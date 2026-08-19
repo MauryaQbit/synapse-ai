@@ -21,7 +21,7 @@ env:
 jobs:
   build-images:
     # Only publish from the upstream repo; a fork dispatch/tag skips the job.
-    if: github.repository == 'bytedance/synapse-ai'
+    if: github.repository == 'MauryaQbit/synapse-ai'
     runs-on: ubuntu-latest
     permissions:
       contents: read

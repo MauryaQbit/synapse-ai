@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 import { handleRunStream, mockLangGraphAPI } from "./utils/mock-api";
 
 /**
- * Regression for https://github.com/bytedance/synapse-ai/issues/2746.
+ * Regression for https://github.com/MauryaQbit/synapse-ai/issues/2746.
  *
  * On a brand-new chat, the LangGraph SDK's useStream eagerly fetches
  * `/threads/{id}/history` the moment it receives a thread id, and the

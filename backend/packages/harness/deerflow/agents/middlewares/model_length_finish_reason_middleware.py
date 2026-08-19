@@ -1,6 +1,6 @@
 """Surface provider length-capped model responses as run stop reasons.
 
-Background — see issue bytedance/synapse-ai#4271.
+Background — see issue MauryaQbit/synapse-ai#4271.
 
 Some providers stop generation because the output budget is exhausted and
 surface that through ``finish_reason='length'`` while still returning assistant

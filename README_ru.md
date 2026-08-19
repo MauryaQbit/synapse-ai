@@ -15,7 +15,7 @@ SynapseAI (**D**eep **E**xploration and **E**fficient **R**esearch **Flow**) —
 https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 > [!NOTE]
-> **SynapseAI 2.0 — проект переписан с нуля.** Общего кода с v1 нет. Если нужен оригинальный Deep Research фреймворк — он живёт в ветке [`1.x`](https://github.com/bytedance/synapse-ai/tree/main-1.x), туда тоже принимают контрибьюты. Активная разработка идёт в 2.0.
+> **SynapseAI 2.0 — проект переписан с нуля.** Общего кода с v1 нет. Если нужен оригинальный Deep Research фреймворк — он живёт в ветке [`1.x`](https://github.com/MauryaQbit/synapse-ai/tree/main-1.x), туда тоже принимают контрибьюты. Активная разработка идёт в 2.0.
 
 ## Официальный сайт
 
@@ -92,7 +92,7 @@ SynapseAI интегрирован с инструментарием для ум
 Если вы используете Claude Code, Codex, Cursor, Windsurf или другой coding agent, просто отправьте ему эту фразу:
 
 ```text
-Если SynapseAI еще не клонирован, сначала клонируй его, а затем подготовь локальное окружение разработки по инструкции https://raw.githubusercontent.com/bytedance/synapse-ai/main/Install.md
+Если SynapseAI еще не клонирован, сначала клонируй его, а затем подготовь локальное окружение разработки по инструкции https://raw.githubusercontent.com/MauryaQbit/synapse-ai/main/Install.md
 ```
 
 Этот prompt предназначен для coding agent. Он просит агента при необходимости сначала клонировать репозиторий, предпочесть Docker, если он доступен, и в конце вернуть точную команду запуска и список недостающих настроек.
@@ -104,7 +104,7 @@ SynapseAI интегрирован с инструментарием для ум
 1. **Склонировать репозиторий SynapseAI**
 
    ```bash
-   git clone https://github.com/bytedance/synapse-ai.git
+   git clone https://github.com/MauryaQbit/synapse-ai.git
    cd synapse-ai
    ```
 
@@ -499,7 +499,7 @@ Skill `claude-to-SynapseAI` позволяет работать с SynapseAI п�
 **Установка скилла**:
 
 ```bash
-npx skills add https://github.com/bytedance/synapse-ai --skill claude-to-SynapseAI
+npx skills add https://github.com/MauryaQbit/synapse-ai --skill claude-to-SynapseAI
 ```
 
 **Что можно делать**:
@@ -693,4 +693,4 @@ SynapseAI стоит на плечах open-source сообщества. Спа�
 
 ## История звёзд
 
-[![Star History Chart](https://star-history.dera.page/svg?repos=bytedance/synapse-ai&type=Date)](https://star-history.dera.page/#bytedance/synapse-ai&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=MauryaQbit/synapse-ai&type=Date)](https://star-history.dera.page/#MauryaQbit/synapse-ai&Date)

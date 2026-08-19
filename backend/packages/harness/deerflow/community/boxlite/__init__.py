@@ -4,7 +4,7 @@ Integrates `BoxLite <https://github.com/boxlite-ai/boxlite>`_ — a daemonless,
 OCI-native micro-VM runtime (libkrun/KVM on Linux, Hypervisor.framework on
 macOS) — behind SynapseAI's :class:`Sandbox` / :class:`SandboxProvider` contract.
 Each sandbox is a hardware-isolated VM with its own kernel that runs any OCI
-image unchanged. See https://github.com/bytedance/synapse-ai/issues/3936.
+image unchanged. See https://github.com/MauryaQbit/synapse-ai/issues/3936.
 
 The full contract is implemented: ``execute_command`` plus ``read_file`` /
 ``write_file`` / ``update_file`` / ``download_file`` / ``list_dir`` / ``glob`` /

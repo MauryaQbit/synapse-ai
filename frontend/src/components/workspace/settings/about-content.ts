@@ -4,7 +4,7 @@
  */
 import { APP_VERSION } from "@/version";
 
-export const aboutMarkdown = `# 🦌 [About SynapseAI ${APP_VERSION}](https://github.com/bytedance/synapse-ai)
+export const aboutMarkdown = `# 🦌 [About SynapseAI ${APP_VERSION}](https://github.com/MauryaQbit/synapse-ai)
 
 > **From Open Source, Back to Open Source**
 
@@ -24,9 +24,9 @@ SynapseAI (**D**eep **E**xploration and **E**fficient **R**esearch **Flow**) is 
 
 ## 🌟 GitHub Repository
 
-![Star History Chart](https://api.star-history.com/svg?repos=bytedance/synapse-ai&type=Date)
+![Star History Chart](https://api.star-history.com/svg?repos=MauryaQbit/synapse-ai&type=Date)
 
-Explore SynapseAI on GitHub: [github.com/bytedance/synapse-ai](https://github.com/bytedance/synapse-ai)
+Explore SynapseAI on GitHub: [github.com/MauryaQbit/synapse-ai](https://github.com/MauryaQbit/synapse-ai)
 
 ## 🌐 Official Website
 

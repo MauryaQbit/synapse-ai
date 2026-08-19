@@ -14,7 +14,7 @@ SynapseAI（**D**eep **E**xploration and **E**fficient **R**esearch **Flow**）�
 https://github.com/user-attachments/assets/a8bcadc4-e040-4cf2-8fda-dd768b999c18
 
 > [!NOTE]
-> **SynapseAI 2.0はゼロからの完全な書き直しです。** v1とコードを共有していません。オリジナルのDeep Researchフレームワークをお探しの場合は、[`1.x`ブランチ](https://github.com/bytedance/synapse-ai/tree/main-1.x)で引き続きメンテナンスされています。現在の開発は2.0に移行しています。
+> **SynapseAI 2.0はゼロからの完全な書き直しです。** v1とコードを共有していません。オリジナルのDeep Researchフレームワークをお探しの場合は、[`1.x`ブランチ](https://github.com/MauryaQbit/synapse-ai/tree/main-1.x)で引き続きメンテナンスされています。現在の開発は2.0に移行しています。
 
 ## 公式ウェブサイト
 
@@ -90,7 +90,7 @@ SynapseAIは、BytePlusが独自に開発したインテリジェント検索・
 Claude Code、Codex、Cursor、Windsurf などの coding agent を使っているなら、次の一文をそのまま渡せます。
 
 ```text
-SynapseAI がまだ clone されていなければ先に clone してから、https://raw.githubusercontent.com/bytedance/synapse-ai/main/Install.md に従ってローカル開発環境を初期化してください
+SynapseAI がまだ clone されていなければ先に clone してから、https://raw.githubusercontent.com/MauryaQbit/synapse-ai/main/Install.md に従ってローカル開発環境を初期化してください
 ```
 
 このプロンプトは coding agent 向けです。必要なら先にリポジトリを clone し、Docker が使える場合は Docker を優先して初期セットアップを行い、最後に次の起動コマンドと不足している設定項目だけを返します。
@@ -102,7 +102,7 @@ SynapseAI がまだ clone されていなければ先に clone してから、ht
 1. **SynapseAIリポジトリをクローン**
 
    ```bash
-   git clone https://github.com/bytedance/synapse-ai.git
+   git clone https://github.com/MauryaQbit/synapse-ai.git
    cd synapse-ai
    ```
 
@@ -548,7 +548,7 @@ Gatewayが生成するフォローアップ提案は、プレーン文字列の�
 **スキルのインストール**：
 
 ```bash
-npx skills add https://github.com/bytedance/synapse-ai --skill claude-to-SynapseAI
+npx skills add https://github.com/MauryaQbit/synapse-ai --skill claude-to-SynapseAI
 ```
 
 SynapseAIが実行中であることを確認し（デフォルトは`http://localhost:2026`）、Claude Codeで`/claude-to-SynapseAI`コマンドを使用します。
@@ -762,4 +762,4 @@ SynapseAIはオープンソースコミュニティの素晴らしい成果の�
 
 ## Star History
 
-[![Star History Chart](https://star-history.dera.page/svg?repos=bytedance/synapse-ai&type=Date)](https://star-history.dera.page/#bytedance/synapse-ai&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=MauryaQbit/synapse-ai&type=Date)](https://star-history.dera.page/#MauryaQbit/synapse-ai&Date)

@@ -634,7 +634,7 @@ Recent breakthroughs in language models have also accelerated progress
 ## Executive Summary
 
 SynapseAI is an open-source AI agent framework that gained significant traction in early 2026
-[citation:GitHub Repository](https://github.com/bytedance/synapse-ai). The project focuses on
+[citation:GitHub Repository](https://github.com/MauryaQbit/synapse-ai). The project focuses on
 providing a production-ready agent system with sandbox execution and memory management
 [citation:SynapseAI Documentation](https://synapse-ai.dev/docs).
 
@@ -648,7 +648,7 @@ combined with a FastAPI gateway for REST API access [citation:FastAPI](https://f
 ## Sources
 
 ### Primary Sources
-- [GitHub Repository](https://github.com/bytedance/synapse-ai) - Official source code and documentation
+- [GitHub Repository](https://github.com/MauryaQbit/synapse-ai) - Official source code and documentation
 - [SynapseAI Documentation](https://synapse-ai.dev/docs) - Technical specifications
 
 ### Media Coverage
@@ -661,7 +661,7 @@ combined with a FastAPI gateway for REST API access [citation:FastAPI](https://f
 - The `[citation:Title](URL)` format is ONLY for inline citations within the report body
 - ❌ WRONG: `GitHub 仓库 - 官方源代码和文档` (no URL!)
 - ❌ WRONG in Sources: `[citation:GitHub Repository](url)` (citation prefix is for inline only!)
-- ✅ RIGHT in Sources: `[GitHub Repository](https://github.com/bytedance/synapse-ai) - 官方源代码和文档`
+- ✅ RIGHT in Sources: `[GitHub Repository](https://github.com/MauryaQbit/synapse-ai) - 官方源代码和文档`
 
 **WORKFLOW for Research Tasks:**
 1. Use web_search to find sources → Extract {{title, url, snippet}} from results

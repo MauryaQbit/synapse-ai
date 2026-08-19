@@ -218,7 +218,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### Attribution
 
-This project is a derivative work based on [SynapseAI](https://github.com/bytedance/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
+This project is a derivative work based on [SynapseAI](https://github.com/MauryaQbit/synapse-ai) by ByteDance, used under the MIT License. The original work has been substantially modified and redesigned.
 
 ---
 

@@ -25,7 +25,7 @@ export default async function BlogLayout({ children }) {
       }
       pageMap={pageMap}
       sidebar={{ defaultOpen: true }}
-      docsRepositoryBase="https://github.com/bytedance/synapse-ai/tree/main/frontend"
+      docsRepositoryBase="https://github.com/MauryaQbit/synapse-ai/tree/main/frontend"
       footer={<Footer />}
     >
       {children}

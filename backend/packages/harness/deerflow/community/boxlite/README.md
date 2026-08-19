@@ -4,9 +4,9 @@ Runs each SynapseAI sandbox as a [BoxLite](https://github.com/boxlite-ai/boxlite
 micro-VM — a daemonless, OCI-native VM with its own kernel (libkrun/KVM on Linux,
 Hypervisor.framework on macOS). Motivated by the resource/cold-start pain with
 the default AIO Docker sandbox in
-[#3439](https://github.com/bytedance/synapse-ai/issues/3439) and
-[#3213](https://github.com/bytedance/synapse-ai/issues/3213); discussion in
-[#3936](https://github.com/bytedance/synapse-ai/issues/3936).
+[#3439](https://github.com/MauryaQbit/synapse-ai/issues/3439) and
+[#3213](https://github.com/MauryaQbit/synapse-ai/issues/3213); discussion in
+[#3936](https://github.com/MauryaQbit/synapse-ai/issues/3936).
 
 ## Configuration
 
@@ -78,4 +78,4 @@ disables idle reaping. Active boxes are never evicted to satisfy the cap.
 Verified end-to-end against a live box (provider resolution → `execute_command`
 → file ops) on macOS/HVF. Linux/KVM validation and benchmarks vs. the AIO
 sandbox are tracked in
-[#3936](https://github.com/bytedance/synapse-ai/issues/3936).
+[#3936](https://github.com/MauryaQbit/synapse-ai/issues/3936).

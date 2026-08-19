@@ -236,7 +236,7 @@ kubectl -n synapse-ai exec deploy/synapse-ai-provisioner -- curl -s localhost:80
   `gateway.replicas` past 1 yet.** Run control — `create_or_reject` dedup,
   `cancel`, and orphan reconciliation — is still worker-local (in-process
   `asyncio.Lock` + in-memory `record.task`), tracked by [issue
-  #3948](https://github.com/bytedance/synapse-ai/issues/3948). With >1 replica a
+  #3948](https://github.com/MauryaQbit/synapse-ai/issues/3948). With >1 replica a
   double-submit can create two runs on one thread (checkpoint corruption), a
   cancel can land on a non-owner pod (409), and a crashed pod's runs stay
   `pending`/`running` forever. Stay on 1 replica until that work lands.
